@@ -1,5 +1,9 @@
 package org.example.domain.usecase.project
 
-class AddMateToProjectUseCase {
+import org.example.domain.repository.ProjectsRepository
+
+class AddMateToProjectUseCase(
+    private val projectsRepository: ProjectsRepository
+) {
     operator fun invoke(projectId: String, mateId: String) {}
 }

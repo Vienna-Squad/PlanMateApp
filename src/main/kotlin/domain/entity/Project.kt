@@ -6,8 +6,8 @@ import java.util.UUID
 data class Project(
     val name: String,
     val states: List<String>,
-    val createdBy: User,
-    val mates: List<User>
+    val createdBy: String,
+    val matesIds: List<String>
 ) {
     val id: String = UUID.randomUUID().toString()
     val cratedAt: LocalDateTime = LocalDateTime.now()

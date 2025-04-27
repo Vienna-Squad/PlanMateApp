@@ -6,8 +6,8 @@ import java.util.UUID
 data class Task(
     val title: String,
     val state: String,
-    val assignedTo: List<User>,
-    val createdBy: User,
+    val assignedTo: List<String>,
+    val createdBy: String,
     val projectId: String
 ) {
     val id: String = UUID.randomUUID().toString()

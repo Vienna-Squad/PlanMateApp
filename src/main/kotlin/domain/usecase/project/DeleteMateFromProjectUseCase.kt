@@ -1,5 +1,9 @@
 package org.example.domain.usecase.project
 
-class DeleteMateFromProjectUseCase {
+import org.example.domain.repository.ProjectsRepository
+
+class DeleteMateFromProjectUseCase(
+    private val projectsRepository: ProjectsRepository
+) {
     operator fun invoke(projectId: String, mateId: String) {}
 }

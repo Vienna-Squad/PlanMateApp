@@ -1,5 +1,28 @@
 plugins {
     kotlin("jvm") version "2.1.20"
+    jacoco
+}
+jacoco {
+    toolVersion = "0.8.10"
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.8".toBigDecimal()
+            }
+        }
+    }
+}
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 group = "org.example"
