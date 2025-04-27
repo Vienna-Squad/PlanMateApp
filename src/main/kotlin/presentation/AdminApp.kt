@@ -7,10 +7,10 @@ class AdminApp {
         AdminMenuItem.entries.forEach { println(it.title) }
         val optionIndex = readln().toInt()
         val option = getAdminMenuItemByIndex(optionIndex)
-        if (option == AdminMenuItem.EXIT) return
+        if (option == AdminMenuItem.LOG_OUT) return
         option.execute()
         run()
     }
 
-    private fun getAdminMenuItemByIndex(input: Int) = AdminMenuItem.entries.getOrNull(input - 1) ?: AdminMenuItem.EXIT
+    private fun getAdminMenuItemByIndex(input: Int) = AdminMenuItem.entries.getOrNull(input - 1) ?: AdminMenuItem.LOG_OUT
 }

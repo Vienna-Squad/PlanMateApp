@@ -7,10 +7,10 @@ class MateApp {
         MateMenuItem.entries.forEach { println(it.title) }
         val optionIndex = readln().toInt()
         val option = getMateMenuItemByIndex(optionIndex)
-        if (option == MateMenuItem.EXIT) return
+        if (option == MateMenuItem.LOG_OUT) return
         option.execute()
         run()
     }
 
-    private fun getMateMenuItemByIndex(input: Int) = MateMenuItem.entries.getOrNull(input - 1) ?: MateMenuItem.EXIT
+    private fun getMateMenuItemByIndex(input: Int) = MateMenuItem.entries.getOrNull(input - 1) ?: MateMenuItem.LOG_OUT
 }
