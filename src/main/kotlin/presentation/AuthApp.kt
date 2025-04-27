@@ -4,11 +4,11 @@ import org.example.presentation.utils.menus.AuthMenuItems
 
 class AuthApp {
     fun run() {
-        AuthMenuItems.entries.forEach { println(it.title) }
+        AuthMenuItems.entries.forEachIndexed { index, option -> println("${index + 1}. ${option.title}") }
         val optionIndex = readln().toInt()
         val option = getAuthMenuItemByIndex(optionIndex)
         if (option == AuthMenuItems.EXIT) return
-        option.execute()//LoginUiController
+        option.execute()
         run()
     }
 

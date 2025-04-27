@@ -4,7 +4,7 @@ import org.example.presentation.utils.menus.MateMenuItem
 
 class MateApp {
     fun run() {
-        MateMenuItem.entries.forEach { println(it.title) }
+        MateMenuItem.entries.forEachIndexed { index, option -> println("${index + 1}. ${option.title}") }
         val optionIndex = readln().toInt()
         val option = getMateMenuItemByIndex(optionIndex)
         if (option == MateMenuItem.LOG_OUT) return
