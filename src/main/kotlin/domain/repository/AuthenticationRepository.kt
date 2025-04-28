@@ -4,5 +4,5 @@ import org.example.domain.entity.User
 
 interface AuthenticationRepository {
     fun getUsers(): Result<List<User>>
-    fun addUser(user: User)
+    fun addUser(user: User): Boolean
 }
