@@ -1,9 +1,11 @@
-package org.example.domain.usecase.project
+package domain.usecase.project
 
-import org.example.domain.repository.ProjectsRepository
+import domain.repository.StatesRepository
 
 class DeleteStateFromProjectUseCase(
-    private val projectsRepository: ProjectsRepository
+    private val statesRepository: StatesRepository
 ) {
-    operator fun invoke(projectId: String, state: String) {}
+    operator fun invoke(projectId: String, state: String) : Boolean {
+        return  statesRepository.deleteStateFromProject(projectId, state)
+    }
 }
