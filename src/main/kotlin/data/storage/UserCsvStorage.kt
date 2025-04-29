@@ -19,24 +19,13 @@ class UserCsvStorage(filePath: String) : CsvStorage<User>(filePath) {
         require(parts.size == 5) { "Invalid user data format: $line" }
 
         val user = User(
+            id = parts[0],
             username = parts[1],
             password = parts[2],
-            type = UserType.valueOf(parts[3])
+            type = UserType.valueOf(parts[3]),
+            cratedAt = LocalDateTime.parse(parts[4])
         )
 
-        // We need to set the ID and createdAt fields since they are generated in constructor
-        setPrivateField(user, "id", parts[0])
-        setPrivateField(user, "cratedAt", LocalDateTime.parse(parts[4]))
-
         return user
-    }
-
-    // todo : i make it because i need it in deserialize because the field are private
-    //  (i want to remove it but when the user model updated and the field become accessible)
-    private fun setPrivateField(obj: Any, fieldName: String, value: Any) {
-        val field = obj.javaClass.getDeclaredField(fieldName)
-        field.isAccessible = true
-        field.set(obj, value)
-        field.isAccessible = false
     }
 }

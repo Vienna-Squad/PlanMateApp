@@ -24,23 +24,14 @@ class ProjectCsvStorage(filePath: String) : CsvStorage<Project>(filePath) {
         val matesIds = if (parts[4].isNotEmpty()) parts[4].split("|") else emptyList()
 
         val project = Project(
+            id = parts[0],
             name = parts[1],
             states = states,
             createdBy = parts[3],
-            matesIds = matesIds
+            matesIds = matesIds,
+            cratedAt = LocalDateTime.parse(parts[5])
         )
 
-        // Set the ID and createdAt fields
-        setPrivateField(project, "id", parts[0])
-        setPrivateField(project, "cratedAt", LocalDateTime.parse(parts[5]))
-
         return project
-    }
-
-    private fun setPrivateField(obj: Any, fieldName: String, value: Any) {
-        val field = obj.javaClass.getDeclaredField(fieldName)
-        field.isAccessible = true
-        field.set(obj, value)
-        field.isAccessible = false
     }
 }
