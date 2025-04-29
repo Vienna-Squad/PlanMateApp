@@ -1,10 +1,11 @@
 package data.storage
 
+import org.example.data.storage.EditableStorage
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-abstract class CsvStorage<T>(private val filePath: String) : Storage<T> {
+abstract class CsvStorage<T>(private val filePath: String) : Storage<T>, EditableStorage<T> {
 
     init {
         createFileIfNotExists()
