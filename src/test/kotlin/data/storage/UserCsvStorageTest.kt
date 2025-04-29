@@ -2,7 +2,6 @@ package data.storage
 
 import com.google.common.truth.Truth.assertThat
 import data.TestUtils
-import org.example.data.storage.UserCsvStorage
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.junit.jupiter.api.AfterEach

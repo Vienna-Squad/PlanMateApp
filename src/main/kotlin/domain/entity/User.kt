@@ -9,6 +9,8 @@ data class User(
     val type: UserType,
 ) {
     val id: String = UUID.randomUUID().toString()
+
+    // todo : rename cratedAt -> createdAt
     val cratedAt: LocalDateTime = LocalDateTime.now()
 }
 

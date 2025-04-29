@@ -1,5 +1,6 @@
 package org.example.data.storage
 
+import data.storage.CsvStorage
 import org.example.domain.entity.Project
 
 class ProjectCsvStorage(filePath: String) : CsvStorage<Project>(filePath) {
