@@ -13,12 +13,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class AddMateToProjectUseCaseTest {
-
     private lateinit var projectsRepository: ProjectsRepository
     private lateinit var logsRepository: LogsRepository
     private lateinit var addMateToProjectUseCase: AddMateToProjectUseCase
 
-    // Common test data
     private val projectId = "P1"
     private val mateId = "M1"
     private val username = "admin1"
@@ -49,7 +47,7 @@ class AddMateToProjectUseCaseTest {
     }
 
     @Test
-    fun `should fail if project does not exist`() {
+    fun `should throw NoProjectFoundException when project does not exist`() {
         // Given
         every { projectsRepository.get(projectId) } returns Result.failure(NoProjectFoundException())
 
@@ -60,7 +58,7 @@ class AddMateToProjectUseCaseTest {
     }
 
     @Test
-    fun `should fail if mate is already in project`() {
+    fun `should throw MateAlreadyInProjectException when mate is already in project`() {
         // Given
         val project = Project("Project 1", listOf("ToDo", "InProgress"), username, listOf(mateId))
         every { projectsRepository.get(projectId) } returns Result.success(project)
@@ -72,7 +70,7 @@ class AddMateToProjectUseCaseTest {
     }
 
     @Test
-    fun `should fail if projectId is blank`() {
+    fun `should throw InvalidProjectIdException when projectId is blank`() {
         // Given
         val blankProjectId = ""
         every { projectsRepository.get(projectId) } returns Result.failure(InvalidProjectIdException())
@@ -84,7 +82,7 @@ class AddMateToProjectUseCaseTest {
     }
 
     @Test
-    fun `should fail if mateId is blank`() {
+    fun `should throw InvalidMateIdException when mateId is blank`() {
         // Given
         val blankMateId = ""
         every { projectsRepository.get(projectId) } returns Result.failure(InvalidMateIdException())
