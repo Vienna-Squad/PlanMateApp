@@ -12,7 +12,7 @@ val useCasesModule = module {
     single { RegisterUserUseCase(get()) }
     single { AddMateToProjectUseCase(get()) }
     single { AddStateToProjectUseCase(get()) }
-    single { CreateProjectUseCase(get()) }
+    single { CreateProjectUseCase(get(),get(),get()) }
     single { DeleteMateFromProjectUseCase(get()) }
     single { DeleteProjectUseCase(get()) }
     single { DeleteStateFromProjectUseCase(get()) }
