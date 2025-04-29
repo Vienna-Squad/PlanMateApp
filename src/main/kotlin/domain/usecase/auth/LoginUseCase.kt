@@ -1,6 +1,7 @@
 package org.example.domain.usecase.auth
 
 import org.example.domain.LoginException
+import org.example.domain.RegisterException
 import org.example.domain.entity.User
 import org.example.domain.repository.AuthenticationRepository
 
@@ -11,7 +12,14 @@ class LoginUseCase(
     operator fun invoke(username: String, password: String): Result<User> {
         // get users list to check
         // is user found in storage
-        return Result.failure(LoginException())
+        val user  = authenticationRepository.getAllUsers()
+            .getOrElse { throw RegisterException() }
+            .firstOrNull { user -> user.username == username }
+
+        return if (user==null)
+            Result.failure(LoginException())
+        else
+            Result.success(user)
     }
 }
 
