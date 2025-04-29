@@ -7,7 +7,6 @@ import org.example.domain.InvalidProjectIdException
 import org.example.domain.NoProjectFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.ChangedLog
-import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
@@ -18,6 +17,7 @@ import org.example.domain.usecase.project.EditProjectNameUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.example.domain.AccessDeniedException
 
 class EditProjectNameUseCaseTest {
     private lateinit var editProjectNameUseCase: EditProjectNameUseCase
@@ -86,7 +86,7 @@ class EditProjectNameUseCaseTest {
             matesIds = listOf("mate6", "mate10")
         )
     )
-    private val randomExistProject = dummyProjects.random()
+    private val randomProject = dummyProjects[5]
     private val dummyAdmin = User(
         username = "admin1",
         password = "adminPass123",
@@ -111,48 +111,46 @@ class EditProjectNameUseCaseTest {
     @Test
     fun `should edit project name and add log when project exists`() {
         //given
+        val project = randomProject.copy(createdBy = dummyAdmin.id)
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(randomExistProject.id) } returns Result.success(randomExistProject.copy(createdBy = dummyAdmin.id))
+        every { projectsRepository.get(project.id) } returns Result.success(project)
         //when
-        editProjectNameUseCase(randomExistProject.id, "new name")
+        editProjectNameUseCase(project.id, "new name")
         //then
-        verify { projectsRepository.delete(match { it == randomExistProject.id }) }
+        verify { projectsRepository.update(match { it.name == "new name" }) }
         verify { logsRepository.add(match { it is ChangedLog }) }
     }
 
     @Test
     fun `should throw UnauthorizedException when no logged in user found`() {
         //given
-        val dummyProject = dummyProjects.random()
         every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException())
-        every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject)
+        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<UnauthorizedException> {
-            editProjectNameUseCase(randomExistProject.id, "new name")
+            editProjectNameUseCase(randomProject.id, "new name")
         }
     }
 
     @Test
     fun `should throw AccessDeniedException when user is mate`() {
         //given
-        val dummyProject = dummyProjects.random()
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
-        every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject)
+        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
-            editProjectNameUseCase(randomExistProject.id, "new name")
+            editProjectNameUseCase(randomProject.id, "new name")
         }
     }
 
     @Test
     fun `should throw AccessDeniedException when user has not this project`() {
         //given
-        val dummyProject = dummyProjects.random()
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject)
+        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
-            editProjectNameUseCase(randomExistProject.id, "new name")
+            editProjectNameUseCase(randomProject.id, "new name")
         }
     }
 
@@ -160,10 +158,10 @@ class EditProjectNameUseCaseTest {
     fun `should throw ProjectNotFoundException when project does not exist`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(randomExistProject.id) } returns Result.failure(Exception())
+        every { projectsRepository.get(randomProject.id) } returns Result.failure(NoProjectFoundException())
         //when && then
         assertThrows<NoProjectFoundException> {
-            editProjectNameUseCase("dummy id", "new name")
+            editProjectNameUseCase(randomProject.id, "new name")
         }
     }
 
@@ -171,12 +169,22 @@ class EditProjectNameUseCaseTest {
     fun `should throw InvalidProjectIdException when project id is blank`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(" ") } returns Result.failure(Exception())
+        every { projectsRepository.get(" ") } returns Result.failure(InvalidProjectIdException())
         //when && then
         assertThrows<InvalidProjectIdException> {
             editProjectNameUseCase(" ", "new name")
         }
     }
 
-
+    @Test
+    fun `should not update or log when new name is the same old name`() {
+        //given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject.copy(createdBy = dummyAdmin.id))
+        //when
+        editProjectNameUseCase(randomProject.id, randomProject.name)
+        //then
+        verify(exactly = 0) { projectsRepository.update(any()) }
+        verify(exactly = 0) { logsRepository.add(any()) }
+    }
 }
