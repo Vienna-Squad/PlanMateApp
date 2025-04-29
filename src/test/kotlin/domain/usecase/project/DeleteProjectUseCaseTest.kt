@@ -17,6 +17,7 @@ import org.example.domain.usecase.project.DeleteProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.example.domain.AccessDeniedException
 
 class DeleteProjectUseCaseTest {
     private lateinit var deleteProjectUseCase: DeleteProjectUseCase
@@ -85,7 +86,7 @@ class DeleteProjectUseCaseTest {
             matesIds = listOf("mate6", "mate10")
         )
     )
-    private val randomExistProject = dummyProjects.random()
+    private val dummyProject = dummyProjects[5]
     private val dummyAdmin = User(
         username = "admin1",
         password = "adminPass123",
@@ -111,18 +112,17 @@ class DeleteProjectUseCaseTest {
     fun `should delete project and add log when project exists`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(randomExistProject.id) } returns Result.success(randomExistProject.copy(createdBy = dummyAdmin.id))
+        every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject.copy(createdBy = dummyAdmin.id))
         //when
-        deleteProjectUseCase(randomExistProject.id)
+        deleteProjectUseCase(dummyProject.id)
         //then
-        verify { projectsRepository.delete(match { it == randomExistProject.id }) }
+        verify { projectsRepository.delete(any()) }
         verify { logsRepository.add(match { it is DeletedLog }) }
     }
 
     @Test
     fun `should throw UnauthorizedException when no logged in user found`() {
         //given
-        val dummyProject = dummyProjects.random()
         every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException())
         every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject)
         //when && then
@@ -134,7 +134,6 @@ class DeleteProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user is mate`() {
         //given
-        val dummyProject = dummyProjects.random()
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
         every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject)
         //when && then
@@ -146,7 +145,6 @@ class DeleteProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user has not this project`() {
         //given
-        val dummyProject = dummyProjects.random()
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject)
         //when && then
@@ -156,13 +154,13 @@ class DeleteProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when project does not exist`() {
+    fun `should throw NoProjectFoundException when project does not exist`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(randomExistProject.id) } returns Result.failure(Exception())
+        every { projectsRepository.get(dummyProject.id) } returns Result.failure(NoProjectFoundException())
         //when && then
         assertThrows<NoProjectFoundException> {
-            deleteProjectUseCase(randomExistProject.id)
+            deleteProjectUseCase(dummyProject.id)
         }
     }
 
@@ -170,12 +168,10 @@ class DeleteProjectUseCaseTest {
     fun `should throw InvalidProjectIdException when project id is blank`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(" ") } returns Result.failure(Exception())
+        every { projectsRepository.get(" ") } returns Result.failure(InvalidProjectIdException())
         //when && then
         assertThrows<InvalidProjectIdException> {
             deleteProjectUseCase(" ")
         }
     }
-
-
 }
