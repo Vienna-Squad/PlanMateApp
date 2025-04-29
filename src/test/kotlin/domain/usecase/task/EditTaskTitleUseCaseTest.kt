@@ -30,7 +30,7 @@ class EditTaskTitleUseCaseTest {
             createdBy = "3bnaser",
             projectId = "12"
         ))
-        every { tasksRepository.getTasks() } returns Result.success(tasks)
+        every { tasksRepository.getAll() } returns Result.success(tasks)
 
         assertThrows <NoTaskFoundException>{ editTaskTitleUseCase.invoke("15","get the projects from repo") }
 
