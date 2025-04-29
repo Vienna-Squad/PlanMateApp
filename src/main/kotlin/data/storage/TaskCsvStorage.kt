@@ -12,7 +12,7 @@ class TaskCsvStorage(filePath: String) : CsvStorage<Task>(filePath) {
 
     override fun serialize(item: Task): String {
         val assignedTo = item.assignedTo.joinToString("|")
-        return "${item.id},${item.title},${item.state},${assignedTo},${item.createdBy},${item.projectId},${item.cratedAt}"
+        return "${item.id},${item.title},${item.state},${assignedTo},${item.createdBy},${item.projectId},${item.createdAt}"
     }
 
     override fun deserialize(line: String): Task {
@@ -28,7 +28,7 @@ class TaskCsvStorage(filePath: String) : CsvStorage<Task>(filePath) {
             assignedTo = assignedTo,
             createdBy = parts[4],
             projectId = parts[5],
-            cratedAt = LocalDateTime.parse(parts[6])
+            createdAt = LocalDateTime.parse(parts[6])
         )
 
         return task

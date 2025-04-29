@@ -10,5 +10,5 @@ data class Task(
     val assignedTo: List<String>,
     val createdBy: String,
     val projectId: String,
-    val cratedAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now()
 )

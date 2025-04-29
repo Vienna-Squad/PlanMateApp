@@ -89,6 +89,6 @@ class UserCsvStorageTest {
     }
 
     private fun createTestUser(username: String, password: String, type: UserType): User {
-        return User(username, password, type)
+        return User( username = username, password =  password, type = type)
     }
 }

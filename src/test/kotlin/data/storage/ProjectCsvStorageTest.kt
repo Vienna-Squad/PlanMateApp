@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import java.util.UUID
 
 class ProjectCsvStorageTest {
 
@@ -39,17 +40,11 @@ class ProjectCsvStorageTest {
     fun `should write and read projects correctly`() {
         // GIVEN
         val project1 = createTestProject(
-            "Project 1",
-            listOf("TODO", "In Progress", "Done"),
-            "user1",
-            listOf("user2", "user3")
+            "Project 1", listOf("TODO", "In Progress", "Done"), "user1", listOf("user2", "user3")
         )
 
         val project2 = createTestProject(
-            "Project 2",
-            listOf("Backlog", "In Development", "Testing", "Released"),
-            "user1",
-            listOf("user4")
+            "Project 2", listOf("Backlog", "In Development", "Testing", "Released"), "user1", listOf("user4")
         )
 
         val projects = listOf(project1, project2)
@@ -102,11 +97,8 @@ class ProjectCsvStorageTest {
     }
 
     private fun createTestProject(
-        name: String,
-        states: List<String>,
-        createdBy: String,
-        matesIds: List<String>
+        name: String, states: List<String>, createdBy: String, matesIds: List<String>
     ): Project {
-        return Project(name, states, createdBy, matesIds)
+        return Project(name = name, states = states, createdBy = createdBy, matesIds = matesIds)
     }
 }
