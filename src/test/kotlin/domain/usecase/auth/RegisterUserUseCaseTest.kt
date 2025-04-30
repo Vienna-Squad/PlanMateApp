@@ -103,7 +103,7 @@ class RegisterUserUseCaseTest {
                 )
             )
         )
-        every {  authenticationRepository.createUser(user)} returns Result.failure(RegisterException())
+        every {  authenticationRepository.createUser(any())} returns Result.failure(RegisterException())
 
         // when&then
         assertThrows<RegisterException> {
