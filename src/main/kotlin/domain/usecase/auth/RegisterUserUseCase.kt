@@ -20,8 +20,8 @@ class RegisterUserUseCase(
 
         authenticationRepository.getAllUsers()
             .getOrElse { throw RegisterException() }
-            .filter { user -> user.username == username && user.type == type }
-            .also { users-> if(users.isNotEmpty()) throw NoFoundException() }
+            .filter { user -> user.username == username }
+            .also { users-> if(users.isNotEmpty()) throw RegisterException() }
             .ifEmpty {
                 authenticationRepository.createUser(
                     User(
