@@ -1,5 +1,6 @@
 package org.example.domain.usecase.project
 
+import org.example.domain.InvalidIdException
 import org.example.domain.entity.Task
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -11,7 +12,7 @@ class GetAllTasksOfProjectUseCase(
 ) {
     operator fun invoke(projectId: String): List<Task> {
         val project = projectsRepository.get(projectId).getOrElse {
-            throw NoFoundException()
+            throw InvalidIdException()
         }
 
         val allTasks = tasksRepository.getAll().getOrElse {
