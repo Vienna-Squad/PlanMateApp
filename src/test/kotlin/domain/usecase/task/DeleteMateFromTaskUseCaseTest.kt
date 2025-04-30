@@ -30,13 +30,6 @@ class DeleteMateFromTaskUseCaseTest {
         createdBy = "admin1",
         projectId = ""
     )
-    val updatedTask = Task(
-        title = "machine learning task",
-        state = "in-progress",
-        assignedTo = listOf("nada", "mariam"),
-        createdBy = "admin1",
-        projectId = ""
-    )
     val adminUser = User(username = "admin", password = "123", type = UserType.ADMIN)
     val mateUser = User(username = "mate", password = "5466", type = UserType.MATE)
 
