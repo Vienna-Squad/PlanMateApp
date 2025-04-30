@@ -3,6 +3,7 @@ package domain.usecase.project
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import org.example.domain.InvalidIdException
 import org.example.domain.NoFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
@@ -81,15 +82,15 @@ class GetAllTasksOfProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw NoFoundException when project does not exist`() {
+    fun `should throw InvalidIdException when project does not exist`() {
         // Given
         val nonExistentProjectId = "non-existent-project"
         every { projectsRepository.get(nonExistentProjectId) } returns Result.failure(
-            NoFoundException()
+            InvalidIdException()
         )
 
         // When & Then
-        assertThrows<NoFoundException> {
+        assertThrows<InvalidIdException> {
             getAllTasksOfProjectUseCase(nonExistentProjectId)
         }
     }
