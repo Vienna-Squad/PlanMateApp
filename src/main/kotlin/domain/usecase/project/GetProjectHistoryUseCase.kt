@@ -1,10 +1,9 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.NoLogsFoundException
+import org.example.domain.NoFoundException
 import org.example.domain.NoProjectFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Log
-import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
@@ -18,16 +17,28 @@ class GetProjectHistoryUseCase(
 ) {
     operator fun invoke(projectId: String): List<Log> {
 
-        val currentUser= authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }
+        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
 
-        if(currentUser.type!=UserType.ADMIN){
-            throw UnauthorizedException()
+            projectsRepository.get(projectId)
+                .getOrElse { throw NoProjectFoundException() }.let { project ->
+
+                    when (currentUser.type) {
+                        UserType.ADMIN -> {
+                            if (project.createdBy != currentUser.id) {
+                                throw UnauthorizedException()
+                            }
+                        }
+
+                        UserType.MATE -> {
+                            if (!project.matesIds.contains(currentUser.id)) {
+                                throw UnauthorizedException()
+                            }
+                        }
+                    }
+                }
         }
-        projectsRepository.get(projectId)
-            .getOrElse { throw NoProjectFoundException() }
-
-        return logsRepository.getAll().getOrElse { throw NoLogsFoundException() }.filter {logs->
-            logs.id==projectId
+        return logsRepository.getAll().getOrElse { throw NoFoundException() }.filter { logs ->
+            logs.id == projectId
         }
 
     }
