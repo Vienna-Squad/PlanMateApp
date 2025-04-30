@@ -22,7 +22,7 @@ val useCasesModule = module {
     single { CreateTaskUseCase(get()) }
     single { DeleteTaskUseCase(get()) }
     single { GetTaskHistoryUseCase(get()) }
-    single { GetTaskUseCase(get()) }
+    single { GetTaskUseCase(get(),get()) }
     single { AddMateToTaskUseCase(get()) }
     single { DeleteMateFromTaskUseCase(get()) }
     single { EditTaskStateUseCase(get()) }
