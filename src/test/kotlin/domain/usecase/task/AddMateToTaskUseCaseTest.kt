@@ -24,9 +24,9 @@ import java.util.UUID
 class AddMateToTaskUseCaseTest {
 
     private lateinit var addMateToTaskUseCase: AddMateToTaskUseCase
-    private val tasksRepository: TasksRepository = mockk()
-    private val logsRepository: LogsRepository = mockk()
-    private val authenticationRepository: AuthenticationRepository = mockk()
+    private val tasksRepository: TasksRepository = mockk(relaxed = true)
+    private val logsRepository: LogsRepository = mockk(relaxed = true)
+    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
@@ -38,14 +38,14 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val currentUser = createTestUser(id = "user-123", username = "creator")
         val task = createTestTask(id = taskId, assignedTo = emptyList())
         val mate = createTestUser(id = mateId)
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
-        every { tasksRepository.update(updatedTask) } returns Result.success(Unit)
-        every { logsRepository.add(any<AddedLog>()) } returns Result.success(Unit)
 
         // When
         addMateToTaskUseCase(taskId, mateId)
@@ -61,7 +61,9 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "non-existent-task"
         val mateId = "user-456"
+        val currentUser = createTestUser(id = "user-123")
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.failure(InvalidIdException())
 
         // When & Then
@@ -71,17 +73,19 @@ class AddMateToTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw UnauthorizedException when mate does not exist`() {
+    fun `should throw NoFoundException when mate does not exist`() {
         // Given
         val taskId = "task-123"
         val mateId = "non-existent-user"
+        val currentUser = createTestUser(id = "user-123")
         val task = createTestTask(id = taskId)
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUser(mateId) } returns Result.failure(UnauthorizedException())
+        every { authenticationRepository.getUser(mateId) } returns Result.failure(NoFoundException())
 
         // When & Then
-        assertThrows<UnauthorizedException> {
+        assertThrows<NoFoundException> {
             addMateToTaskUseCase(taskId, mateId)
         }
     }
@@ -92,14 +96,14 @@ class AddMateToTaskUseCaseTest {
         val taskId = "task-123"
         val existingMateId = "user-789"
         val newMateId = "user-456"
+        val currentUser = createTestUser(id = "user-123")
         val task = createTestTask(id = taskId, assignedTo = listOf(existingMateId))
         val mate = createTestUser(id = newMateId)
         val updatedTask = task.copy(assignedTo = listOf(existingMateId, newMateId))
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(newMateId) } returns Result.success(mate)
-        every { tasksRepository.update(updatedTask) } returns Result.success(Unit)
-        every { logsRepository.add(any<AddedLog>()) } returns Result.success(Unit)
 
         // When
         addMateToTaskUseCase(taskId, newMateId)
@@ -115,13 +119,13 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val currentUser = createTestUser(id = "user-123")
         val task = createTestTask(id = taskId, assignedTo = listOf(mateId))
         val mate = createTestUser(id = mateId)
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
-        every { tasksRepository.update(task) } returns Result.success(Unit)
-        every { logsRepository.add(any<AddedLog>()) } returns Result.success(Unit)
 
         // When
         addMateToTaskUseCase(taskId, mateId)
@@ -137,10 +141,12 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val currentUser = createTestUser(id = "user-123")
         val task = createTestTask(id = taskId, assignedTo = emptyList())
         val mate = createTestUser(id = mateId)
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
         every { tasksRepository.update(updatedTask) } returns Result.failure(NoFoundException())
@@ -156,13 +162,13 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val currentUser = createTestUser(id = "user-123")
         val task = createTestTask(id = taskId, assignedTo = emptyList())
         val mate = createTestUser(id = mateId)
-        val updatedTask = task.copy(assignedTo = listOf(mateId))
 
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
-        every { tasksRepository.update(updatedTask) } returns Result.success(Unit)
         every { logsRepository.add(any<AddedLog>()) } returns Result.failure(NoFoundException())
 
         // When & Then
@@ -170,6 +176,46 @@ class AddMateToTaskUseCaseTest {
             addMateToTaskUseCase(taskId, mateId)
         }
     }
+
+    @Test
+    fun `should throw UnauthorizedException when current user not found`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = "user-456"
+
+        every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException())
+
+        // When & Then
+        assertThrows<UnauthorizedException> {
+            addMateToTaskUseCase(taskId, mateId)
+        }
+    }
+
+    @Test
+    fun `should throw InvalidIdException when taskId is empty`() {
+        // Given
+        val taskId = ""
+        val mateId = "user-456"
+
+        // When & Then
+        assertThrows<InvalidIdException> {
+            addMateToTaskUseCase(taskId, mateId)
+        }
+    }
+
+
+    @Test
+    fun `should throw InvalidIdException when mateId is empty`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = ""
+
+        // When & Then
+        assertThrows<InvalidIdException> {
+            addMateToTaskUseCase(taskId, mateId)
+        }
+    }
+
 
     private fun createTestTask(
         id: String = UUID.randomUUID().toString(),
