@@ -9,6 +9,7 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.GetTaskUseCase
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -26,14 +27,25 @@ class GetTaskUseCaseTest {
         id = "U1",
         username = username,
         password = "pass1",
-        type = UserType.ADMIN
+        type = UserType.ADMIN,
+        cratedAt = LocalDateTime.now()
     )
 
     private val mateUser = User(
-        id = "U1",
-        username = username,
-        password = "pass1",
-        type = UserType.MATE
+        id = "U2",
+        username = "mate",
+        password = "pass2",
+        type = UserType.MATE,
+        cratedAt = LocalDateTime.now()
+    )
+    private val task = Task(
+        id = taskId,
+        title = "Task 1",
+        state = "ToDo",
+        assignedTo = emptyList(),
+        createdBy = username,
+        cratedAt = LocalDateTime.now(),
+        projectId = "P1"
     )
 
     @BeforeEach
@@ -44,17 +56,8 @@ class GetTaskUseCaseTest {
     }
 
     @Test
-    fun `should return task when user is authorized and task exists`() {
+    fun `should return task when user is admin and task exists`() {
         // Given
-        val task = Task(
-            id = taskId,
-            title = "Task 1",
-            state = "ToDo",
-            assignedTo = emptyList(),
-            createdBy = username,
-            cratedAt = LocalDateTime.now(),
-            projectId = "P1"
-        )
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
 
@@ -62,8 +65,22 @@ class GetTaskUseCaseTest {
         val result = getTaskUseCase(taskId)
 
         // Then
-        assert(result == task)
+        assertEquals(task, result)
     }
+
+    @Test
+    fun `should return task when user is mate and task exists`() {
+        // Given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
+        every { tasksRepository.get(taskId) } returns Result.success(task)
+
+        // When
+        val result = getTaskUseCase(taskId)
+
+        // Then
+        assertEquals(task, result)
+    }
+
 
     @Test
     fun `should throw UnauthorizedException when getCurrentUser fails`() {
@@ -76,36 +93,25 @@ class GetTaskUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throw AccessDeniedException when user is not authorized`() {
-        // Given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
-
-        // When & Then
-        assertThrows<AccessDeniedException> {
-            getTaskUseCase(taskId)
-        }
-    }
-
 
     @Test
-    fun `should throw InvalidTaskIdException when taskId is blank`() {
+    fun `should throw InvalidIdException when taskId is blank`() {
         // Given
         val blankTaskId = ""
 
-        // When & Then
+        // When && Then
         assertThrows<InvalidIdException> {
             getTaskUseCase(blankTaskId)
         }
     }
 
     @Test
-    fun `should throw TaskNotFoundException when task does not exist`() {
+    fun `should throw NoFoundException when task does not exist`() {
         // Given
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(taskId) } returns Result.failure(NoFoundException())
 
-        // When & Then
+        // When && Then
         assertThrows<NoFoundException> {
             getTaskUseCase(taskId)
         }
