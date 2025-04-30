@@ -1,6 +1,7 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.NoLogsFoundException
+import org.example.domain.NoProjectFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Log
 import org.example.domain.entity.User
@@ -16,6 +17,18 @@ class GetProjectHistoryUseCase(
 
 ) {
     operator fun invoke(projectId: String): List<Log> {
-        return emptyList()
+
+        val currentUser= authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }
+
+        if(currentUser.type!=UserType.ADMIN){
+            throw UnauthorizedException()
+        }
+        projectsRepository.get(projectId)
+            .getOrElse { throw NoProjectFoundException() }
+
+        return logsRepository.getAll().getOrElse { throw NoLogsFoundException() }.filter {logs->
+            logs.id==projectId
+        }
+
     }
 }

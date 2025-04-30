@@ -2,6 +2,8 @@ package domain.usecase.project
 
 import io.mockk.every
 import io.mockk.mockk
+import org.example.domain.NoLogsFoundException
+import org.example.domain.NoProjectFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
@@ -95,11 +97,24 @@ class GetProjectHistoryUseCaseTest {
             getProjectHistoryUseCase(dummyProjects[0].id)
         }
     }
+    @Test
+    fun `should throw NoProjectFoundException when project not found`(){
+        // given
+        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { projectsRepository.get("not-found-id")} returns Result.failure(NoProjectFoundException())
+
+        //when &then
+        assertThrows<NoProjectFoundException> {
+            getProjectHistoryUseCase("not-found-id")
+        }
+
+    }
 
     @Test
     fun `should return list of logs when project history exists `() {
         // given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { projectsRepository.get(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
         every { logsRepository.getAll() } returns Result.success(listOf(dummyLogs[1],dummyLogs[2]))
 
         //when
@@ -114,10 +129,13 @@ class GetProjectHistoryUseCaseTest {
     fun `should throw exception when loading project history fails`() {
         // given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { logsRepository.getAll() } returns Result.failure(Exception())
+        every { projectsRepository.get(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
+        every { logsRepository.getAll() } returns Result.failure(NoLogsFoundException())
+
+
 
         //when & then
-        assertThrows<Exception> {
+        assertThrows<NoLogsFoundException> {
             getProjectHistoryUseCase(dummyProjects[0].id)
         }
     }
@@ -125,6 +143,7 @@ class GetProjectHistoryUseCaseTest {
     @Test
     fun `should return empty list when no logs found for the project`() {
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { projectsRepository.get(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
         every { logsRepository.getAll() } returns Result.success(emptyList())
 
         val result = getProjectHistoryUseCase(dummyProjects[0].id)
