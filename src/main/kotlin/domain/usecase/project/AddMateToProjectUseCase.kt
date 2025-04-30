@@ -1,44 +1,72 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.InvalidMateIdException
-import org.example.domain.InvalidProjectIdException
-import org.example.domain.MateAlreadyInProjectException
-import org.example.domain.NoProjectFoundException
-import org.example.domain.entity.AddedLog
-import org.example.domain.entity.Log
+import org.example.domain.*
+import org.example.domain.entity.*
+import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 
 class AddMateToProjectUseCase(
     private val projectsRepository: ProjectsRepository,
-    private val logsRepository: LogsRepository
+    private val logsRepository: LogsRepository,
+    private val authenticationRepository: AuthenticationRepository
 ) {
 
-    operator fun invoke(projectId: String, mateId: String, username: String) {
-        if (projectId.isBlank()) throw InvalidProjectIdException()
-        if (mateId.isBlank()) throw InvalidMateIdException()
+    operator fun invoke(projectId: String, mateId: String) {
+
+        validateInputs(projectId, mateId)
+
+        val userResult = authenticationRepository.getCurrentUser()
+        if (userResult.isFailure) {
+            throw UnauthorizedException()
+        }
+        val user = userResult.getOrThrow()
+        validateUserAuthorization(user)
 
         val projectResult = projectsRepository.get(projectId)
         if (projectResult.isFailure) {
-            throw NoProjectFoundException()
+            throw NoFoundException()
         }
         val project = projectResult.getOrThrow()
+        validateMateNotInProject(project, mateId)
 
-        if (project.matesIds.contains(mateId)) {
-            throw MateAlreadyInProjectException()
+        val updatedProject = updateProjectWithMate(project, mateId)
+
+        val updateResult = projectsRepository.update(updatedProject)
+        if (updateResult.isFailure) {
+            throw RuntimeException("Failed to update project")
         }
 
-        val updatedMates = project.matesIds.toMutableList().apply { add(mateId) }
-        val updatedProject = project.copy(matesIds = updatedMates)
+        createAndLogAction(updatedProject, mateId, user.username)
+    }
 
-        projectsRepository.update(updatedProject).getOrThrow()
+    private fun validateInputs(projectId: String, mateId: String) {
+        require(projectId.isNotBlank()) { throw InvalidIdException() }
+        require(mateId.isNotBlank()) { throw InvalidIdException() }
+    }
 
+    private fun validateUserAuthorization(user: User) {
+        require(user.type != UserType.MATE) { throw AccessDeniedException() }
+    }
+
+    private fun validateMateNotInProject(project: Project, mateId: String) {
+        require(!project.matesIds.contains(mateId)) { throw AlreadyExistException() }
+    }
+
+    private fun updateProjectWithMate(project: Project, mateId: String): Project {
+        return project.copy(matesIds = project.matesIds + mateId)
+    }
+
+    private fun createAndLogAction(project: Project, mateId: String, username: String) {
         val log = AddedLog(
             username = username,
             affectedId = mateId,
             affectedType = Log.AffectedType.MATE,
-            addedTo = projectId
+            addedTo = project.id
         )
-        logsRepository.add(log).getOrThrow()
+        val logResult = logsRepository.add(log)
+        if (logResult.isFailure) {
+            throw RuntimeException("Failed to log action")
+        }
     }
 }
