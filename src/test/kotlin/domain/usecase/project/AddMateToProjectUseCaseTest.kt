@@ -14,6 +14,7 @@ import org.example.domain.usecase.project.AddMateToProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDateTime
 
 class AddMateToProjectUseCaseTest {
     private lateinit var projectsRepository: ProjectsRepository
@@ -29,14 +30,24 @@ class AddMateToProjectUseCaseTest {
         id = "U1",
         username = username,
         password = "pass1",
-        type = UserType.ADMIN
+        type = UserType.ADMIN,
+        cratedAt = LocalDateTime.now()
     )
 
     private val mateUser = User(
-        id = "U1",
-        username = username,
-        password = "pass1",
-        type = UserType.MATE
+        id = "U2",
+        username = "mate",
+        password = "pass2",
+        type = UserType.MATE,
+        cratedAt = LocalDateTime.now()
+    )
+    private val project = Project(
+        id = projectId,
+        name = "Project 1",
+        states = listOf("ToDo", "InProgress"),
+        createdBy = username,
+        matesIds = emptyList(),
+        cratedAt = LocalDateTime.now()
     )
     @BeforeEach
     fun setup() {
@@ -49,13 +60,6 @@ class AddMateToProjectUseCaseTest {
     @Test
     fun `should add mate to project and log the action when user is authorized`() {
         // Given
-        val project = Project(
-            id = projectId,
-            name = "Project 1",
-            states = listOf("ToDo", "InProgress"),
-            createdBy = username,
-            matesIds = emptyList()
-        )
         val updatedProject = project.copy(matesIds = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
@@ -107,15 +111,9 @@ class AddMateToProjectUseCaseTest {
     @Test
     fun `should throw AlreadyExistException when mate is already in project`() {
         // Given
-        val project = Project(
-            id = projectId,
-            name = "Project 1",
-            states = listOf("ToDo", "InProgress"),
-            createdBy = username,
-            matesIds = listOf(mateId)
-        )
+        val projectWithMate = project.copy(matesIds = listOf(mateId))
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { projectsRepository.get(projectId) } returns Result.success(project)
+        every { projectsRepository.get(projectId) } returns Result.success(projectWithMate)
 
         // When && Then
         assertThrows<AlreadyExistException> {
@@ -149,13 +147,6 @@ class AddMateToProjectUseCaseTest {
     @Test
     fun `should throw RuntimeException when update project fails`() {
         // Given
-        val project = Project(
-            id = projectId,
-            name = "Project 1",
-            states = listOf("ToDo", "InProgress"),
-            createdBy = username,
-            matesIds = emptyList()
-        )
         val updatedProject = project.copy(matesIds = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
@@ -171,13 +162,6 @@ class AddMateToProjectUseCaseTest {
     @Test
     fun `should throw RuntimeException when logging action fails`() {
         // Given
-        val project = Project(
-            id = projectId,
-            name = "Project 1",
-            states = listOf("ToDo", "InProgress"),
-            createdBy = username,
-            matesIds = emptyList()
-        )
         val updatedProject = project.copy(matesIds = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
