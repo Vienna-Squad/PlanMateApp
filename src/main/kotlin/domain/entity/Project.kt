@@ -8,6 +8,6 @@ data class Project(
     val name: String,
     val states: List<String>,
     val createdBy: String,
-    val matesIds: List<String>,
-    val cratedAt: LocalDateTime = LocalDateTime.now()
+    val cratedAt: LocalDateTime = LocalDateTime.now(),
+    val matesIds: List<String>
 )
