@@ -53,7 +53,7 @@ class DeleteMateFromTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw UnauthorizedException when current user is not admin`() {
+    fun `should throw AccessDeniedException when current user is not admin`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(mateUser)
 
@@ -64,7 +64,7 @@ class DeleteMateFromTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw NoTaskFoundException when task id does not exist`() {
+    fun `should throw NoFoundException when task id does not exist`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.failure(NoFoundException())
@@ -77,7 +77,7 @@ class DeleteMateFromTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw NoMateFoundException when mate is not assigned to the task`() {
+    fun `should throw NoFoundException when mate is not assigned to the task`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
@@ -91,7 +91,7 @@ class DeleteMateFromTaskUseCaseTest {
 
 
     @Test
-    fun `should throw FailedToDeleteMate when logging mate deletion fails`() {
+    fun `should throw FailedToAddLogException when logging mate deletion fails`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
