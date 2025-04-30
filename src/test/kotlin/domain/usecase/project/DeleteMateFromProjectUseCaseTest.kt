@@ -4,9 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.AccessDeniedException
-import org.example.domain.InvalidProjectIdException
-import org.example.domain.NoMateFoundException
-import org.example.domain.NoProjectFoundException
+import org.example.domain.InvalidIdException
+import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Project
@@ -163,9 +162,9 @@ class DeleteMateFromProjectUseCaseTest {
     fun `should throw ProjectNotFoundException when project does not exist`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(dummyProject.id) } returns Result.failure(NoProjectFoundException())
+        every { projectsRepository.get(dummyProject.id) } returns Result.failure(NoFoundException())
         //when && then
-        assertThrows<NoProjectFoundException> {
+        assertThrows<NoFoundException> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
     }
@@ -174,9 +173,9 @@ class DeleteMateFromProjectUseCaseTest {
     fun `should throw InvalidProjectIdException when project id is blank`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(" ") } returns Result.failure(InvalidProjectIdException())
+        every { projectsRepository.get(" ") } returns Result.failure(InvalidIdException())
         //when && then
-        assertThrows<InvalidProjectIdException> {
+        assertThrows<InvalidIdException> {
             deleteMateFromProjectUseCase(" ", dummyMate.id)
         }
     }
@@ -188,7 +187,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject.copy(createdBy = dummyAdmin.id))
         every { authenticationRepository.getUser(dummyMate.id) } returns Result.success(dummyMate)
         //when && then
-        assertThrows<NoMateFoundException> {
+        assertThrows<NoFoundException> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
     }
@@ -198,9 +197,9 @@ class DeleteMateFromProjectUseCaseTest {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.get(dummyProject.id) } returns Result.success(dummyProject.copy(createdBy = dummyAdmin.id))
-        every { authenticationRepository.getUser(dummyMate.id) } returns Result.failure(NoMateFoundException())
+        every { authenticationRepository.getUser(dummyMate.id) } returns Result.failure(NoFoundException())
         //when && then
-        assertThrows<NoMateFoundException> {
+        assertThrows<NoFoundException> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
     }
