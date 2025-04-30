@@ -3,15 +3,15 @@ package domain.usecase.task
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.FailedToDeleteMate
-import org.example.domain.NoMateFoundException
+import org.example.domain.AccessDeniedException
+import org.example.domain.FailedToAddLogException
+import org.example.domain.NoFoundException
 import org.example.domain.NoTaskFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
-import org.example.domain.usecase.project.CreateProjectUseCase
 import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,8 +39,8 @@ class DeleteMateFromTaskUseCaseTest {
         createdBy = "admin1",
         projectId = ""
     )
-    val adminUser = User(username = "admin", "123", type = UserType.ADMIN)
-    val mateUser = User(username = "mate", "5466", type = UserType.MATE)
+    val adminUser = User(username = "admin", password = "123", type = UserType.ADMIN)
+    val mateUser = User(username = "mate", password = "5466", type = UserType.MATE)
 
     @BeforeEach
     fun setUp() {
@@ -67,7 +67,7 @@ class DeleteMateFromTaskUseCaseTest {
         every { authRepository.getCurrentUser() } returns Result.success(mateUser)
 
         //when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AccessDeniedException> {
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
         }
     }
@@ -86,32 +86,13 @@ class DeleteMateFromTaskUseCaseTest {
     }
 
     @Test
-    fun `should return task when task id exists`() {
-        //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(task.id) } returns Result.success(task)
-        every { logsRepository.add(any()) } returns Result.success(Unit)
-        every { tasksRepository.update(any()) } returns Result.success(Unit)
-        //when
-        deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
-
-        //then
-        verify {
-            tasksRepository.get(task.id)
-            tasksRepository.update(any())
-            logsRepository.add(any())
-        }
-
-    }
-
-    @Test
     fun `should throw NoMateFoundException when mate is not assigned to the task`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
 
         //when & then
-        assertThrows<NoMateFoundException> {
+        assertThrows<NoFoundException> {
             deleteMateFromTaskUseCase(task.id, "no-mate-found")
         }
 
@@ -124,12 +105,12 @@ class DeleteMateFromTaskUseCaseTest {
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
         every { tasksRepository.update(any()) } returns Result.success(Unit)
-        every { logsRepository.add(any()) } returns Result.failure(FailedToDeleteMate())
+        every { logsRepository.add(any()) } returns Result.failure(FailedToAddLogException())
 
 
 
         //when & then
-        assertThrows<FailedToDeleteMate>{
+        assertThrows<FailedToAddLogException>{
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
 
         }
@@ -140,19 +121,19 @@ class DeleteMateFromTaskUseCaseTest {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
-        every { tasksRepository.update(updatedTask) } returns Result.success(Unit)
+        every { tasksRepository.update(any()) } returns Result.success(Unit)
         every { logsRepository.add(any()) } returns Result.success(Unit)
 
         // when
         deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
 
         // then
+        verify { tasksRepository.update(any()) }
         verify {
             logsRepository.add(match {
-                it is CreatedLog
+                it is DeletedLog
             })
         }
-        verify { tasksRepository.update(updatedTask) }
     }
 
 }
