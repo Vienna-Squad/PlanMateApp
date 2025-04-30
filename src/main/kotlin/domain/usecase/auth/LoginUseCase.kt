@@ -12,7 +12,7 @@ class LoginUseCase(
         // get users list to check
         // is user found in storage
         authenticationRepository.getAllUsers()
-            .getOrElse { return Result.failure(RegisterException()) }
+            .getOrElse { return Result.failure(LoginException()) }
             .filter { user -> user.username == username }
             .also { users -> if (users.isEmpty()) return Result.failure(LoginException()) }
             .first()
