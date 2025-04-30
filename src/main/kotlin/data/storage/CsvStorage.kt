@@ -1,65 +1,20 @@
-package data.storage
+package org.example.data.storage
 
-import org.example.data.storage.EditableStorage
+import data.storage.Storage
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.io.FileNotFoundException
 
-abstract class CsvStorage<T>(private val filePath: String) : Storage<T>, EditableStorage<T> {
-
-    init {
-        createFileIfNotExists()
-    }
-
-    private fun createFileIfNotExists() {
-        val path = Paths.get(filePath)
-        if (!Files.exists(path)) {
-            path.parent?.let { Files.createDirectories(it) }
-            Files.createFile(path)
-            writeHeader()
-        }
-    }
-
-    protected abstract fun writeHeader()
-
-    protected abstract fun serialize(item: T): String
-    protected abstract fun deserialize(line: String): T
-
-    override fun write(list: List<T>) {
-        val content = buildString {
-            appendLine(getHeaderLine())
-            list.forEach { appendLine(serialize(it)) }
-        }
-
-        File(filePath).writeText(content)
-    }
-
+abstract class CsvStorage<T>(val file: File) : Storage<T> {
+    abstract fun writeHeader()
+    abstract fun toCsvRow(item: T): String
+    abstract fun fromCsvRow(fields: List<String>): T
     override fun read(): List<T> {
-        val file = File(filePath)
-        if (!file.exists() || file.length() == 0L) return emptyList()
-
-        return file.readLines()
-            .drop(1) // Skip header line
-            .filter { it.isNotBlank() }
-            .map { deserialize(it) }
+        if (!file.exists()) throw FileNotFoundException()
+        return file.readLines().map { row -> fromCsvRow(row.split(",")) }
     }
 
     override fun append(item: T) {
-        File(filePath).appendText("${serialize(item)}\n")
-    }
-
-    protected fun writeToFile(content: String) {
-        File(filePath).writeText(content)
-    }
-
-    private fun getHeaderLine(): String {
-        val file = File(filePath)
-        return if (file.exists() && file.length() > 0) {
-            file.readLines().firstOrNull() ?: ""
-        } else {
-            writeHeader()
-            val lines = File(filePath).readLines()
-            if (lines.isNotEmpty()) lines[0] else ""
-        }
+        if (!file.exists()) file.createNewFile()
+        file.appendText(toCsvRow(item))
     }
 }

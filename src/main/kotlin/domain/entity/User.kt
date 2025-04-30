@@ -8,6 +8,7 @@ data class User(
     val username: String,
     val password: String,//hashed using MD5
     val type: UserType,
-    val cratedAt: LocalDateTime = LocalDateTime.now()
+    val cratedAt: LocalDateTime = LocalDateTime.now(),
 )
+
 enum class UserType { ADMIN, MATE }
