@@ -2,8 +2,9 @@ package domain.usecase.project
 
 import io.mockk.every
 import io.mockk.mockk
+import org.example.domain.AccessDeniedException
+import org.example.domain.FailedToCallLogException
 import org.example.domain.NoFoundException
-import org.example.domain.NoProjectFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
@@ -88,29 +89,28 @@ class GetProjectHistoryUseCaseTest {
     }
 
     @Test
-    fun `should throw UnauthorizedException when current user is admin but not owner of the project`() {
+    fun `should throw AccessDeniedException when current user is admin but not owner of the project`() {
         //given
         val newAdmin = adminUser.copy(id = "new-id")
         every { authRepository.getCurrentUser() } returns Result.success(newAdmin)
         every { projectsRepository.get(dummyProjects[2].id) } returns Result.success(dummyProjects[2])
 
         //when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AccessDeniedException> {
             getProjectHistoryUseCase(dummyProjects[2].id)
         }
     }
 
     @Test
-    fun `should throw UnauthorizedException when current user is mate but not belong to project`() {
+    fun `should throw AccessDeniedException when current user is mate but not belong to project`() {
         //given
-        val newMate=mateUser.copy(id ="new-id")
-        every { authRepository.getCurrentUser() } returns Result.success(newMate)
-        every { projectsRepository.get(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
+        every { authRepository.getCurrentUser() } returns Result.success(mateUser)
+        every { projectsRepository.get(dummyProjects[1].id) } returns Result.success(dummyProjects[1])
 
 
         //when & then
-        assertThrows<UnauthorizedException> {
-            getProjectHistoryUseCase(dummyProjects[0].id)
+        assertThrows<AccessDeniedException> {
+            getProjectHistoryUseCase(dummyProjects[1].id)
         }
     }
 
@@ -118,10 +118,10 @@ class GetProjectHistoryUseCaseTest {
     fun `should throw NoProjectFoundException when project not found`() {
         // given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { projectsRepository.get("not-found-id") } returns Result.failure(NoProjectFoundException())
+        every { projectsRepository.get("not-found-id") } returns Result.failure(NoFoundException())
 
         //when &then
-        assertThrows<NoProjectFoundException> {
+        assertThrows<NoFoundException> {
             getProjectHistoryUseCase("not-found-id")
         }
 
@@ -143,14 +143,14 @@ class GetProjectHistoryUseCaseTest {
     }
 
     @Test
-    fun `should throw exception when loading project history fails`() {
+    fun `should throw FailedToAddLogException when loading project history fails`() {
         // given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.get(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
-        every { logsRepository.getAll() } returns Result.failure(NoFoundException())
+        every { logsRepository.getAll() } returns Result.failure(FailedToCallLogException())
 
         //when & then
-        assertThrows<NoFoundException> {
+        assertThrows<FailedToCallLogException> {
             getProjectHistoryUseCase(dummyProjects[0].id)
         }
     }
