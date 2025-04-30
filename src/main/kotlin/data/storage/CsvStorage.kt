@@ -57,8 +57,6 @@ abstract class CsvStorage<T>(private val filePath: String) : Storage<T>, Editabl
         return if (file.exists() && file.length() > 0) {
             file.readLines().firstOrNull() ?: ""
         } else {
-            // Generate a new header if file doesn't exist or is empty
-            val tempWriter = StringBuffer()
             writeHeader()
             val lines = File(filePath).readLines()
             if (lines.isNotEmpty()) lines[0] else ""
