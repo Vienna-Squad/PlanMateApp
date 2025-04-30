@@ -6,7 +6,6 @@ import io.mockk.verify
 import org.example.domain.AccessDeniedException
 import org.example.domain.FailedToAddLogException
 import org.example.domain.NoFoundException
-import org.example.domain.NoTaskFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
@@ -16,7 +15,6 @@ import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 
 class DeleteMateFromTaskUseCaseTest {
 
@@ -32,7 +30,7 @@ class DeleteMateFromTaskUseCaseTest {
         createdBy = "admin1",
         projectId = ""
     )
-    val updatedTask=Task(
+    val updatedTask = Task(
         title = "machine learning task",
         state = "in-progress",
         assignedTo = listOf("nada", "mariam"),
@@ -76,10 +74,10 @@ class DeleteMateFromTaskUseCaseTest {
     fun `should throw NoTaskFoundException when task id does not exist`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(task.id) } returns Result.failure(NoTaskFoundException(""))
+        every { tasksRepository.get(task.id) } returns Result.failure(NoFoundException())
 
         //when & then
-        assertThrows<NoTaskFoundException> {
+        assertThrows<NoFoundException> {
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
         }
 
@@ -108,9 +106,8 @@ class DeleteMateFromTaskUseCaseTest {
         every { logsRepository.add(any()) } returns Result.failure(FailedToAddLogException())
 
 
-
         //when & then
-        assertThrows<FailedToAddLogException>{
+        assertThrows<FailedToAddLogException> {
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
 
         }

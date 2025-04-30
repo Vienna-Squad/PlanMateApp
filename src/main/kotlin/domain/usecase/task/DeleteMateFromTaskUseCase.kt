@@ -3,9 +3,7 @@ package org.example.domain.usecase.task
 import org.example.domain.AccessDeniedException
 import org.example.domain.FailedToAddLogException
 import org.example.domain.NoFoundException
-import org.example.domain.NoTaskFoundException
 import org.example.domain.UnauthorizedException
-import org.example.domain.entity.CreatedLog
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Log
 import org.example.domain.entity.UserType
@@ -26,7 +24,7 @@ class DeleteMateFromTaskUseCase(
                 throw AccessDeniedException()
             }
 
-            tasksRepository.get(taskId).getOrElse { throw NoTaskFoundException("") }.let { task ->
+            tasksRepository.get(taskId).getOrElse { throw NoFoundException() }.let { task ->
 
                 if (!task.assignedTo.contains(mate)) {
                     throw NoFoundException()
