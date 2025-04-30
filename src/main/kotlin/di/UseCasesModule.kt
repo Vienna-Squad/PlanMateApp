@@ -16,7 +16,7 @@ val useCasesModule = module {
     single { DeleteMateFromProjectUseCase(get()) }
     single { DeleteProjectUseCase(get()) }
     single { DeleteStateFromProjectUseCase(get()) }
-    single { EditProjectNameUseCase(get()) }
+    single { EditProjectNameUseCase(get(),get(),get()) }
     single { GetAllTasksOfProjectUseCase(get()) }
     single { GetProjectHistoryUseCase(get()) }
     single { CreateTaskUseCase(get()) }
