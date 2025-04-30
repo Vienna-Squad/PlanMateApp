@@ -1,4 +1,4 @@
-package org.example.presentation.app
+package org.example.presentation
 
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController

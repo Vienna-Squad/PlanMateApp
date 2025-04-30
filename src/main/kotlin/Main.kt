@@ -1,12 +1,12 @@
 package org.example
 
-import di.authAppModule
+import di.appModule
 import di.useCasesModule
-import org.example.presentation.app.AuthApp
+import org.example.presentation.AuthApp
 import org.koin.core.context.GlobalContext.startKoin
 
 fun main() {
     println("Hello, PlanMate!")
-    startKoin { modules(authAppModule, useCasesModule) }
+    startKoin { modules(appModule, useCasesModule) }
     AuthApp().run()
 }
