@@ -7,20 +7,18 @@ import org.example.domain.repository.AuthenticationRepository
 
 class LoginUseCase(
     private val authenticationRepository: AuthenticationRepository
-    // storage
 ) {
     operator fun invoke(username: String, password: String): Result<User> {
         // get users list to check
         // is user found in storage
-        val user  = authenticationRepository.getAllUsers()
-            .getOrElse { throw RegisterException() }
-            .firstOrNull { user -> user.username == username }
-
-        return if (user==null)
-            Result.failure(LoginException())
-        else
-            Result.success(user)
+        authenticationRepository.getAllUsers()
+            .getOrElse { return Result.failure(RegisterException()) }
+            .filter { user -> user.username == username }
+            .also { users -> if (users.isEmpty()) return Result.failure(LoginException()) }
+            .first()
+            .also { user -> return Result.success(user) }
+    }
+    companion object{
+        const val LOGIN_EXCEPTION_MESSAGE = "The user name or password you entered isn't found in storage"
     }
 }
-
-const val LOGIN_EXCEPTION_MESSAGE = "The user name or password you entered isn't found in storage"

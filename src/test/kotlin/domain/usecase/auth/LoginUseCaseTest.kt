@@ -24,58 +24,38 @@ class LoginUseCaseTest {
     // green
 
     @Test
-    fun `invoke should return result of failure with LoginException when the user is not found in storage`(){
+    fun `invoke should return result of failure with LoginException when the result of getUsers is Failure `(){
         // given
-        val users = listOf(User(
-            username = "Ahmed",
-            password = "12345678",
-            type = UserType.MATE
-        ))
-        every { authenticationRepository.getUsers()} returns Result.success(users)
+        val username = "Medo"
+        val password = "23333423"
+
+        every { authenticationRepository.getAllUsers()} returns Result.failure(LoginException())
 
         // when
-        val result = loginUseCase.invoke("Medo","23333")
-
-        // then
-        assertTrue { result.isFailure }
-    }
-
-    @Disabled
-    @Test
-    fun `invoke should return result of failure with LoginException when the result of getUsers is Failure given user name and password is not correct`(){
-        // given
-        val users = listOf(User(
-            username = "Ahmed",
-            password = "12345678",
-            type = UserType.MATE
-        ))
-        every { authenticationRepository.getUsers()} returns Result.failure(LoginException())
-
-        // when
-        val result = loginUseCase.invoke("Medo","23333")
+        val result = loginUseCase.invoke(username,password)
 
         // then
         assertTrue { result.isFailure}
     }
-    @Disabled
+
     @Test
-    fun `invoke should return result of failure with LoginException when the result of getUsers is Failure given user name and password is correct`(){
+    fun `invoke should return result of failure of LoginException when the user is not found in storage`(){
         // given
         val users = listOf(User(
             username = "Ahmed",
-            password = "12345678",
+            password = "#45nmk45nli987",
             type = UserType.MATE
         ))
-        every { authenticationRepository.getUsers()} returns Result.success(users)
+        every { authenticationRepository.getAllUsers()} returns Result.success(users)
 
         // when
-        val result = loginUseCase.invoke("Ahmed","12345678")
+        val result = loginUseCase.invoke("Medo","235657333")
 
         // then
         assertTrue { result.isFailure }
     }
 
-    @Disabled
+
     @Test
     fun `invoke should return result of Success with user model when the user is found in storage`(){
         // given
@@ -84,7 +64,7 @@ class LoginUseCaseTest {
             password = "12345678",
             type = UserType.MATE
         ))
-        every { authenticationRepository.getUsers()} returns Result.success(users)
+        every { authenticationRepository.getAllUsers()} returns Result.success(users)
 
         // when
         val result = loginUseCase.invoke("Ahmed","12345678")
