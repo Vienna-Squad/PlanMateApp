@@ -3,8 +3,6 @@ package domain.usecase.project
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.InvalidProjectIdException
-import org.example.domain.NoProjectFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Project
@@ -18,6 +16,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.example.domain.AccessDeniedException
+import org.example.domain.InvalidIdException
+import org.example.domain.NoFoundException
 
 class DeleteProjectUseCaseTest {
     private lateinit var deleteProjectUseCase: DeleteProjectUseCase
@@ -157,9 +157,9 @@ class DeleteProjectUseCaseTest {
     fun `should throw NoProjectFoundException when project does not exist`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(dummyProject.id) } returns Result.failure(NoProjectFoundException())
+        every { projectsRepository.get(dummyProject.id) } returns Result.failure(NoFoundException())
         //when && then
-        assertThrows<NoProjectFoundException> {
+        assertThrows<NoFoundException> {
             deleteProjectUseCase(dummyProject.id)
         }
     }
@@ -168,9 +168,9 @@ class DeleteProjectUseCaseTest {
     fun `should throw InvalidProjectIdException when project id is blank`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(" ") } returns Result.failure(InvalidProjectIdException())
+        every { projectsRepository.get(" ") } returns Result.failure(InvalidIdException())
         //when && then
-        assertThrows<InvalidProjectIdException> {
+        assertThrows<InvalidIdException> {
             deleteProjectUseCase(" ")
         }
     }

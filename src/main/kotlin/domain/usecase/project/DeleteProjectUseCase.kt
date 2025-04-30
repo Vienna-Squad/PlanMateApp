@@ -1,8 +1,8 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
-import org.example.domain.InvalidProjectIdException
-import org.example.domain.NoProjectFoundException
+import org.example.domain.InvalidIdException
+import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Log
@@ -44,6 +44,6 @@ class DeleteProjectUseCase(
         getProject: (String) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidProjectIdException() else NoProjectFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidIdException() else NoFoundException() })
     }
 }
