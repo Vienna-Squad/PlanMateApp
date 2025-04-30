@@ -1,5 +1,6 @@
 package org.example.data.storage
 
+import org.example.data.storage.bases.CsvStorage
 import org.example.domain.entity.Task
 import java.io.File
 import java.time.LocalDateTime
@@ -7,11 +8,7 @@ import java.time.LocalDateTime
 class TaskCsvStorage(file: File) : CsvStorage<Task>(file) {
 
     init {
-        writeHeader()
-    }
-
-    override fun writeHeader() {
-        //"id,title,state,assignedTo,createdBy,projectId,createdAt\n"
+        writeHeader(CSV_HEADER)
     }
 
     override fun toCsvRow(item: Task): String {
@@ -32,5 +29,9 @@ class TaskCsvStorage(file: File) : CsvStorage<Task>(file) {
             createdAt = LocalDateTime.parse(fields[6])
         )
         return task
+    }
+
+    companion object {
+        const val CSV_HEADER = "id,title,state,assignedTo,createdBy,projectId,createdAt\n"
     }
 }

@@ -1,11 +1,10 @@
-package org.example.data.storage
+package org.example.data.storage.bases
 
 import data.storage.Storage
 import java.io.File
 import java.io.FileNotFoundException
 
 abstract class CsvStorage<T>(val file: File) : Storage<T> {
-    abstract fun writeHeader()
     abstract fun toCsvRow(item: T): String
     abstract fun fromCsvRow(fields: List<String>): T
     override fun read(): List<T> {
@@ -16,5 +15,10 @@ abstract class CsvStorage<T>(val file: File) : Storage<T> {
     override fun append(item: T) {
         if (!file.exists()) file.createNewFile()
         file.appendText(toCsvRow(item))
+    }
+
+    fun writeHeader(header: String) {
+        if (!file.exists()) file.createNewFile()
+        file.appendText(header)
     }
 }

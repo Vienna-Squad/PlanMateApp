@@ -1,5 +1,6 @@
 package org.example.data.storage
 
+import org.example.data.storage.bases.CsvStorage
 import org.example.domain.entity.*
 import org.example.domain.entity.Log.ActionType
 import org.example.domain.entity.Log.AffectedType
@@ -8,12 +9,10 @@ import java.text.ParseException
 import java.time.LocalDateTime
 
 class LogsCsvStorage(file: File = File(FILE_NAME)) : CsvStorage<Log>(file) {
-    //[ActionType,username, affectedId, affectedType, dateTime,changedFrom, changedTo]
     init {
-        writeHeader()
+        writeHeader(CSV_HEADER)
     }
 
-    override fun writeHeader() {}
     override fun toCsvRow(item: Log): String {
         return when (item) {
             is AddedLog -> listOf(
@@ -108,5 +107,8 @@ class LogsCsvStorage(file: File = File(FILE_NAME)) : CsvStorage<Log>(file) {
         const val DATE_TIME_INDEX = 4
         const val FROM_INDEX = 5
         const val TO_INDEX = 6
+        private const val CSV_HEADER =
+            "ActionType,username, affectedId, affectedType, dateTime,changedFrom, changedTo\n"
+
     }
 }

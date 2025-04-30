@@ -1,4 +1,4 @@
-package org.example.data.storage
+package org.example.data.storage.bases
 
 import data.storage.Storage
 
