@@ -4,22 +4,16 @@ import org.example.domain.entity.*
 import org.example.domain.entity.Log.ActionType
 import org.example.domain.entity.Log.AffectedType
 import java.io.File
-import java.io.FileNotFoundException
 import java.text.ParseException
 import java.time.LocalDateTime
 
-class LogsCsvStorage(private val file: File = File(FILE_NAME)) : CsvStorageDemo<Log> {
+class LogsCsvStorage(file: File = File(FILE_NAME)) : CsvStorage<Log>(file) {
     //[ActionType,username, affectedId, affectedType, dateTime,changedFrom, changedTo]
-    override fun read(): List<Log> {
-        if (!file.exists()) throw FileNotFoundException()
-        return file.readLines().map { row -> fromCsvRow(row.split(",")) }
+    init {
+        writeHeader()
     }
 
-    override fun append(item: Log) {
-        if (!file.exists()) file.createNewFile()
-        file.appendText(toCsvRow(item))
-    }
-
+    override fun writeHeader() {}
     override fun toCsvRow(item: Log): String {
         return when (item) {
             is AddedLog -> listOf(

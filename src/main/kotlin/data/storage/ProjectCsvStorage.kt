@@ -1,35 +1,32 @@
 package org.example.data.storage
 
-import data.storage.CsvStorage
 import org.example.domain.entity.Project
+import java.io.File
 import java.time.LocalDateTime
 
-class ProjectCsvStorage(filePath: String) : CsvStorage<Project>(filePath) {
-
-    override fun writeHeader() {
-        writeToFile("id,name,states,createdBy,matesIds,createdAt\n")
+class ProjectCsvStorage(file: File) : CsvStorage<Project>(file) {
+    init {
+        writeHeader()
     }
-
-    override fun serialize(item: Project): String {
+    override fun writeHeader() {}
+    override fun toCsvRow(item: Project): String {
         val states = item.states.joinToString("|")
         val matesIds = item.matesIds.joinToString("|")
         return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.cratedAt}"
     }
+    override fun fromCsvRow(fields: List<String>): Project {
+        require(fields.size == 6) { "Invalid project data format: " }
 
-    override fun deserialize(line: String): Project {
-        val parts = line.split(",", limit = 6)
-        require(parts.size == 6) { "Invalid project data format: $line" }
-
-        val states = if (parts[2].isNotEmpty()) parts[2].split("|") else emptyList()
-        val matesIds = if (parts[4].isNotEmpty()) parts[4].split("|") else emptyList()
+        val states = if (fields[2].isNotEmpty()) fields[2].split("|") else emptyList()
+        val matesIds = if (fields[4].isNotEmpty()) fields[4].split("|") else emptyList()
 
         val project = Project(
-            id = parts[0],
-            name = parts[1],
+            id = fields[0],
+            name = fields[1],
             states = states,
-            createdBy = parts[3],
+            createdBy = fields[3],
             matesIds = matesIds,
-            cratedAt = LocalDateTime.parse(parts[5])
+            cratedAt = LocalDateTime.parse(fields[5])
         )
 
         return project

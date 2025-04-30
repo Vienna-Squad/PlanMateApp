@@ -1,5 +1,7 @@
 package org.example.data.storage
 
-interface EditableStorage<T> {
+import data.storage.Storage
+
+interface EditableStorage<T> : Storage<T> {
     fun write(list: List<T>)
 }
