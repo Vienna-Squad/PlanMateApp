@@ -3,12 +3,13 @@ package domain.usecase.project
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.NoProjectFoundException
+import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.AddStateToProjectUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -18,22 +19,26 @@ import org.junit.jupiter.api.assertThrows
 class AddStateToProjectUseCaseTest {
     private lateinit var authenticationRepository: AuthenticationRepository
     private lateinit var projectsRepository: ProjectsRepository
+    private lateinit var logsRepository: LogsRepository
     private lateinit var addStateToProjectUseCase: AddStateToProjectUseCase
 
     @BeforeEach
     fun setup() {
         authenticationRepository = mockk()
         projectsRepository = mockk()
-        addStateToProjectUseCase = AddStateToProjectUseCase(authenticationRepository, projectsRepository)
+        logsRepository = mockk()
+        addStateToProjectUseCase =
+            AddStateToProjectUseCase(authenticationRepository, projectsRepository, logsRepository)
 
     }
 
     @Test
-    fun `should throw NoProjectFoundException when attempting to add a state to a non-existent project`() {
+    fun `should throw NoFoundException when attempting to add a state to a non-existent project`() {
         //Given
+        every { authenticationRepository.getCurrentUser().getOrNull() } returns admin
         every { projectsRepository.getAll().getOrNull() } returns projects
         // When & Then
-        assertThrows<NoProjectFoundException> {
+        assertThrows<NoFoundException> {
             addStateToProjectUseCase.invoke(
                 projectId = "non-existent project",
                 state = "New State"
@@ -62,17 +67,23 @@ class AddStateToProjectUseCaseTest {
     fun `should add state to project given project id`() {
         // Given
         every { authenticationRepository.getCurrentUser().getOrNull() } returns admin
-        // When
         every { projectsRepository.getAll().getOrNull() } returns projects
-        // Then
+        every { projectsRepository.update(any()).getOrNull() } returns Unit
+        every { logsRepository.add(any()).getOrNull() } returns Unit
+        // When
         addStateToProjectUseCase.invoke(
             projectId = projects[0].id,
             state = "New State"
         )
-        // Then
+        //Then
         verify {
-            projectsRepository.add(
-                match { it.id == projects[0].id && it.states.contains("New State") }
+            projectsRepository.update(
+                match { it.states.contains("New State") }
+            )
+        }
+        verify {
+            logsRepository.add(
+                any()
             )
         }
 
