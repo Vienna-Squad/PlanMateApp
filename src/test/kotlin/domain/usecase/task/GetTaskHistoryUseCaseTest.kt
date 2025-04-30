@@ -47,7 +47,6 @@ class GetTaskHistoryUseCaseTest {
             projectId = "999"
         )
         every { logsRepository.getAll() } returns Result.success(dummyLogs)
-
         //when&then
         assertThrows<NoFoundException> { getTaskHistoryUseCase.invoke(task.id) }
     }
