@@ -1,6 +1,5 @@
 package org.example.domain.usecase.auth
 
-import org.example.domain.NoFoundException
 import org.example.domain.RegisterException
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
@@ -9,13 +8,7 @@ import org.example.domain.repository.AuthenticationRepository
 class RegisterUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    operator fun invoke(username: String, password: String, type: UserType) {
-        // first page
-        // register
-        // 1 - user => check => storage => create
-        // 2 - admin => check => storage => create
-        // Admins should be able to create users of type mate.
-
+    operator fun invoke(username: String, password: String, role: UserType) {
         isValid(username, password)
 
         authenticationRepository.getAllUsers()
@@ -27,7 +20,7 @@ class RegisterUserUseCase(
                     User(
                         username = username,
                         password = password,
-                        type = type
+                        type = role
                     )
                 ).getOrElse { throw RegisterException() }
             }
