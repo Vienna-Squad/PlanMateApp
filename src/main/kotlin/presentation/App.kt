@@ -53,7 +53,7 @@ class MateApp : App(
     menuItems = listOf(
         MenuItem("View All Tasks in Project"),
         MenuItem("View Project Change History"),
-        MenuItem("Create New Task"),
+        MenuItem("Create New Task", CreateTaskUiController()),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
         MenuItem("View Task Details"),
