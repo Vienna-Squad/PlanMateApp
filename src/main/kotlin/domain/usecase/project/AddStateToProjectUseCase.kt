@@ -1,9 +1,10 @@
 package org.example.domain.usecase.project
 
 
+import org.example.domain.AccessDeniedException
 import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
-import org.example.domain.entity.ChangedLog
+import org.example.domain.entity.AddedLog
 import org.example.domain.entity.Log
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
@@ -18,32 +19,36 @@ class AddStateToProjectUseCase(
     private val logsRepository: LogsRepository
 ) {
     operator fun invoke(projectId: String, state: String) {
-        authenticationRepository.getCurrentUser().getOrNull()?.let { currentUser ->
-            if (currentUser.type != UserType.ADMIN) {
+        val currentUser = authenticationRepository
+            .getCurrentUser()
+            .getOrElse {
                 throw UnauthorizedException()
+            }.also {
+                if (it.type != UserType.ADMIN) {
+                    throw AccessDeniedException()
+                }
             }
-
-            projectsRepository.getAll().getOrNull()?.let { projects ->
-                val project = projects.firstOrNull { project ->
-                    project.id == projectId
-                } ?: throw NoFoundException()
+        projectsRepository.get(projectId)
+            .getOrElse {
+                throw NoFoundException()
+            }
+            .also {
                 projectsRepository.update(
-                    project.copy(states = project.states + state)
-                )
-                logsRepository.add(
-                    ChangedLog(
-                        username = currentUser.username,
-                        affectedId = projectId,
-                        affectedType = Log.AffectedType.STATE,
-                        dateTime = LocalDateTime.now(),
-                        changedFrom = project.states.toString(),
-                        changedTo = (project.states + state).toString(),
+                        it.copy(
+                            states = it.states + state
+                        )
                     )
-                )
-
-            } ?: throw NoFoundException()
-        } ?: throw NoFoundException()
-
+            }
+        logsRepository.add(
+            AddedLog(
+                username = currentUser.username,
+                affectedId = state,
+                affectedType = Log.AffectedType.STATE,
+                dateTime = LocalDateTime.now(),
+                addedTo = projectId,
+            )
+        )
     }
 }
+
 

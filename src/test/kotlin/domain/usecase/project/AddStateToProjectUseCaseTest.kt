@@ -3,8 +3,11 @@ package domain.usecase.project
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.AccessDeniedException
 import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
+
+import org.example.domain.entity.AddedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
@@ -24,19 +27,44 @@ class AddStateToProjectUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        authenticationRepository = mockk()
-        projectsRepository = mockk()
-        logsRepository = mockk()
+        authenticationRepository = mockk(relaxed = true)
+        projectsRepository = mockk(relaxed = true)
+        logsRepository = mockk(relaxed = true)
         addStateToProjectUseCase =
             AddStateToProjectUseCase(authenticationRepository, projectsRepository, logsRepository)
 
+    }
+    @Test
+    fun `should throw UnauthorizedException when no logged-in user is found`() {
+        //Given
+        every { authenticationRepository.getCurrentUser() } returns Result.failure(Exception())
+        // Then&&When
+        assertThrows<UnauthorizedException> {
+            addStateToProjectUseCase.invoke(
+                projectId = "non-existent project",
+                state = "New State"
+            )
+        }
+    }
+
+    @Test
+    fun `should throw UnauthorizedException when attempting to add a state to project given current user is not admin`() {
+        //Given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(mate)
+        // Then&&When
+        assertThrows<AccessDeniedException> {
+            addStateToProjectUseCase.invoke(
+                projectId = projects[0].id,
+                state = "New State"
+            )
+        }
     }
 
     @Test
     fun `should throw NoFoundException when attempting to add a state to a non-existent project`() {
         //Given
-        every { authenticationRepository.getCurrentUser().getOrNull() } returns admin
-        every { projectsRepository.getAll().getOrNull() } returns projects
+        every { authenticationRepository.getCurrentUser() } returns Result.success(admin)
+        every { projectsRepository.get(any()) } returns Result.failure(Exception())
         // When & Then
         assertThrows<NoFoundException> {
             addStateToProjectUseCase.invoke(
@@ -49,48 +77,22 @@ class AddStateToProjectUseCaseTest {
 
     @Test
 
-    fun `should throw UnauthorizedException when attempting to add a state to project given current user is not admin`() {
-        //Given
-        every { authenticationRepository.getCurrentUser().getOrNull() } returns mate
-        // Then&&When
-        assertThrows<UnauthorizedException> {
-            addStateToProjectUseCase.invoke(
-                projectId = "non-existent project",
-                state = "New State"
-            )
-        }
-
-    }
-
-    @Test
-
-    fun `should add state to project given project id`() {
+    fun `should add state to and add log to logs repository project given project id`() {
         // Given
-        every { authenticationRepository.getCurrentUser().getOrNull() } returns admin
-        every { projectsRepository.getAll().getOrNull() } returns projects
-        every { projectsRepository.update(any()).getOrNull() } returns Unit
-        every { logsRepository.add(any()).getOrNull() } returns Unit
+        every { authenticationRepository.getCurrentUser() } returns Result.success(admin)
+        every { projectsRepository.get(any()) } returns Result.success(projects[0])
         // When
-        addStateToProjectUseCase.invoke(
+        addStateToProjectUseCase(
             projectId = projects[0].id,
             state = "New State"
         )
         //Then
         verify {
-            projectsRepository.update(
-                match { it.states.contains("New State") }
-            )
+            projectsRepository.update(match { it.states.contains("New State") })
         }
-        verify {
-            logsRepository.add(
-                any()
-            )
-        }
-
+        verify { logsRepository.add(match { it is AddedLog }) }
     }
-
-
-    val projects = listOf(
+    private val projects = listOf(
         Project(
             name = "Project Alpha",
             states = mutableListOf("Backlog", "In Progress", "Done"),
@@ -104,16 +106,18 @@ class AddStateToProjectUseCaseTest {
             matesIds = listOf("user-567", "user-678")
         )
     )
-    val admin = User(
+    private val admin = User(
         username = "admin",
         password = "admin",
         type = UserType.ADMIN
     )
-    val mate = User(
+    private val mate = User(
         username = "mate",
         password = "mate",
         type = UserType.MATE
     )
 
-
 }
+
+
+
