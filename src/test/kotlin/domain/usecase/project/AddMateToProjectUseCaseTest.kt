@@ -57,34 +57,6 @@ class AddMateToProjectUseCaseTest {
         addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository,authenticationRepository)
     }
 
-    @Test
-    fun `should add mate to project and log the action when user is authorized`() {
-        // Given
-        val updatedProject = project.copy(matesIds = listOf(mateId))
-
-        every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { projectsRepository.get(projectId) } returns Result.success(project)
-
-
-        // When
-        addMateToProjectUseCase(projectId, mateId)
-
-        // Then
-        verify { projectsRepository.update(updatedProject) }
-        verify { logsRepository.add(any()) }
-
-
-    }
-    @Test
-    fun `should throw AccessDeniedException when user is not authorized`() {
-        // Given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
-
-        // When && Then
-        assertThrows<AccessDeniedException> {
-            addMateToProjectUseCase(projectId, mateId)
-        }
-    }
 
     @Test
     fun `should throw UnauthorizedException when getCurrentUser fails`() {
@@ -96,6 +68,18 @@ class AddMateToProjectUseCaseTest {
             addMateToProjectUseCase(projectId, mateId)
         }
     }
+
+    @Test
+    fun `should throw AccessDeniedException when user is not authorized`() {
+        // Given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
+
+        // When && Then
+        assertThrows<AccessDeniedException> {
+            addMateToProjectUseCase(projectId, mateId)
+        }
+    }
+
     @Test
     fun `should throw NoFoundException when project does not exist`() {
         // Given
@@ -121,29 +105,6 @@ class AddMateToProjectUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throw InvalidIdException when projectId is blank`() {
-        // Given
-        val blankProjectId = ""
-        every { projectsRepository.get(projectId) } returns Result.failure(InvalidIdException())
-
-        // When && Then
-        assertThrows<InvalidIdException> {
-            addMateToProjectUseCase(blankProjectId, mateId)
-        }
-    }
-
-    @Test
-    fun `should throw InvalidIdException when mateId is blank`() {
-        // Given
-        val blankMateId = ""
-        every { projectsRepository.get(projectId) } returns Result.failure(InvalidIdException())
-
-        // When && Then
-        assertThrows<InvalidIdException> {
-            addMateToProjectUseCase(projectId, blankMateId)
-        }
-    }
     @Test
     fun `should throw RuntimeException when update project fails`() {
         // Given
@@ -173,5 +134,24 @@ class AddMateToProjectUseCaseTest {
         assertThrows<RuntimeException> {
             addMateToProjectUseCase(projectId, mateId)
         }
+    }
+
+    @Test
+    fun `should add mate to project and log the action when user is authorized`() {
+        // Given
+        val updatedProject = project.copy(matesIds = listOf(mateId))
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+
+
+        // When
+        addMateToProjectUseCase(projectId, mateId)
+
+        // Then
+        verify { projectsRepository.update(updatedProject) }
+        verify { logsRepository.add(any()) }
+
+
     }
 }

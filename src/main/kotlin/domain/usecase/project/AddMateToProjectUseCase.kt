@@ -14,11 +14,11 @@ class AddMateToProjectUseCase(
 
     operator fun invoke(projectId: String, mateId: String) {
 
-        validateInputs(projectId, mateId)
 
         val user = authenticationRepository.getCurrentUser().getOrElse {
             throw UnauthorizedException()
         }
+
         validateUserAuthorization(user)
 
         val project = projectsRepository.get(projectId).getOrElse {
@@ -36,10 +36,6 @@ class AddMateToProjectUseCase(
     }
 
 
-    private fun validateInputs(projectId: String, mateId: String) {
-        require(projectId.isNotBlank()) { throw InvalidIdException() }
-        require(mateId.isNotBlank()) { throw InvalidIdException() }
-    }
 
     private fun validateUserAuthorization(user: User) {
         require(user.type != UserType.MATE) { throw AccessDeniedException() }
