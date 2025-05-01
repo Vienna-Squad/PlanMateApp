@@ -1,5 +1,9 @@
 package org.example.presentation.utils.viewer
 
-interface ExceptionViewer {
-    fun view(exception: Exception)
+import org.example.domain.PlanMateAppException
+
+class ExceptionViewer : ItemViewer<PlanMateAppException> {
+    override fun view(item: PlanMateAppException) {
+        println("\u001B[31m$item\u001B[0m")
+    }
 }
