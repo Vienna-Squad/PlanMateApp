@@ -1,5 +1,6 @@
 package org.example.presentation.controller
 
+import org.example.domain.NoFoundException
 import org.example.domain.usecase.auth.LoginUseCase
 import org.example.presentation.utils.interactor.Interactor
 import org.example.presentation.utils.interactor.StringInteractor
@@ -15,6 +16,8 @@ class LoginUiController(
             val username = interactor.getInput()
             print("enter password: ")
             val password = interactor.getInput()
+            if(username.isBlank()&&password.isBlank())
+                throw NoFoundException()
             loginUseCase(username, password)
         }
     }
