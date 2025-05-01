@@ -1,6 +1,6 @@
 package org.example.data.storage.bases
 
-import data.storage.Storage
+import data.storage.bases.Storage
 import java.io.File
 import java.io.FileNotFoundException
 
