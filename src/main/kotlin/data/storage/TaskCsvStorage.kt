@@ -13,7 +13,7 @@ class TaskCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
 
     override fun toCsvRow(item: Task): String {
         val assignedTo = item.assignedTo.joinToString("|")
-        return "${item.id},${item.title},${item.state},${assignedTo},${item.createdBy},${item.projectId},${item.createdAt}"
+        return "${item.id},${item.title},${item.state},${assignedTo},${item.createdBy},${item.projectId},${item.createdAt}\n"
     }
 
     override fun fromCsvRow(fields: List<String>): Task {

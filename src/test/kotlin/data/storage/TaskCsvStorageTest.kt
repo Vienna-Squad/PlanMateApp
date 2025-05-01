@@ -193,6 +193,11 @@ class TaskCsvStorageTest {
         val nonExistentFile = File("non_existent_file.csv")
         val invalidStorage = TaskCsvStorage(nonExistentFile)
 
+        // Ensure the file doesn't exist before reading
+        if (nonExistentFile.exists()) {
+            nonExistentFile.delete()
+        }
+
         // When/Then
         assertThrows<FileNotFoundException> { invalidStorage.read() }
     }

@@ -38,7 +38,7 @@ class UserCsvStorageTest {
         // Given
         val user = User(
             id = "user123",
-            username = "johndoe",
+            username = "abdo",
             password = "5f4dcc3b5aa765d61d8327deb882cf99", // md5 hash of "password"
             type = UserType.ADMIN,
             cratedAt = LocalDateTime.parse("2023-01-01T10:00:00")
@@ -53,7 +53,7 @@ class UserCsvStorageTest {
 
         val savedUser = users[0]
         assertThat(savedUser.id).isEqualTo("user123")
-        assertThat(savedUser.username).isEqualTo("johndoe")
+        assertThat(savedUser.username).isEqualTo("abdo")
         assertThat(savedUser.password).isEqualTo("5f4dcc3b5aa765d61d8327deb882cf99")
         assertThat(savedUser.type).isEqualTo(UserType.ADMIN)
     }
