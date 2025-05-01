@@ -12,7 +12,7 @@ class ProjectCsvStorage(file: File) :  EditableCsvStorage<Project>(file) {
     override fun toCsvRow(item: Project): String {
         val states = item.states.joinToString("|")
         val matesIds = item.matesIds.joinToString("|")
-        return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.cratedAt}"
+        return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.cratedAt}\n"
     }
     override fun fromCsvRow(fields: List<String>): Project {
         require(fields.size == EXPECTED_COLUMNS) { "Invalid project data format: " }
