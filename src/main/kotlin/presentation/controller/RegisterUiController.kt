@@ -6,9 +6,10 @@ import org.example.domain.usecase.auth.RegisterUserUseCase
 import org.example.presentation.utils.interactor.Interactor
 import org.example.presentation.utils.interactor.StringInteractor
 import org.koin.core.Koin
+import org.koin.java.KoinJavaComponent.getKoin
 
 class RegisterUiController(
-    private val registerUserUseCase: RegisterUserUseCase = Koin().get(),
+    private val registerUserUseCase: RegisterUserUseCase = getKoin().get(),
     private val interactor: Interactor<String> = StringInteractor()
 ): UiController {
     override fun execute() {
