@@ -17,22 +17,23 @@ class CreateProjectUseCase(
 ) {
     operator fun invoke(name: String, states: List<String>, creatorId: String, matesIds: List<String>) {
 
-        val currentUser = authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }
+        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
 
-        if (currentUser.type != UserType.ADMIN) {
-            throw AccessDeniedException()
+            if (currentUser.type != UserType.ADMIN) {
+                throw AccessDeniedException()
+            }
+
+            val newProject = Project(name = name, states = states, createdBy = creatorId, matesIds = matesIds)
+            projectsRepository.add(newProject).getOrElse { throw FailedToCreateProject() }
+
+            logsRepository.add(
+                log = CreatedLog(
+                    username = currentUser.username,
+                    affectedType = Log.AffectedType.PROJECT,
+                    affectedId = newProject.id
+                )
+            ).getOrElse { throw FailedToAddLogException() }
         }
-
-        val newProject = Project(name=name, states =  states, createdBy =  creatorId, matesIds =  matesIds)
-        projectsRepository.add(newProject).getOrElse { throw FailedToCreateProject() }
-
-        logsRepository.add(
-            log = CreatedLog(
-                username = currentUser.username,
-                affectedType = Log.AffectedType.PROJECT,
-                affectedId = newProject.id
-            )
-        ).getOrElse { throw FailedToAddLogException() }
 
     }
 }

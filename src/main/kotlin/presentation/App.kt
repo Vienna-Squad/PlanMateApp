@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.presentation.controller.CreateProjectUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -21,7 +22,7 @@ abstract class App(val menuItems: List<MenuItem>) {
 
 class AdminApp : App(
     menuItems = listOf(
-        MenuItem("Create New Project"),
+        MenuItem("Create New Project",CreateProjectUiController()),
         MenuItem("Edit Project Name"),
         MenuItem("Add New State to Project"),
         MenuItem("Remove State from Project"),
