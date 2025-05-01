@@ -1,5 +1,6 @@
 package org.example.presentation.controller
 
+import org.example.domain.InvalidIdException
 import org.example.domain.PlanMateAppException
 import org.example.domain.usecase.project.GetAllTasksOfProjectUseCase
 import org.example.presentation.utils.interactor.Interactor
@@ -19,6 +20,9 @@ class GetAllTasksOfProjectController(
         tryAndShowError(exceptionViewer){
             println("enter project ID: ")
             val projectId = interactor.getInput()
+            if (projectId.isBlank()) {
+                throw InvalidIdException()
+            }
             val tasks = getAllTasksOfProjectUseCase(projectId)
             stringViewer.view(tasks.toString())
         }

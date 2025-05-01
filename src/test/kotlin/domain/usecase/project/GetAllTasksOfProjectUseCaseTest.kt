@@ -37,7 +37,7 @@ class GetAllTasksOfProjectUseCaseTest {
         // Given
         val projectId = "project-123"
         val user = createTestUser(id = "user-123")
-        val project = createTestProject(id = projectId, createdBy = user.id)
+        val project = createTestProject(id = projectId, matesIds = listOf(user.id))
         val task1 = createTestTask(title = "Task 1", projectId = projectId)
         val task2 = createTestTask(title = "Task 2", projectId = "project-321")
         val task3 = createTestTask(title = "Task 3", projectId = projectId)
@@ -52,26 +52,6 @@ class GetAllTasksOfProjectUseCaseTest {
 
         // Then
         assertThat(result).containsExactly(task1, task3)
-    }
-
-    @Test
-    fun `should return single task that belong to given project ID for mate user`() {
-        // Given
-        val projectId = "project-123"
-        val user = createTestUser(id = "user-456")
-        val project = createTestProject(id = projectId, matesIds = listOf(user.id))
-        val task = createTestTask(title = "Task 1", projectId = projectId)
-        val otherTask = createTestTask(title = "Task 2", projectId = "project-321")
-
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(projectId) } returns Result.success(project)
-        every { tasksRepository.getAll() } returns Result.success(listOf(task, otherTask))
-
-        // When
-        val result = getAllTasksOfProjectUseCase(projectId)
-
-        // Then
-        assertThat(result).containsExactly(task)
     }
 
     @Test
@@ -157,17 +137,7 @@ class GetAllTasksOfProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw InvalidIdException when projectId is empty`() {
-        // Given
-        val projectId = ""
-
-        // When & Then
-        assertThrows<InvalidIdException> {
-            getAllTasksOfProjectUseCase(projectId)
-        }
-    }
-    @Test
-    fun `should return tasks for admin user not associated with project`() {
+    fun `should return tasks for admin project`() {
         // Given
         val projectId = "project-123"
         val user = createTestUser(id = "user-999", type = UserType.ADMIN)

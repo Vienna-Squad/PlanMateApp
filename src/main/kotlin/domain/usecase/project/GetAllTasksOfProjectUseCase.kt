@@ -17,10 +17,6 @@ class GetAllTasksOfProjectUseCase(
 ) {
     operator fun invoke(projectId: String): List<Task> {
 
-        if (projectId.isBlank()){
-            throw InvalidIdException()
-        }
-
         val currentUser = authenticationRepository.getCurrentUser().getOrElse {
             throw UnauthorizedException()
         }
@@ -29,10 +25,11 @@ class GetAllTasksOfProjectUseCase(
             throw InvalidIdException()
         }
 
-        if (currentUser.type != UserType.ADMIN && currentUser.id != project.createdBy && currentUser.id !in project.matesIds) {
+        if (currentUser.type != UserType.ADMIN &&
+            currentUser.id != project.createdBy &&
+            currentUser.id !in project.matesIds) {
             throw UnauthorizedException()
         }
-
 
         val allTasks = tasksRepository.getAll().getOrElse {
             throw NoFoundException()
@@ -44,4 +41,6 @@ class GetAllTasksOfProjectUseCase(
             .takeIf { it.isNotEmpty() }
             ?: throw NoFoundException()
     }
+
+
 }
