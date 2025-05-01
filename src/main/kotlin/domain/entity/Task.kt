@@ -9,6 +9,6 @@ data class Task(
     val state: String,
     val assignedTo: List<String>,
     val createdBy: String,
-    val cratedAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now(),
     val projectId: String,
 )
