@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.presentation.controller.GetTaskUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -32,7 +33,7 @@ class AdminApp : App(
         MenuItem("View Project Change History"),
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
-        MenuItem("Edit Task Details"),
+        MenuItem("Edit Task Details", GetTaskUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
