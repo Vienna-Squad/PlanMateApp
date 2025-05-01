@@ -37,7 +37,6 @@ class AdminApp : App(
         MenuItem("Edit Task Details"),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
-        MenuItem("Create New User (Register New Account)", RegisterUiController()),
         MenuItem("Log Out")
     )
 )
@@ -45,6 +44,7 @@ class AdminApp : App(
 class AuthApp : App(
     menuItems = listOf(
         MenuItem("Log In", LoginUiController()),
+        MenuItem("Create New User (Register New Account)", RegisterUiController()),
         MenuItem("Exit Application")
     )
 )
