@@ -1,9 +1,6 @@
 plugins {
-
     kotlin("jvm") version "2.1.0"
-
     jacoco
-
 }
 jacoco {
 
@@ -80,9 +77,6 @@ tasks.jacocoTestReport {
     }
 
 }
-
-
-
 tasks.jacocoTestCoverageVerification {
 
     dependsOn(tasks.jacocoTestReport)
@@ -146,7 +140,6 @@ tasks.jacocoTestCoverageVerification {
     }
 
 }
-
 tasks.check {
 
     dependsOn(tasks.jacocoTestCoverageVerification)
@@ -156,8 +149,6 @@ tasks.check {
 group = "org.example"
 
 version = "1.0-SNAPSHOT"
-
-
 repositories {
     mavenCentral()
 }

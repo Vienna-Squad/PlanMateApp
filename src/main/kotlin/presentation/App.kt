@@ -1,9 +1,13 @@
 package org.example.presentation
 
+import org.example.domain.usecase.project.AddStateToProjectUseCase
+import org.example.presentation.controller.AddStateToProjectUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
+import org.example.presentation.utils.interactor.StringInteractor
 
 abstract class App(val menuItems: List<MenuItem>) {
+
     fun run() {
         menuItems.forEachIndexed { index, option -> println("${index + 1}. ${option.title}") }
         print("enter your selection: ")
@@ -23,7 +27,7 @@ class AdminApp : App(
     menuItems = listOf(
         MenuItem("Create New Project"),
         MenuItem("Edit Project Name"),
-        MenuItem("Add New State to Project"),
+        MenuItem("Add New State to Project", uiController = AddStateToProjectUiController(AddStateToProjectUseCase(),StringInteractor())),
         MenuItem("Remove State from Project"),
         MenuItem("Add Mate User to Project"),
         MenuItem("Remove Mate User from Project"),
@@ -38,7 +42,6 @@ class AdminApp : App(
         MenuItem("Log Out")
     )
 )
-
 class AuthApp : App(
     menuItems = listOf(
         MenuItem("Log In"),
@@ -46,7 +49,6 @@ class AuthApp : App(
         MenuItem("Exit Application")
     )
 )
-
 class MateApp : App(
     menuItems = listOf(
         MenuItem("View All Tasks in Project"),

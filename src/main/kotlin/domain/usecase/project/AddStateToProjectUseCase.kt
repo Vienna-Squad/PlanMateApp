@@ -10,13 +10,14 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import org.koin.mp.KoinPlatform.getKoin
 import java.time.LocalDateTime
 
 
 class AddStateToProjectUseCase(
-    private val authenticationRepository: AuthenticationRepository,
-    private val projectsRepository: ProjectsRepository,
-    private val logsRepository: LogsRepository
+    private val authenticationRepository: AuthenticationRepository= getKoin().get(),
+    private val projectsRepository: ProjectsRepository= getKoin().get(),
+    private val logsRepository: LogsRepository= getKoin().get()
 ) {
     operator fun invoke(projectId: String, state: String) {
         val currentUser = authenticationRepository
