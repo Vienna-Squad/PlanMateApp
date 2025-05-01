@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.presentation.controller.AddMateToProjectUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -25,7 +26,7 @@ class AdminApp : App(
         MenuItem("Edit Project Name"),
         MenuItem("Add New State to Project"),
         MenuItem("Remove State from Project"),
-        MenuItem("Add Mate User to Project"),
+        MenuItem("Add Mate User to Project",AddMateToProjectUiController()),
         MenuItem("Remove Mate User from Project"),
         MenuItem("Delete Project"),
         MenuItem("View All Tasks in Project"),

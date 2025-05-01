@@ -2,10 +2,12 @@ package org.example.presentation.controller
 
 import org.example.domain.usecase.project.AddMateToProjectUseCase
 import org.example.presentation.utils.interactor.Interactor
+import org.example.presentation.utils.interactor.StringInteractor
+import org.koin.mp.KoinPlatform.getKoin
 
 class AddMateToProjectUiController(
-    private val addMateToProjectUseCase: AddMateToProjectUseCase,
-    private val interactor: Interactor<String>,
+    private val addMateToProjectUseCase: AddMateToProjectUseCase= getKoin().get(),
+    private val interactor: Interactor<String> = StringInteractor(),
 ) : UiController {
     override fun execute() {
         tryAndShowError {
