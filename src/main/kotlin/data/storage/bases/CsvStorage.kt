@@ -10,6 +10,11 @@ abstract class CsvStorage<T>(val file: File) : Storage<T> {
     override fun read(): List<T> {
         if (!file.exists()) throw FileNotFoundException()
         val lines = file.readLines()
+
+        if (lines.isEmpty() || lines[0] != getHeaderString().trim()) {
+            throw IllegalArgumentException("Invalid CSV format: missing or incorrect header")
+        }
+
         return if (lines.size > 1) {
             lines.drop(1)  // Skip header
                 .filter { it.isNotEmpty() }

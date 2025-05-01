@@ -13,7 +13,7 @@ class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
     }
 
     override fun toCsvRow(item: User): String {
-        return "${item.id},${item.username},${item.password},${item.type},${item.cratedAt}"
+        return "${item.id},${item.username},${item.password},${item.type},${item.cratedAt}\n"
     }
 
     override fun fromCsvRow(fields: List<String>): User {
