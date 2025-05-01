@@ -4,6 +4,8 @@ import org.example.domain.InvalidIdException
 import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Task
+import org.example.domain.entity.User
+import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.TasksRepository
 
@@ -14,21 +16,27 @@ class GetTaskUseCase(
 
     operator fun invoke(taskId: String): Task {
 
-        validateInputs(taskId)
+        if (taskId.isBlank()) throw InvalidIdException()
 
-        val userResult = authenticationRepository.getCurrentUser()
-        if (userResult.isFailure) {
-            throw UnauthorizedException()
-        }
-        val taskResult = tasksRepository.get(taskId)
-        if (taskResult.isFailure) {
+        val currentUser = authenticationRepository.getCurrentUser()
+            .getOrElse { throw UnauthorizedException() }
+
+        val task = tasksRepository.get(taskId).getOrElse {
             throw NoFoundException()
         }
-        return taskResult.getOrThrow()
+
+        if (!isAuthorized(currentUser, task)) {
+            throw UnauthorizedException()
+        }
+
+        return task
     }
 
-    private fun validateInputs(taskId: String) {
-        require(taskId.isNotBlank()) { throw InvalidIdException() }
+
+    private fun isAuthorized(user: User, task: Task): Boolean {
+        return user.type == UserType.ADMIN ||
+                task.createdBy == user.username ||
+                task.assignedTo.contains(user.id)
     }
 
 }
