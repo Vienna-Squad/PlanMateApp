@@ -77,7 +77,7 @@ class AddStateToProjectUseCaseTest {
 
     @Test
 
-    fun `should add state to and add log to logs repository project given project id`() {
+    fun `should add state to project and add log to logs given project id`() {
         // Given
         every { authenticationRepository.getCurrentUser() } returns Result.success(admin)
         every { projectsRepository.get(any()) } returns Result.success(projects[0])
@@ -92,6 +92,9 @@ class AddStateToProjectUseCaseTest {
         }
         verify { logsRepository.add(match { it is AddedLog }) }
     }
+
+
+
     private val projects = listOf(
         Project(
             name = "Project Alpha",
