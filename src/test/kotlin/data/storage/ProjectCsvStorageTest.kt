@@ -1,104 +1,218 @@
 package data.storage
 
 import com.google.common.truth.Truth.assertThat
-import data.TestUtils
 import org.example.data.storage.ProjectCsvStorage
 import org.example.domain.entity.Project
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.io.FileNotFoundException
 import java.nio.file.Path
-import java.util.UUID
+import java.time.LocalDateTime
+
 
 class ProjectCsvStorageTest {
-
+    private lateinit var tempFile: File
     private lateinit var storage: ProjectCsvStorage
-    private lateinit var tempFilePath: String
 
     @BeforeEach
     fun setUp(@TempDir tempDir: Path) {
-        tempFilePath = tempDir.resolve("projects_test.csv").toString()
-        storage = ProjectCsvStorage(tempFilePath)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        TestUtils.cleanupFile(tempFilePath)
+        tempFile = tempDir.resolve("projects_test.csv").toFile()
+        storage = ProjectCsvStorage(tempFile)
     }
 
     @Test
     fun `should create file with header when initialized`() {
-        // WHEN - Storage is initialized in setUp
+        // Given - initialization in setUp
 
-        // THEN - File should exist with header
-        val content = java.io.File(tempFilePath).readText()
-        assertThat(content).contains("id,name,states,createdBy,matesIds,createdAt")
+        // When - file creation happens in init block
+
+        // Then
+        assertThat(tempFile.exists()).isTrue()
+        assertThat(tempFile.readText()).contains("id,name,states,createdBy,matesIds,createdAt")
     }
 
     @Test
-    fun `should write and read projects correctly`() {
-        // GIVEN
-        val project1 = createTestProject(
-            "Project 1", listOf("TODO", "In Progress", "Done"), "user1", listOf("user2", "user3")
+    fun `should correctly serialize and append a project`() {
+        // Given
+        val project = Project(
+            id = "proj123",
+            name = "Test Project",
+            states = listOf("TODO", "In Progress", "Done"),
+            createdBy = "admin",
+            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            matesIds = listOf("user1", "user2")
         )
 
-        val project2 = createTestProject(
-            "Project 2", listOf("Backlog", "In Development", "Testing", "Released"), "user1", listOf("user4")
-        )
+        // When
+        storage.append(project)
 
-        val projects = listOf(project1, project2)
+        // Then
+        val projects = storage.read()
+        assertThat(projects).hasSize(1)
 
-        // WHEN
-        storage.write(projects)
-        val result = storage.read()
-
-        // THEN
-        assertThat(result).hasSize(2)
-
-        val resultProject1 = result.find { it.name == "Project 1" }
-        assertThat(resultProject1).isNotNull()
-        assertThat(resultProject1!!.states).containsExactly("TODO", "In Progress", "Done")
-        assertThat(resultProject1.createdBy).isEqualTo("user1")
-        assertThat(resultProject1.matesIds).containsExactly("user2", "user3")
-
-        val resultProject2 = result.find { it.name == "Project 2" }
-        assertThat(resultProject2).isNotNull()
-        assertThat(resultProject2!!.states).containsExactly("Backlog", "In Development", "Testing", "Released")
-        assertThat(resultProject2.matesIds).containsExactly("user4")
+        val savedProject = projects[0]
+        assertThat(savedProject.id).isEqualTo("proj123")
+        assertThat(savedProject.name).isEqualTo("Test Project")
+        assertThat(savedProject.states).containsExactly("TODO", "In Progress", "Done")
+        assertThat(savedProject.createdBy).isEqualTo("admin")
+        assertThat(savedProject.matesIds).containsExactly("user1", "user2")
     }
 
     @Test
-    fun `should append project to existing file`() {
-        // GIVEN
-        val project1 = createTestProject("Project 1", listOf("TODO", "Done"), "user1", emptyList())
-        storage.write(listOf(project1))
+    fun `should handle project with empty states and matesIds`() {
+        // Given
+        val project = Project(
+            id = "proj123",
+            name = "Empty Project",
+            states = emptyList(),
+            createdBy = "admin",
+            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            matesIds = emptyList()
+        )
 
-        val project2 = createTestProject("Project 2", listOf("Backlog", "Released"), "user1", listOf("user2"))
+        // When
+        storage.append(project)
 
-        // WHEN
+        // Then
+        val projects = storage.read()
+        assertThat(projects).hasSize(1)
+
+        val savedProject = projects[0]
+        assertThat(savedProject.states).isEmpty()
+        assertThat(savedProject.matesIds).isEmpty()
+    }
+
+    @Test
+    fun `should handle multiple projects`() {
+        // Given
+        val project1 = Project(
+            id = "proj1",
+            name = "Project 1",
+            states = listOf("TODO", "Done"),
+            createdBy = "admin1",
+            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            matesIds = listOf("user1")
+        )
+
+        val project2 = Project(
+            id = "proj2",
+            name = "Project 2",
+            states = listOf("Backlog", "In Progress", "Testing", "Released"),
+            createdBy = "admin2",
+            cratedAt = LocalDateTime.parse("2023-01-02T10:00:00"),
+            matesIds = listOf("user2", "user3")
+        )
+
+        // When
+        storage.append(project1)
         storage.append(project2)
-        val result = storage.read()
 
-        // THEN
-        assertThat(result).hasSize(2)
-        assertThat(result.map { it.name }).containsExactly("Project 1", "Project 2")
+        // Then
+        val projects = storage.read()
+        assertThat(projects).hasSize(2)
+        assertThat(projects.map { it.id }).containsExactly("proj1", "proj2")
     }
 
     @Test
-    fun `should handle empty list when reading`() {
-        // GIVEN - Empty file with just header
+    fun `should correctly write a list of projects`() {
+        // Given
+        val project1 = Project(
+            id = "proj1",
+            name = "Project 1",
+            states = listOf("TODO", "Done"),
+            createdBy = "admin1",
+            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            matesIds = listOf("user1")
+        )
 
-        // WHEN
-        val result = storage.read()
+        val project2 = Project(
+            id = "proj2",
+            name = "Project 2",
+            states = listOf("Backlog", "Released"),
+            createdBy = "admin2",
+            cratedAt = LocalDateTime.parse("2023-01-02T10:00:00"),
+            matesIds = listOf("user2", "user3")
+        )
 
-        // THEN
-        assertThat(result).isEmpty()
+        // When
+        storage.write(listOf(project1, project2))
+
+        // Then
+        val projects = storage.read()
+        assertThat(projects).hasSize(2)
+        assertThat(projects.map { it.name }).containsExactly("Project 1", "Project 2")
     }
 
-    private fun createTestProject(
-        name: String, states: List<String>, createdBy: String, matesIds: List<String>
-    ): Project {
-        return Project(name = name, states = states, createdBy = createdBy, matesIds = matesIds)
+    @Test
+    fun `should overwrite existing content when using write`() {
+        // Given
+        val project1 = Project(
+            id = "proj1",
+            name = "Original Project",
+            states = listOf("TODO"),
+            createdBy = "admin1",
+            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            matesIds = emptyList()
+        )
+
+        val project2 = Project(
+            id = "proj2",
+            name = "New Project",
+            states = listOf("Backlog"),
+            createdBy = "admin2",
+            cratedAt = LocalDateTime.parse("2023-01-02T10:00:00"),
+            matesIds = emptyList()
+        )
+
+        // First add project1
+        storage.append(project1)
+
+        // When - overwrite with project2
+        storage.write(listOf(project2))
+
+        // Then
+        val projects = storage.read()
+        assertThat(projects).hasSize(1)
+        assertThat(projects[0].id).isEqualTo("proj2")
+        assertThat(projects[0].name).isEqualTo("New Project")
+    }
+
+    @Test
+    fun `should handle reading from non-existent file`() {
+        // Given
+        val nonExistentFile = File("non_existent_file.csv")
+        val invalidStorage = ProjectCsvStorage(nonExistentFile)
+
+        // Ensure the file doesn't exist before reading
+        if (nonExistentFile.exists()) {
+            nonExistentFile.delete()
+        }
+
+        // When/Then
+        assertThrows<FileNotFoundException> { invalidStorage.read() }
+    }
+
+    @Test
+    fun `should throw IllegalArgumentException when reading malformed CSV`() {
+        // Given
+        tempFile.writeText("id1,name1\n") // Missing columns
+
+        // When/Then
+        assertThrows<IllegalArgumentException> { storage.read() }
+    }
+
+    @Test
+    fun `should return empty list when file has only header`() {
+        // Given
+        // Only header is written during initialization
+
+        // When
+        val projects = storage.read()
+
+        // Then
+        assertThat(projects).isEmpty()
     }
 }
