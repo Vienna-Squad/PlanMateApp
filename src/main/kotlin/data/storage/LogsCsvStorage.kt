@@ -8,15 +8,15 @@ import java.io.File
 import java.text.ParseException
 import java.time.LocalDateTime
 
-class LogsCsvStorage(file: File = File(FILE_NAME)) : CsvStorage<Log>(file) {
+class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
     init {
-        writeHeader(CSV_HEADER)
+        writeHeader(getHeaderString())
     }
 
     override fun toCsvRow(item: Log): String {
         return when (item) {
             is AddedLog -> listOf(
-                ActionType.CHANGED.name,
+                ActionType.ADDED.name,
                 item.username,
                 item.affectedId,
                 item.affectedType,
@@ -58,12 +58,14 @@ class LogsCsvStorage(file: File = File(FILE_NAME)) : CsvStorage<Log>(file) {
     }
 
     override fun fromCsvRow(fields: List<String>): Log {
-        //[ActionType,username, affectedId, affectedType, dateTime,changedFrom, changedTo]
-        if (fields.size != 7) throw ParseException("wrong size of fields it is: ${fields.size}", 0)
-        val actionType = ActionType.entries.firstOrNull { it.name == fields.first() } ?: throw ParseException(
-            fields.first(),
-            0
-        )
+        if (fields.size != EXPECTED_COLUMNS) {
+            throw IllegalArgumentException("Invalid CSV format: wrong size of fields, expected $EXPECTED_COLUMNS but got ${fields.size}")
+        }
+
+        val actionType =
+            ActionType.entries.firstOrNull { it.name == fields[ACTION_TYPE_INDEX] }
+                ?: throw IllegalArgumentException("Invalid action type: ${fields[ACTION_TYPE_INDEX]}")
+
         return when (actionType) {
             ActionType.CHANGED -> ChangedLog(
                 username = fields[USERNAME_INDEX],
@@ -99,16 +101,22 @@ class LogsCsvStorage(file: File = File(FILE_NAME)) : CsvStorage<Log>(file) {
         }
     }
 
-    companion object {
-        const val FILE_NAME = "logs.csv"
-        const val USERNAME_INDEX = 1
-        const val AFFECTED_ID_INDEX = 2
-        const val AFFECTED_TYPE_INDEX = 3
-        const val DATE_TIME_INDEX = 4
-        const val FROM_INDEX = 5
-        const val TO_INDEX = 6
-        private const val CSV_HEADER =
-            "ActionType,username, affectedId, affectedType, dateTime,changedFrom, changedTo\n"
+    override fun getHeaderString(): String {
+        return CSV_HEADER
+    }
 
+    companion object {
+        private const val ACTION_TYPE_INDEX = 0
+        private const val USERNAME_INDEX = 1
+        private const val AFFECTED_ID_INDEX = 2
+        private const val AFFECTED_TYPE_INDEX = 3
+        private const val DATE_TIME_INDEX = 4
+        private const val FROM_INDEX = 5
+        private const val TO_INDEX = 6
+
+        private const val EXPECTED_COLUMNS = 7
+
+        private const val CSV_HEADER =
+            "ActionType,username,affectedId,affectedType,dateTime,changedFrom,changedTo\n"
     }
 }

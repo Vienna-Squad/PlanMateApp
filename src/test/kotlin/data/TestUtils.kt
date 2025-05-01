@@ -9,8 +9,7 @@ object TestUtils {
         return tempFile.absolutePath
     }
 
-    fun cleanupFile(filePath: String) {
-        val file = File(filePath)
+    fun cleanupFile(file: File) {
         if (file.exists()) {
             file.delete()
         }
