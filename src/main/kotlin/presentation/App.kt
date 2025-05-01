@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.presentation.controller.GetProjectHistoryUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -29,7 +30,7 @@ class AdminApp : App(
         MenuItem("Remove Mate User from Project"),
         MenuItem("Delete Project"),
         MenuItem("View All Tasks in Project"),
-        MenuItem("View Project Change History"),
+        MenuItem("View Project Change History",GetProjectHistoryUiController()),
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),

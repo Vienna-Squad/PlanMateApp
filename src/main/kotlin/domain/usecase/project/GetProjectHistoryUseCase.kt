@@ -36,7 +36,7 @@ class GetProjectHistoryUseCase(
                 }
         }
         return logsRepository.getAll().getOrElse { throw FailedToCallLogException() }.filter { logs ->
-            logs.id == projectId
+            logs.affectedId == projectId
         }
 
     }

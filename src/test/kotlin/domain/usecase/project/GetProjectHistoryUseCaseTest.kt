@@ -63,8 +63,8 @@ class GetProjectHistoryUseCaseTest {
             username = "admin1",
             affectedId = dummyProjects[0].id,
             affectedType = Log.AffectedType.PROJECT,
-            oldValue = "In Progress",
-            newValue = "Testing"
+            changedFrom = "In Progress",
+            changedTo = "Testing"
         )
     )
 
@@ -106,7 +106,6 @@ class GetProjectHistoryUseCaseTest {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(mateUser)
         every { projectsRepository.get(dummyProjects[1].id) } returns Result.success(dummyProjects[1])
-
 
         //when & then
         assertThrows<AccessDeniedException> {
