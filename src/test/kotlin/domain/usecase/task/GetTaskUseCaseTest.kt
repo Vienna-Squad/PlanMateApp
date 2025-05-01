@@ -44,7 +44,7 @@ class GetTaskUseCaseTest {
         state = "ToDo",
         assignedTo = emptyList(),
         createdBy = username,
-        cratedAt = LocalDateTime.now(),
+        createdAt = LocalDateTime.now(),
         projectId = "P1"
     )
 

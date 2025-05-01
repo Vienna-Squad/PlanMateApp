@@ -1,5 +1,6 @@
 package org.example.presentation.controller
 
+import org.example.domain.InvalidIdException
 import org.example.domain.usecase.task.GetTaskUseCase
 import org.example.presentation.utils.interactor.Interactor
 import org.example.presentation.utils.interactor.StringInteractor
@@ -14,7 +15,11 @@ class GetTaskUiController(
         tryAndShowError {
             print("enter task ID: ")
             val taskId = interactor.getInput()
+            require (taskId.isBlank()) {throw InvalidIdException()}
             getTaskUseCase(taskId)
+
         }
     }
 }
+
+

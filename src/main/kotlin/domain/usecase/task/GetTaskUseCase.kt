@@ -16,7 +16,6 @@ class GetTaskUseCase(
 
     operator fun invoke(taskId: String): Task {
 
-        if (taskId.isBlank()) throw InvalidIdException()
 
         val currentUser = authenticationRepository.getCurrentUser()
             .getOrElse { throw UnauthorizedException() }
