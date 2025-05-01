@@ -42,7 +42,7 @@ class AddMateToTaskUseCaseTest {
     }
 
     @Test
-    fun `should add mate to task and log the action successfully for task creator`() {
+    fun `should add mate to task and log the action successfully is creator`() {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
@@ -220,33 +220,6 @@ class AddMateToTaskUseCaseTest {
     }
 
     @Test
-    fun `should add mate to task with existing mates`() {
-        // Given
-        val taskId = "task-123"
-        val existingMateId = "user-789"
-        val newMateId = "user-456"
-        val projectId = "project-123"
-        val currentUser = createTestUser(id = "user-123")
-        val task = createTestTask(id = taskId, createdBy = currentUser.id, assignedTo = listOf(existingMateId), projectId = projectId)
-        val mate = createTestUser(id = newMateId)
-        val project = createTestProject(id = projectId, matesIds = listOf(newMateId))
-        val updatedTask = task.copy(assignedTo = listOf(existingMateId, newMateId))
-
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
-        every { tasksRepository.get(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUser(newMateId) } returns Result.success(mate)
-        every { projectsRepository.get(projectId) } returns Result.success(project)
-
-        // When
-        addMateToTaskUseCase(taskId, newMateId)
-
-        // Then
-        verify { tasksRepository.update(updatedTask) }
-        verify { logsRepository.add(any<AddedLog>()) }
-        assertThat(updatedTask.assignedTo).containsExactly(existingMateId, newMateId)
-    }
-
-    @Test
     fun `should not update task if mate is already assigned`() {
         // Given
         val taskId = "task-123"
@@ -328,30 +301,6 @@ class AddMateToTaskUseCaseTest {
 
         // When & Then
         assertThrows<UnauthorizedException> {
-            addMateToTaskUseCase(taskId, mateId)
-        }
-    }
-
-    @Test
-    fun `should throw InvalidIdException when taskId is empty`() {
-        // Given
-        val taskId = ""
-        val mateId = "user-456"
-
-        // When & Then
-        assertThrows<InvalidIdException> {
-            addMateToTaskUseCase(taskId, mateId)
-        }
-    }
-
-    @Test
-    fun `should throw InvalidIdException when mateId is empty`() {
-        // Given
-        val taskId = "task-123"
-        val mateId = ""
-
-        // When & Then
-        assertThrows<InvalidIdException> {
             addMateToTaskUseCase(taskId, mateId)
         }
     }

@@ -18,12 +18,6 @@ class AddMateToTaskUseCase(
     private val projectsRepository: ProjectsRepository
 ) {
     operator fun invoke(taskId: String, mate: String) {
-        if (taskId.isBlank()) {
-            throw InvalidIdException()
-        }
-        if (mate.isBlank()) {
-            throw InvalidIdException()
-        }
 
         val currentUser = authenticationRepository.getCurrentUser()
             .getOrElse { throw UnauthorizedException() }
