@@ -4,14 +4,19 @@ import org.example.data.storage.LogsCsvStorage
 import org.example.domain.entity.Log
 import org.example.domain.repository.LogsRepository
 
-class LogsCsvRepository (
+class LogsCsvRepository(
     private val storage: LogsCsvStorage
 ) : LogsRepository {
+
     override fun getAll(): Result<List<Log>> {
-        TODO("Not yet implemented")
+        return runCatching {
+            storage.read()
+        }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
     }
 
     override fun add(log: Log): Result<Unit> {
-        TODO("Not yet implemented")
+        return runCatching {
+            storage.append(log)
+        }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
     }
 }
