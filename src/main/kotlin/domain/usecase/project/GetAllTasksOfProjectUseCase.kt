@@ -6,6 +6,7 @@ import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
+import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 
 class GetAllTasksOfProjectUseCase(
@@ -28,7 +29,7 @@ class GetAllTasksOfProjectUseCase(
             throw InvalidIdException()
         }
 
-        if (currentUser.id != project.createdBy && currentUser.id !in project.matesIds) {
+        if (currentUser.type != UserType.ADMIN && currentUser.id != project.createdBy && currentUser.id !in project.matesIds) {
             throw UnauthorizedException()
         }
 

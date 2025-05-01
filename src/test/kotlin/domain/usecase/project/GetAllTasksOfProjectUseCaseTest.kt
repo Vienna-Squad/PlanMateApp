@@ -166,6 +166,26 @@ class GetAllTasksOfProjectUseCaseTest {
             getAllTasksOfProjectUseCase(projectId)
         }
     }
+    @Test
+    fun `should return tasks for admin user not associated with project`() {
+        // Given
+        val projectId = "project-123"
+        val user = createTestUser(id = "user-999", type = UserType.ADMIN)
+        val project = createTestProject(id = projectId, createdBy = "user-123", matesIds = listOf("user-456"))
+        val task1 = createTestTask(title = "Task 1", projectId = projectId)
+        val task2 = createTestTask(title = "Task 2", projectId = projectId)
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+        every { tasksRepository.getAll() } returns Result.success(listOf(task1, task2))
+
+        // When
+        val result = getAllTasksOfProjectUseCase(projectId)
+
+        // Then
+        assertThat(result).containsExactly(task1, task2)
+    }
+
 
 
     private fun createTestTask(
@@ -206,13 +226,14 @@ class GetAllTasksOfProjectUseCaseTest {
         id: String = "user-123",
         username: String = "testUser",
         password: String = "hashed",
+        type: UserType = UserType.MATE
 
     ): User {
         return User(
             id = id,
             username = username,
             password = password,
-            type = UserType.MATE,
+            type = type,
             cratedAt = LocalDateTime.now()
         )
     }
