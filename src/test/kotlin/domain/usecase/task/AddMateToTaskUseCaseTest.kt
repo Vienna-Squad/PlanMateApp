@@ -232,7 +232,7 @@ class AddMateToTaskUseCaseTest {
             assignedTo = assignedTo,
             createdBy = createdBy,
             projectId = projectId,
-            cratedAt = LocalDateTime.now()
+            createdAt  = LocalDateTime.now()
         )
     }
 
