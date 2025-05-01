@@ -154,8 +154,18 @@ class UserCsvStorageTest {
         val nonExistentFile = File("non_existent_file.csv")
         val invalidStorage = UserCsvStorage(nonExistentFile)
 
+        // Ensure the file doesn't exist before reading
+        if (nonExistentFile.exists()) {
+            nonExistentFile.delete()
+        }
+
         // When/Then
         assertThrows<FileNotFoundException> { invalidStorage.read() }
+
+        // Clean up
+        if (nonExistentFile.exists()) {
+            nonExistentFile.delete()
+        }
     }
 
     @Test
