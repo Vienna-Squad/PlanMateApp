@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.presentation.controller.EditTaskTitleUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -33,6 +34,7 @@ class AdminApp : App(
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
+        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
@@ -54,6 +56,7 @@ class MateApp : App(
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
+        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
