@@ -1,5 +1,7 @@
 package org.example.presentation
 
+import org.example.presentation.controller.LoginUiController
+import org.example.presentation.controller.RegisterUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -35,14 +37,14 @@ class AdminApp : App(
         MenuItem("Edit Task Details"),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
+        MenuItem("Create New User (Register New Account)", RegisterUiController()),
         MenuItem("Log Out")
     )
 )
 
 class AuthApp : App(
     menuItems = listOf(
-        MenuItem("Log In"),
-        MenuItem("Sign Up (Register New Account)"),
+        MenuItem("Log In", LoginUiController()),
         MenuItem("Exit Application")
     )
 )
