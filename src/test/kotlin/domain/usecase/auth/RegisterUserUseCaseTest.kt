@@ -2,12 +2,11 @@ package domain.usecase.auth
 
 import io.mockk.every
 import io.mockk.mockk
-import org.example.domain.NoFoundException
+import io.mockk.verify
 import org.example.domain.RegisterException
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
-import org.example.domain.usecase.auth.LoginUseCase
 import org.example.domain.usecase.auth.RegisterUserUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
@@ -45,40 +44,66 @@ class RegisterUserUseCaseTest {
         // given
         val user = User(
             username = "ahdmedf3",
-            password = "1234234",
+            password = "12344234",
             type = UserType.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(User(
-            username = "Ahmed",
-            password = "234sdfg5hn",
-            type = UserType.MATE,
-        ))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.MATE,
+            )
+        )
         // when & then
         assertThrows<RegisterException> {
             registerUserUseCase.invoke(user.username, user.password, user.type)
         }
     }
-
 
 
     @Test
-    fun `invoke should throw RegisterException when username and password is not valid`() {
+    fun `invoke should throw RegisterException when username is not valid`() {
         // given
         val user = User(
-            username = "  Ahm ed  ",
-            password = "1234",
+            username = " Ah med ",
+            password = "123456789",
             type = UserType.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(User(
-            username = "Ahmed",
-            password = "234sdfg5hn",
-            type = UserType.MATE,
-        ))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
         // when & then
         assertThrows<RegisterException> {
             registerUserUseCase.invoke(user.username, user.password, user.type)
         }
     }
+
+
+    @Test
+    fun `invoke should throw RegisterException when password is not valid`() {
+        // given
+        val user = User(
+            username = "AhmedNasser",
+            password = "1234",
+            type = UserType.MATE
+        )
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
+        // when & then
+        assertThrows<RegisterException> {
+            registerUserUseCase.invoke(user.username, user.password, user.type)
+        }
+    }
+
 
     @Test
     fun `invoke should throw RegisterException when the result of getAllUsers list is failure from authenticationRepository`() {
@@ -88,11 +113,13 @@ class RegisterUserUseCaseTest {
             password = "12345678",
             type = UserType.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(User(
-            username = "Ahmed",
-            password = "234sdfg5hn",
-            type = UserType.ADMIN,
-        ))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
         every { authenticationRepository.getAllUsers() } returns Result.failure(RegisterException())
 
         // when&then
@@ -102,18 +129,20 @@ class RegisterUserUseCaseTest {
     }
 
     @Test
-    fun `invoke should throw RegisterException when the user found in getAllUsers list given the result of getAllUsers is success`() {
+    fun `invoke should throw RegisterException when the user found in getAllUsers list`() {
         // given
         val user = User(
             username = "AhmedNaser",
             password = "12345678",
             type = UserType.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(User(
-            username = "Ahmed",
-            password = "234sdfg5hn",
-            type = UserType.ADMIN,
-        ))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
         every { authenticationRepository.getAllUsers() } returns Result.success(
             listOf(
                 User(
@@ -142,11 +171,13 @@ class RegisterUserUseCaseTest {
             password = "12345678",
             type = UserType.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(User(
-            username = "Ahmed",
-            password = "234sdfg5hn",
-            type = UserType.ADMIN,
-        ))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
         every { authenticationRepository.getAllUsers() } returns Result.success(
             listOf(
                 User(
@@ -161,7 +192,7 @@ class RegisterUserUseCaseTest {
                 )
             )
         )
-        every {  authenticationRepository.createUser(any())} returns Result.failure(RegisterException())
+        every { authenticationRepository.createUser(any()) } returns Result.failure(RegisterException())
 
         // when&then
         assertThrows<RegisterException> {
@@ -177,11 +208,13 @@ class RegisterUserUseCaseTest {
             password = "12345678",
             type = UserType.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(User(
-            username = "Ahmed",
-            password = "234sdfg5hn",
-            type = UserType.ADMIN,
-        ))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
         every { authenticationRepository.getAllUsers() } returns Result.success(
             listOf(
                 User(
@@ -196,10 +229,48 @@ class RegisterUserUseCaseTest {
                 )
             )
         )
-        authenticationRepository.createUser(user).isSuccess
+        every { authenticationRepository.createUser(any()) } returns Result.success(Unit)
+
 
         // when&then
         registerUserUseCase.invoke(user.username, user.password, user.type)
     }
+
+    @Test
+    fun `invoke should complete registration when user is type admin `() {
+        // given
+        val user = User(
+            username = "AhmedNaser7",
+            password = "12345678",
+            type = UserType.ADMIN
+        )
+        every { authenticationRepository.getCurrentUser() } returns Result.success(
+            User(
+                username = "Ahmed",
+                password = "234sdfg5hn",
+                type = UserType.ADMIN,
+            )
+        )
+        every { authenticationRepository.getAllUsers() } returns Result.success(
+            listOf(
+                User(
+                    username = "MohamedSalah",
+                    password = "245G546dfgdfg5",
+                    type = UserType.MATE
+                ),
+                User(
+                    username = "Marmosh",
+                    password = "245Gfdksfm653",
+                    type = UserType.MATE
+                )
+            )
+        )
+        every { authenticationRepository.createUser(any()) } returns Result.success(Unit)
+
+
+        // when&then
+        registerUserUseCase.invoke(user.username, user.password, user.type)
+    }
+
 
 }
