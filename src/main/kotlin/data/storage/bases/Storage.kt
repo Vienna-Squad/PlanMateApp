@@ -1,4 +1,4 @@
-package data.storage
+package data.storage.bases
 
 interface Storage<T> {
     fun read(): List<T>
