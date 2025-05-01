@@ -43,8 +43,8 @@ class AdminApp : App(
 
 class AuthApp : App(
     menuItems = listOf(
-        MenuItem("Log In", LoginUiController()),
-        MenuItem("Create New User (Register New Account)", RegisterUiController()),
+        MenuItem("Log In"),
+        MenuItem("Create New User (Register New Account)"),
         MenuItem("Exit Application")
     )
 )
