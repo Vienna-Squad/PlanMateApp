@@ -16,29 +16,25 @@ class AddMateToProjectUseCase(
 
         validateInputs(projectId, mateId)
 
-        val userResult = authenticationRepository.getCurrentUser()
-        if (userResult.isFailure) {
+        val user = authenticationRepository.getCurrentUser().getOrElse {
             throw UnauthorizedException()
         }
-        val user = userResult.getOrThrow()
         validateUserAuthorization(user)
 
-        val projectResult = projectsRepository.get(projectId)
-        if (projectResult.isFailure) {
+        val project = projectsRepository.get(projectId).getOrElse {
             throw NoFoundException()
         }
-        val project = projectResult.getOrThrow()
         validateMateNotInProject(project, mateId)
 
         val updatedProject = updateProjectWithMate(project, mateId)
 
-        val updateResult = projectsRepository.update(updatedProject)
-        if (updateResult.isFailure) {
-            throw RuntimeException("Failed to update project")
+        projectsRepository.update(updatedProject).getOrElse {
+            throw RuntimeException("Failed to update project", it)
         }
 
         createAndLogAction(updatedProject, mateId, user.username)
     }
+
 
     private fun validateInputs(projectId: String, mateId: String) {
         require(projectId.isNotBlank()) { throw InvalidIdException() }

@@ -64,8 +64,6 @@ class AddMateToProjectUseCaseTest {
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.get(projectId) } returns Result.success(project)
-        every { projectsRepository.update(updatedProject) } returns Result.success(Unit)
-        every { logsRepository.add(any()) } returns Result.success(Unit)
 
 
         // When
@@ -73,6 +71,8 @@ class AddMateToProjectUseCaseTest {
 
         // Then
         verify { projectsRepository.update(updatedProject) }
+        verify { logsRepository.add(any()) }
+
 
     }
     @Test
