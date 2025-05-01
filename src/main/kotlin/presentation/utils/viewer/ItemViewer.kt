@@ -1,5 +1,5 @@
 package org.example.presentation.utils.viewer
 
-interface ItemDetailsViewer<T> {
+interface ItemViewer<T> {
     fun view(item: T)
 }
