@@ -54,7 +54,7 @@ class MateApp : App(
         MenuItem("View Project Change History"),
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
-        MenuItem("Edit Task Details"),
+        MenuItem("Edit Task Details",GetTaskUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
