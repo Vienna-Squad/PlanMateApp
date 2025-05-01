@@ -210,7 +210,7 @@ class AuthenticationCsvRepositoryTest {
         assertTrue(result.isFailure)
     }
 
-    // Helper function to compute MD5 hash (for test purposes)
+  
     private fun String.toMD5(): String {
         val bytes = MessageDigest.getInstance("MD5").digest(this.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }
