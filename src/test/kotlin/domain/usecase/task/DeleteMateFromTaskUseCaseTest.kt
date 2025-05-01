@@ -35,8 +35,8 @@ class DeleteMateFromTaskUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        tasksRepository = mockk()
-        logsRepository = mockk()
+        tasksRepository = mockk(relaxed = true)
+        logsRepository = mockk(relaxed = true)
         authRepository = mockk()
         deleteMateFromTaskUseCase = DeleteMateFromTaskUseCase(tasksRepository, authRepository, logsRepository)
     }
@@ -95,7 +95,6 @@ class DeleteMateFromTaskUseCaseTest {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
-        every { tasksRepository.update(any()) } returns Result.success(Unit)
         every { logsRepository.add(any()) } returns Result.failure(FailedToAddLogException())
 
 
@@ -111,8 +110,6 @@ class DeleteMateFromTaskUseCaseTest {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.get(task.id) } returns Result.success(task)
-        every { tasksRepository.update(any()) } returns Result.success(Unit)
-        every { logsRepository.add(any()) } returns Result.success(Unit)
 
         // when
         deleteMateFromTaskUseCase(task.id, task.assignedTo[1])

@@ -1,0 +1,32 @@
+package org.example.presentation.controller
+
+import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
+import org.example.presentation.utils.interactor.Interactor
+import org.example.presentation.utils.interactor.StringInteractor
+import org.example.presentation.utils.viewer.ExceptionViewer
+import org.koin.java.KoinJavaComponent.getKoin
+
+class DeleteMateFromTaskUiController(
+    private val deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase =  getKoin().get(),
+    private val stringInteractor: Interactor<String> = StringInteractor()
+) : UiController {
+
+    override fun execute() {
+
+        tryAndShowError() {
+
+            println("enter your task id: ")
+            val taskId = stringInteractor.getInput()
+
+            println("enter your mate id to remove: ")
+            val mateId = stringInteractor.getInput()
+
+            deleteMateFromTaskUseCase(taskId = taskId, mate = mateId)
+            println("mate deleted from task successfully")
+
+
+        }
+    }
+
+
+}
