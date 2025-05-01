@@ -1,6 +1,7 @@
 package org.example.domain
 
 abstract class PlanMateAppException(message: String) : Exception(message)
+
 open class AuthException(message: String) : PlanMateAppException(message)
 class LoginException() : AuthException("")
 class RegisterException() : AuthException("")
@@ -10,3 +11,4 @@ class NoFoundException() : PlanMateAppException("")
 class InvalidIdException() : PlanMateAppException("")
 class AlreadyExistException() : PlanMateAppException("")
 class FailedToAddLogException():PlanMateAppException("")
+class UnknownException() : PlanMateAppException("")
