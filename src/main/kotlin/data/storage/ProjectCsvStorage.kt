@@ -1,13 +1,13 @@
 package org.example.data.storage
 
-import org.example.data.storage.bases.CsvStorage
+import org.example.data.storage.bases.EditableCsvStorage
 import org.example.domain.entity.Project
 import java.io.File
 import java.time.LocalDateTime
 
-class ProjectCsvStorage(file: File) : CsvStorage<Project>(file) {
+class ProjectCsvStorage(file: File) :  EditableCsvStorage<Project>(file) {
     init {
-        writeHeader(CSV_HEADER)
+        writeHeader(getHeaderString())
     }
     override fun toCsvRow(item: Project): String {
         val states = item.states.joinToString("|")
@@ -15,22 +15,27 @@ class ProjectCsvStorage(file: File) : CsvStorage<Project>(file) {
         return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.cratedAt}"
     }
     override fun fromCsvRow(fields: List<String>): Project {
-        require(fields.size == 6) { "Invalid project data format: " }
+        require(fields.size == EXPECTED_COLUMNS) { "Invalid project data format: " }
 
-        val states = if (fields[2].isNotEmpty()) fields[2].split("|") else emptyList()
-        val matesIds = if (fields[4].isNotEmpty()) fields[4].split("|") else emptyList()
+        val states = if (fields[STATES_INDEX].isNotEmpty()) fields[STATES_INDEX].split(MULTI_VALUE_SEPARATOR) else emptyList()
+        val matesIds = if (fields[MATES_IDS_INDEX].isNotEmpty()) fields[MATES_IDS_INDEX].split("|") else emptyList()
 
         val project = Project(
-            id = fields[0],
-            name = fields[1],
+            id = fields[ID_INDEX],
+            name = fields[NAME_INDEX],
             states = states,
-            createdBy = fields[3],
+            createdBy = fields[CREATED_BY_INDEX],
             matesIds = matesIds,
-            cratedAt = LocalDateTime.parse(fields[5])
+            cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
 
         return project
     }
+
+    override fun getHeaderString(): String {
+        return CSV_HEADER
+    }
+
     companion object {
         private const val ID_INDEX = 0
         private const val NAME_INDEX = 1
