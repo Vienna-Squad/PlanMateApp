@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.presentation.controller.GetAllTasksOfProjectController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -28,7 +29,7 @@ class AdminApp : App(
         MenuItem("Add Mate User to Project"),
         MenuItem("Remove Mate User from Project"),
         MenuItem("Delete Project"),
-        MenuItem("View All Tasks in Project"),
+        MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
         MenuItem("View Project Change History"),
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
@@ -49,7 +50,7 @@ class AuthApp : App(
 
 class MateApp : App(
     menuItems = listOf(
-        MenuItem("View All Tasks in Project"),
+        MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
         MenuItem("View Project Change History"),
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
