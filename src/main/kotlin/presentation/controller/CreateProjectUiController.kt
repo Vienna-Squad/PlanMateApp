@@ -25,6 +25,7 @@ class CreateProjectUiController(
 
             println("enter your id: ")
             val creatorId = stringInteractor.getInput()
+            if (creatorId.isEmpty()) throw InvalidIdException()
 
             println("Enter matesId separated by commas: ")
             val matesIdInput = stringInteractor.getInput()
