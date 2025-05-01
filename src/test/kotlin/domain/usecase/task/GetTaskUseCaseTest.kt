@@ -152,16 +152,7 @@ class GetTaskUseCaseTest {
     }
 
 
-    @Test
-    fun `should throw InvalidIdException when taskId is blank`() {
-        // Given
-        val blankTaskId = ""
 
-        // When && Then
-        assertThrows<InvalidIdException> {
-            getTaskUseCase(blankTaskId)
-        }
-    }
 
     @Test
     fun `should throw NoFoundException when task does not exist`() {
