@@ -5,8 +5,12 @@ import io.mockk.every
 import io.mockk.mockk
 import org.example.domain.InvalidIdException
 import org.example.domain.NoFoundException
+import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
+import org.example.domain.entity.User
+import org.example.domain.entity.UserType
+import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.project.GetAllTasksOfProjectUseCase
@@ -18,25 +22,29 @@ import java.time.LocalDateTime
 class GetAllTasksOfProjectUseCaseTest {
 
     private lateinit var getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase
-    private val tasksRepository: TasksRepository = mockk()
-    private val projectsRepository: ProjectsRepository = mockk()
+    private val tasksRepository: TasksRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
+    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        getAllTasksOfProjectUseCase = GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository)
+        getAllTasksOfProjectUseCase =
+            GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository, authenticationRepository)
     }
 
     @Test
-    fun `should return tasks that belong to given project ID`() {
+    fun `should return tasks that belong to given project ID for authorized user`() {
         // Given
         val projectId = "project-123"
+        val user = createTestUser(id = "user-123")
+        val project = createTestProject(id = projectId, createdBy = user.id)
         val task1 = createTestTask(title = "Task 1", projectId = projectId)
         val task2 = createTestTask(title = "Task 2", projectId = "project-321")
         val task3 = createTestTask(title = "Task 3", projectId = projectId)
-
         val allTasks = listOf(task1, task2, task3)
 
-        every { projectsRepository.get(projectId) } returns Result.success(createTestProject(id = projectId))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
         every { tasksRepository.getAll() } returns Result.success(allTasks)
 
         // When
@@ -47,13 +55,16 @@ class GetAllTasksOfProjectUseCaseTest {
     }
 
     @Test
-    fun `should return single task that belong to given project ID`() {
+    fun `should return single task that belong to given project ID for mate user`() {
         // Given
         val projectId = "project-123"
+        val user = createTestUser(id = "user-456")
+        val project = createTestProject(id = projectId, matesIds = listOf(user.id))
         val task = createTestTask(title = "Task 1", projectId = projectId)
         val otherTask = createTestTask(title = "Task 2", projectId = "project-321")
 
-        every { projectsRepository.get(projectId) } returns Result.success(createTestProject(id = projectId))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
         every { tasksRepository.getAll() } returns Result.success(listOf(task, otherTask))
 
         // When
@@ -67,12 +78,15 @@ class GetAllTasksOfProjectUseCaseTest {
     fun `should throw NoFoundException when project has no tasks`() {
         // Given
         val projectId = "project-123"
+        val user = createTestUser(id = "user-123")
+        val project = createTestProject(id = projectId, createdBy = user.id)
         val allTasks = listOf(
             createTestTask(title = "Task 1", projectId = "project-321"),
             createTestTask(title = "Task 2", projectId = "project-321")
         )
 
-        every { projectsRepository.get(projectId) } returns Result.success(createTestProject(id = projectId))
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
         every { tasksRepository.getAll() } returns Result.success(allTasks)
 
         // When & Then
@@ -85,9 +99,10 @@ class GetAllTasksOfProjectUseCaseTest {
     fun `should throw InvalidIdException when project does not exist`() {
         // Given
         val nonExistentProjectId = "non-existent-project"
-        every { projectsRepository.get(nonExistentProjectId) } returns Result.failure(
-            InvalidIdException()
-        )
+        val user = createTestUser(id = "user-123")
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(nonExistentProjectId) } returns Result.failure(InvalidIdException())
 
         // When & Then
         assertThrows<InvalidIdException> {
@@ -99,7 +114,11 @@ class GetAllTasksOfProjectUseCaseTest {
     fun `should throw NoFoundException when tasks repository fails`() {
         // Given
         val projectId = "project-123"
-        every { projectsRepository.get(projectId) } returns Result.success(createTestProject(id = projectId))
+        val user = createTestUser(id = "user-123")
+        val project = createTestProject(id = projectId, createdBy = user.id)
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
         every { tasksRepository.getAll() } returns Result.failure(NoFoundException())
 
         // When & Then
@@ -107,6 +126,47 @@ class GetAllTasksOfProjectUseCaseTest {
             getAllTasksOfProjectUseCase(projectId)
         }
     }
+
+    @Test
+    fun `should throw UnauthorizedException when current user not found`() {
+        // Given
+        val projectId = "project-123"
+
+        every { authenticationRepository.getCurrentUser() } returns Result.failure(NoFoundException())
+
+        // When & Then
+        assertThrows<UnauthorizedException> {
+            getAllTasksOfProjectUseCase(projectId)
+        }
+    }
+
+    @Test
+    fun `should throw UnauthorizedException when user is not authorized`() {
+        // Given
+        val projectId = "project-123"
+        val user = createTestUser(id = "user-999")
+        val project = createTestProject(id = projectId, createdBy = "user-123", matesIds = listOf("user-456"))
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+
+        // When & Then
+        assertThrows<UnauthorizedException> {
+            getAllTasksOfProjectUseCase(projectId)
+        }
+    }
+
+    @Test
+    fun `should throw InvalidIdException when projectId is empty`() {
+        // Given
+        val projectId = ""
+
+        // When & Then
+        assertThrows<InvalidIdException> {
+            getAllTasksOfProjectUseCase(projectId)
+        }
+    }
+
 
     private fun createTestTask(
         title: String,
@@ -139,6 +199,21 @@ class GetAllTasksOfProjectUseCaseTest {
             createdBy = createdBy,
             cratedAt = LocalDateTime.now(),
             matesIds = matesIds
+        )
+    }
+
+    private fun createTestUser(
+        id: String = "user-123",
+        username: String = "testUser",
+        password: String = "hashed",
+
+    ): User {
+        return User(
+            id = id,
+            username = username,
+            password = password,
+            type = UserType.MATE,
+            cratedAt = LocalDateTime.now()
         )
     }
 }
