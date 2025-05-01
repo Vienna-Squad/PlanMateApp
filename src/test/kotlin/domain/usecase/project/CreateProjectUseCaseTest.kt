@@ -7,6 +7,7 @@ import org.example.domain.AccessDeniedException
 import org.example.domain.FailedToAddLogException
 import org.example.domain.FailedToCreateProject
 import org.example.domain.UnauthorizedException
+import org.example.domain.entity.CreatedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
@@ -39,31 +40,11 @@ class CreateProjectUseCaseTest {
     @BeforeEach
     fun setUp() {
 
-        projectRepository = mockk()
+        projectRepository = mockk(relaxed = true)
         authRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
         createProjectUseCase = CreateProjectUseCase(projectRepository, authRepository, logsRepository)
 
-    }
-
-    @Test
-    fun `should add project when current user is admin and data is valid`() {
-        //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { projectRepository.add(any()) } returns Result.success(Unit)
-
-        // when
-        createProjectUseCase(name, states, createdBy, matesIds)
-
-        // then
-        verify {
-            projectRepository.add(match {
-                it.name == name &&
-                        it.states == states &&
-                        it.createdBy == createdBy &&
-                        it.matesIds == matesIds
-            })
-        }
     }
 
     @Test
@@ -87,6 +68,24 @@ class CreateProjectUseCaseTest {
             createProjectUseCase(name, states, createdBy, matesIds)
         }
     }
+    @Test
+    fun `should add project when current user is admin and data is valid`() {
+        //given
+        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+
+        // when
+        createProjectUseCase(name, states, createdBy, matesIds)
+
+        // then
+        verify {
+            projectRepository.add(match {
+                it.name == name &&
+                        it.states == states &&
+                        it.createdBy == createdBy &&
+                        it.matesIds == matesIds
+            })
+        }
+    }
 
     @Test
     fun `should throw FailedToCreateProject when project addition fails`() {
@@ -104,20 +103,17 @@ class CreateProjectUseCaseTest {
     fun `should log project creation when user is admin and added project successfully`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { projectRepository.add(any()) } returns Result.success(Unit)
-        every { logsRepository.add(any()) } returns Result.success(Unit)
 
         // when
         createProjectUseCase(name, states, createdBy, matesIds)
 
         // then
         verify {
-            projectRepository.add(match {
-                it.name == name &&
-                        it.states == states &&
-                        it.createdBy == createdBy &&
-                        it.matesIds == matesIds
-            })
+            logsRepository.add(
+                match {
+                    it is CreatedLog
+                }
+            )
         }
     }
 
@@ -125,7 +121,6 @@ class CreateProjectUseCaseTest {
     fun `should throw FailedToAddLogException when logging the project creation fails`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { projectRepository.add(any()) } returns Result.success(Unit)
         every { logsRepository.add(any()) } returns Result.failure(FailedToAddLogException())
 
         //when & then
