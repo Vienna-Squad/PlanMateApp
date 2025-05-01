@@ -18,12 +18,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.example.domain.repository.LogsRepository
+import org.example.presentation.utils.viewer.ExceptionViewer
+import kotlin.test.assertEquals
 
 class EditProjectStatesUseCaseTest {
     private lateinit var editProjectStatesUseCase: EditProjectStatesUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+
     private val dummyProjects = listOf(
         Project(
             name = "Healthcare Management System",
@@ -176,28 +179,36 @@ class EditProjectStatesUseCaseTest {
 
     @Test
     fun `should throw InvalidProjectIdException when project id is blank`() {
-        //given
+        // given
+        val exception = InvalidIdException()
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(" ") } returns Result.failure(InvalidIdException())
-        //when && then
-        assertThrows<InvalidIdException> {
-            editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
+        every { projectsRepository.get(" ") } throws exception
+
+        // when & then
+        val thrown = assertThrows<InvalidIdException> {
+            editProjectStatesUseCase(" ", listOf("new state 1", "new state 2"))
         }
+        assertEquals(exception, thrown)
     }
 
+
     @Test
-    fun `should not update or log when new states are the same as old states`() {
-        //given
+    fun `should throw Exception when new states are the same as old states`() {
+        // given
+        val exception = InvalidIdException()
+        val project = randomProject
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(randomProject.id) } returns Result.success(
-            randomProject.copy(
-                createdBy = dummyAdmin.id
-            )
+        every { projectsRepository.get(project.id) } returns Result.success(
+            project.copy(createdBy = dummyAdmin.id)
         )
-        //when
-        editProjectStatesUseCase(randomProject.id, randomProject.states)
-        //then
-        verify(exactly = 0) { projectsRepository.update(any()) }
-        verify(exactly = 0) { logsRepository.add(any()) }
+
+        // when & then
+        val thrown = assertThrows<InvalidIdException> {
+            editProjectStatesUseCase(project.id, project.states)
+        }
+
+        assertEquals(exception::class, thrown::class)
+
     }
+
 }

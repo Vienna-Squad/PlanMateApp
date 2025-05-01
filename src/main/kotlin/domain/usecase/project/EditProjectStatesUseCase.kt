@@ -19,13 +19,16 @@ class EditProjectStatesUseCase(
     private val authenticationRepository: AuthenticationRepository
 ) {
 
-    operator fun invoke(projectId: String, states : List<String>) {
+    operator fun invoke(projectId: String, states: List<String>) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
             if (user.type == UserType.MATE) throw AccessDeniedException()
             doIfExistedProject(projectId, projectsRepository::get) { project ->
                 if (project.createdBy != user.id) throw AccessDeniedException()
-
-                    projectsRepository.update(project.copy(states  = states ))
+                val isSameStates = project.states.containsAll(states) && states.containsAll(project.states)
+                if (isSameStates) {
+                    throw InvalidIdException("all states are the same");
+                } else {
+                    projectsRepository.update(project.copy(states = states))
                     logsRepository.add(
                         ChangedLog(
                             username = user.username,
@@ -35,6 +38,7 @@ class EditProjectStatesUseCase(
                             changedTo = states.toString(),
                         )
                     )
+                }
 
             }
         }
