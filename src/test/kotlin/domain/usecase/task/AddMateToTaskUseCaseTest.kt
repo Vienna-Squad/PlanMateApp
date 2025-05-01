@@ -8,11 +8,13 @@ import org.example.domain.InvalidIdException
 import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.AddedLog
+import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.AddMateToTaskUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -27,25 +29,34 @@ class AddMateToTaskUseCaseTest {
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        addMateToTaskUseCase = AddMateToTaskUseCase(tasksRepository, logsRepository, authenticationRepository)
+        addMateToTaskUseCase = AddMateToTaskUseCase(
+            tasksRepository,
+            logsRepository,
+            authenticationRepository,
+            projectsRepository
+        )
     }
 
     @Test
-    fun `should add mate to task and log the action successfully`() {
+    fun `should add mate to task and log the action successfully for task creator`() {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val projectId = "project-123"
         val currentUser = createTestUser(id = "user-123", username = "creator")
-        val task = createTestTask(id = taskId, assignedTo = emptyList())
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, assignedTo = emptyList(), projectId = projectId)
         val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
 
         // When
         addMateToTaskUseCase(taskId, mateId)
@@ -54,6 +65,80 @@ class AddMateToTaskUseCaseTest {
         verify { tasksRepository.update(updatedTask) }
         verify { logsRepository.add(any<AddedLog>()) }
         assertThat(updatedTask.assignedTo).containsExactly(mateId)
+    }
+
+    @Test
+    fun `should add mate to task when user is admin`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = "user-456"
+        val projectId = "project-123"
+        val currentUser = createTestUser(id = "user-999", username = "admin", type = UserType.ADMIN)
+        val task = createTestTask(id = taskId, createdBy = "user-123", assignedTo = emptyList(), projectId = projectId)
+        val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
+        val updatedTask = task.copy(assignedTo = listOf(mateId))
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { tasksRepository.get(taskId) } returns Result.success(task)
+        every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+
+        // When
+        addMateToTaskUseCase(taskId, mateId)
+
+        // Then
+        verify { tasksRepository.update(updatedTask) }
+        verify { logsRepository.add(any<AddedLog>()) }
+        assertThat(updatedTask.assignedTo).containsExactly(mateId)
+    }
+
+    @Test
+    fun `should add mate to task when user is already assigned to task`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = "user-456"
+        val projectId = "project-123"
+        val currentUser = createTestUser(id = "user-789", username = "mate")
+        val task = createTestTask(id = taskId, createdBy = "user-123", assignedTo = listOf(currentUser.id), projectId = projectId)
+        val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
+        val updatedTask = task.copy(assignedTo = listOf(currentUser.id, mateId))
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { tasksRepository.get(taskId) } returns Result.success(task)
+        every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+
+        // When
+        addMateToTaskUseCase(taskId, mateId)
+
+        // Then
+        verify { tasksRepository.update(updatedTask) }
+        verify { logsRepository.add(any<AddedLog>()) }
+        assertThat(updatedTask.assignedTo).containsExactly(currentUser.id, mateId)
+    }
+
+    @Test
+    fun `should throw UnauthorizedException when user is not admin, creator, or mate`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = "user-456"
+        val projectId = "project-123"
+        val currentUser = createTestUser(id = "user-999", type = UserType.MATE)
+        val task = createTestTask(id = taskId, createdBy = "user-123", assignedTo = listOf("user-789"), projectId = projectId)
+        val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { tasksRepository.get(taskId) } returns Result.success(task)
+        every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+
+        // When & Then
+        assertThrows<UnauthorizedException> {
+            addMateToTaskUseCase(taskId, mateId)
+        }
     }
 
     @Test
@@ -77,12 +162,56 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "non-existent-user"
+        val projectId = "project-123"
         val currentUser = createTestUser(id = "user-123")
-        val task = createTestTask(id = taskId)
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, projectId = projectId)
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.failure(NoFoundException())
+
+        // When & Then
+        assertThrows<NoFoundException> {
+            addMateToTaskUseCase(taskId, mateId)
+        }
+    }
+
+    @Test
+    fun `should throw NoFoundException when mate is not in project matesIds`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = "user-456"
+        val projectId = "project-123"
+        val currentUser = createTestUser(id = "user-123")
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, projectId = projectId)
+        val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf("user-789"))
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { tasksRepository.get(taskId) } returns Result.success(task)
+        every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
+
+        // When & Then
+        assertThrows<NoFoundException> {
+            addMateToTaskUseCase(taskId, mateId)
+        }
+    }
+
+    @Test
+    fun `should throw NoFoundException when project does not exist`() {
+        // Given
+        val taskId = "task-123"
+        val mateId = "user-456"
+        val projectId = "project-123"
+        val currentUser = createTestUser(id = "user-123")
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, projectId = projectId)
+        val mate = createTestUser(id = mateId)
+
+        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { tasksRepository.get(taskId) } returns Result.success(task)
+        every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.failure(NoFoundException())
 
         // When & Then
         assertThrows<NoFoundException> {
@@ -96,14 +225,17 @@ class AddMateToTaskUseCaseTest {
         val taskId = "task-123"
         val existingMateId = "user-789"
         val newMateId = "user-456"
+        val projectId = "project-123"
         val currentUser = createTestUser(id = "user-123")
-        val task = createTestTask(id = taskId, assignedTo = listOf(existingMateId))
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, assignedTo = listOf(existingMateId), projectId = projectId)
         val mate = createTestUser(id = newMateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(newMateId))
         val updatedTask = task.copy(assignedTo = listOf(existingMateId, newMateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(newMateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
 
         // When
         addMateToTaskUseCase(taskId, newMateId)
@@ -119,13 +251,16 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val projectId = "project-123"
         val currentUser = createTestUser(id = "user-123")
-        val task = createTestTask(id = taskId, assignedTo = listOf(mateId))
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, assignedTo = listOf(mateId), projectId = projectId)
         val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
 
         // When
         addMateToTaskUseCase(taskId, mateId)
@@ -141,14 +276,17 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val projectId = "project-123"
         val currentUser = createTestUser(id = "user-123")
-        val task = createTestTask(id = taskId, assignedTo = emptyList())
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, assignedTo = emptyList(), projectId = projectId)
         val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
         every { tasksRepository.update(updatedTask) } returns Result.failure(NoFoundException())
 
         // When & Then
@@ -162,13 +300,16 @@ class AddMateToTaskUseCaseTest {
         // Given
         val taskId = "task-123"
         val mateId = "user-456"
+        val projectId = "project-123"
         val currentUser = createTestUser(id = "user-123")
-        val task = createTestTask(id = taskId, assignedTo = emptyList())
+        val task = createTestTask(id = taskId, createdBy = currentUser.id, assignedTo = emptyList(), projectId = projectId)
         val mate = createTestUser(id = mateId)
+        val project = createTestProject(id = projectId, matesIds = listOf(mateId))
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.get(taskId) } returns Result.success(task)
         every { authenticationRepository.getUser(mateId) } returns Result.success(mate)
+        every { projectsRepository.get(projectId) } returns Result.success(project)
         every { logsRepository.add(any<AddedLog>()) } returns Result.failure(NoFoundException())
 
         // When & Then
@@ -203,7 +344,6 @@ class AddMateToTaskUseCaseTest {
         }
     }
 
-
     @Test
     fun `should throw InvalidIdException when mateId is empty`() {
         // Given
@@ -215,7 +355,6 @@ class AddMateToTaskUseCaseTest {
             addMateToTaskUseCase(taskId, mateId)
         }
     }
-
 
     private fun createTestTask(
         id: String = UUID.randomUUID().toString(),
@@ -232,7 +371,7 @@ class AddMateToTaskUseCaseTest {
             assignedTo = assignedTo,
             createdBy = createdBy,
             projectId = projectId,
-            createdAt  = LocalDateTime.now()
+            createdAt = LocalDateTime.now()
         )
     }
 
@@ -248,6 +387,23 @@ class AddMateToTaskUseCaseTest {
             password = password,
             type = type,
             cratedAt = LocalDateTime.now()
+        )
+    }
+
+    private fun createTestProject(
+        id: String = "project-123",
+        name: String = "Test Project",
+        states: List<String> = emptyList(),
+        createdBy: String = "test-user",
+        matesIds: List<String> = emptyList()
+    ): Project {
+        return Project(
+            id = id,
+            name = name,
+            states = states,
+            createdBy = createdBy,
+            cratedAt = LocalDateTime.now(),
+            matesIds = matesIds
         )
     }
 }
