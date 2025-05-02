@@ -16,7 +16,7 @@ class LoginUiController(
             val username = interactor.getInput()
             print("enter password: ")
             val password = interactor.getInput()
-            if(username.isBlank()&&password.isBlank())
+            if(username.isBlank()||password.isBlank())
                 throw NoFoundException()
             loginUseCase(username, password)
         }
