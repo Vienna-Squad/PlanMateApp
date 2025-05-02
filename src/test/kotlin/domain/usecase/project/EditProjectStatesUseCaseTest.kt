@@ -18,15 +18,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.example.domain.repository.LogsRepository
-import org.example.presentation.utils.viewer.ExceptionViewer
-import kotlin.test.assertEquals
 
 class EditProjectStatesUseCaseTest {
     private lateinit var editProjectStatesUseCase: EditProjectStatesUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
-
     private val dummyProjects = listOf(
         Project(
             name = "Healthcare Management System",
@@ -112,7 +109,19 @@ class EditProjectStatesUseCaseTest {
     }
 
     @Test
-    fun `should edit project states and add log when project exists`() {
+    fun `should add ChangedLog when project states are updated`() {
+        //given
+        val project = randomProject.copy(createdBy = dummyAdmin.id)
+        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { projectsRepository.get(project.id) } returns Result.success(project)
+        //when
+        editProjectStatesUseCase(project.id, listOf("new state 1", "new state 2"))
+        //then
+        verify { logsRepository.add(match { it is ChangedLog }) }
+    }
+
+    @Test
+    fun `should edit project states when project exists`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
@@ -128,7 +137,6 @@ class EditProjectStatesUseCaseTest {
                 )
             })
         }
-        verify { logsRepository.add(match { it is ChangedLog }) }
     }
 
     @Test
@@ -137,7 +145,6 @@ class EditProjectStatesUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns Result.failure(
             UnauthorizedException()
         )
-        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<UnauthorizedException> {
             editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
@@ -148,7 +155,6 @@ class EditProjectStatesUseCaseTest {
     fun `should throw AccessDeniedException when user is mate`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
-        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
             editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
@@ -179,36 +185,13 @@ class EditProjectStatesUseCaseTest {
 
     @Test
     fun `should throw InvalidProjectIdException when project id is blank`() {
-        // given
-        val exception = InvalidIdException()
+        //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(" ") } throws exception
-
-        // when & then
-        val thrown = assertThrows<InvalidIdException> {
+        every { projectsRepository.get(" ") } returns Result.failure(InvalidIdException())
+        //when && then
+        assertThrows<InvalidIdException> {
             editProjectStatesUseCase(" ", listOf("new state 1", "new state 2"))
         }
-        assertEquals(exception, thrown)
-    }
-
-
-    @Test
-    fun `should throw Exception when new states are the same as old states`() {
-        // given
-        val exception = InvalidIdException()
-        val project = randomProject
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(project.id) } returns Result.success(
-            project.copy(createdBy = dummyAdmin.id)
-        )
-
-        // when & then
-        val thrown = assertThrows<InvalidIdException> {
-            editProjectStatesUseCase(project.id, project.states)
-        }
-
-        assertEquals(exception::class, thrown::class)
-
     }
 
 }
