@@ -9,28 +9,27 @@ class RegisterUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     operator fun invoke(username: String, password: String, role: UserType) {
-        authenticationRepository.getCurrentUser().getOrElse { return throw RegisterException() }.let { user ->
+        //authenticationRepository.getCurrentUser().getOrElse { }
 
-            if (user.type != UserType.ADMIN) return throw RegisterException()
+        //if (user.type != UserType.ADMIN) return throw RegisterException()
 
-            if (!isValid(username, password)) return throw RegisterException()
+        if (!isValid(username, password)) return throw RegisterException()
 
-            authenticationRepository.getAllUsers()
-                .getOrElse { return throw RegisterException() }
-                .filter { user -> user.username == username }
-                .let { users ->
-                    if (users.isNotEmpty()) return throw RegisterException()
+        authenticationRepository.getAllUsers()
+            .getOrElse { return throw RegisterException() }
+            .filter { user -> user.username == username }
+            .let { users ->
+                if (users.isNotEmpty()) return throw RegisterException()
 
-                    authenticationRepository.createUser(
-                        User(
-                            username = username,
-                            password = password,
-                            type = role
-                        )
-                    ).getOrElse { return throw RegisterException() }
-                }
+                authenticationRepository.createUser(
+                    User(
+                        username = username,
+                        password = password,
+                        type = role
+                    )
+                ).getOrElse { return throw RegisterException() }
+            }
 
-        }
     }
 
     private fun isValid(username: String, password: String): Boolean {

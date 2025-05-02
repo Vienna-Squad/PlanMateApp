@@ -26,7 +26,7 @@ class AdminApp : App(
     menuItems = listOf(
         MenuItem("Create New Project",CreateProjectUiController()),
         MenuItem("Edit Project Name"),
-        MenuItem("Add New State to Project", uiController = AddStateToProjectUiController(getKoin().get(),StringInteractor())),
+        MenuItem("Add New State to Project",AddStateToProjectUiController(getKoin().get(),StringInteractor())),
         MenuItem("Remove State from Project"),
         MenuItem("Add Mate User to Project", AddMateToProjectUiController()),
         MenuItem("Remove Mate User from Project"),
@@ -43,15 +43,15 @@ class AdminApp : App(
         MenuItem("View Task Details"),
         MenuItem("View Task Change History",GetTaskHistoryUIController(viewer = TaskHistoryViewer(),interactor = StringInteractor()
         )),
-        MenuItem("Log Out")
+        MenuItem("Log Out", LogoutUiController())
     )
 )
 
 class AuthApp : App(
     menuItems = listOf(
-        MenuItem("Log In"),
-        MenuItem("Sign Up (Register New Account)"),
-        MenuItem("Exit Application")
+        MenuItem("Log In", LoginUiController()),
+        MenuItem("Sign Up (Register New Account),", RegisterUiController()),
+        MenuItem("Exit Application",)
     )
 )
 
@@ -66,6 +66,6 @@ class MateApp : App(
         MenuItem("Edit Task Details",GetTaskUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
-        MenuItem("Log Out")
+        MenuItem("Log Out", LogoutUiController())
     )
 )
