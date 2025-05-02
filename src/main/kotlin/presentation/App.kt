@@ -34,7 +34,7 @@ class AdminApp : App(
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
-        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
+        MenuItem("Edit Task Title "),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
@@ -56,7 +56,7 @@ class MateApp : App(
         MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
-        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
+        MenuItem("Edit Task Title "),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")

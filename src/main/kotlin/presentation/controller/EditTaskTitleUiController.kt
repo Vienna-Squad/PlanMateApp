@@ -1,5 +1,6 @@
 package org.example.presentation.controller
 
+import org.example.domain.NoFoundException
 import org.example.domain.usecase.task.EditTaskTitleUseCase
 import org.example.presentation.utils.interactor.Interactor
 import org.example.presentation.utils.interactor.StringInteractor
@@ -18,6 +19,10 @@ class EditTaskTitleUiController(
             val title = interactor.getInput()
             itemViewer.view("Enter The Title Id  : ")
             val taskId = interactor.getInput()
+
+            if (title.isBlank()||taskId.isBlank())
+                throw NoFoundException()
+
             editTaskTitleUseCase.invoke(
                 taskId = taskId,
                 title = title
