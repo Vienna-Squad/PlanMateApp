@@ -46,7 +46,7 @@ class AuthenticationCsvRepository(
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
     }
 
-    fun login(username: String, password: String): Result<Unit> {
+    override fun login(username: String, password: String): Result<Unit> {
         return runCatching {
             val users = storage.read()
             val user = users.find { it.username == username }
@@ -61,7 +61,7 @@ class AuthenticationCsvRepository(
         }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
     }
 
-    fun logout(): Result<Unit> {
+    override fun logout(): Result<Unit> {
         return runCatching {
             currentUserId = null
         }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
