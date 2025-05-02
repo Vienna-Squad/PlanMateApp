@@ -1,7 +1,5 @@
 package org.example.presentation
 
-import org.example.presentation.controller.LoginUiController
-import org.example.presentation.controller.RegisterUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -23,7 +21,7 @@ abstract class App(val menuItems: List<MenuItem>) {
 
 class AdminApp : App(
     menuItems = listOf(
-        MenuItem("Create New Project"),
+        MenuItem("Create New Project",CreateProjectUiController()),
         MenuItem("Edit Project Name"),
         MenuItem("Add New State to Project", uiController = AddStateToProjectUiController(AddStateToProjectUseCase(),StringInteractor())),
         MenuItem("Remove State from Project"),
@@ -44,7 +42,7 @@ class AdminApp : App(
 class AuthApp : App(
     menuItems = listOf(
         MenuItem("Log In"),
-        MenuItem("Create New User (Register New Account)"),
+        MenuItem("Sign Up (Register New Account)"),
         MenuItem("Exit Application")
     )
 )
