@@ -1,5 +1,7 @@
 package org.example.presentation
 
+import org.example.presentation.controller.LoginUiController
+import org.example.presentation.controller.RegisterUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 
@@ -42,7 +44,7 @@ class AdminApp : App(
 class AuthApp : App(
     menuItems = listOf(
         MenuItem("Log In"),
-        MenuItem("Sign Up (Register New Account)"),
+        MenuItem("Create New User (Register New Account)"),
         MenuItem("Exit Application")
     )
 )
