@@ -1,5 +1,6 @@
 package di
 
+import domain.usecase.project.DeleteStateFromProjectUseCase
 import org.example.domain.usecase.auth.LoginUseCase
 import org.example.domain.usecase.auth.LogoutUseCase
 import org.example.domain.usecase.auth.RegisterUserUseCase
