@@ -13,39 +13,30 @@ class AddMateToProjectUseCase(
 ) {
 
     operator fun invoke(projectId: String, mateId: String) {
-
-
         authenticationRepository.getCurrentUser()
             .getOrElse { throw UnauthorizedException() }
             .also { user ->
-                validateUserAuthorization(user)
+                if (user.type == UserType.MATE) {
+                    throw AccessDeniedException()
+                }
+
                 projectsRepository.get(projectId)
                     .getOrElse { throw NoFoundException() }
                     .also { project ->
-                        validateMateNotInProject(project, mateId)
-                        updateProjectWithMate(project, mateId)
-                            .also { updatedProject ->
-                                projectsRepository.update(updatedProject)
-                                    .getOrElse { throw RuntimeException("Failed to update project", it) }
-                                createAndLogAction(updatedProject, mateId, user.username)
-                            }
+                        if (project.matesIds.contains(mateId)) {
+                            throw AlreadyExistException()
+                        }
+
+                        val updatedProject = project.copy(matesIds = project.matesIds + mateId)
+
+                        projectsRepository.update(updatedProject)
+                            .getOrElse { throw RuntimeException("Failed to update project", it) }
+
+                        createAndLogAction(updatedProject, mateId, user.username)
                     }
             }
-
-
     }
 
-    private fun validateUserAuthorization(user: User) {
-        require(user.type != UserType.MATE) { throw AccessDeniedException() }
-    }
-
-    private fun validateMateNotInProject(project: Project, mateId: String) {
-        require(!project.matesIds.contains(mateId)) { throw AlreadyExistException() }
-    }
-
-    private fun updateProjectWithMate(project: Project, mateId: String): Project {
-        return project.copy(matesIds = project.matesIds + mateId)
-    }
 
     private fun createAndLogAction(project: Project, mateId: String, username: String) {
         val log = AddedLog(
