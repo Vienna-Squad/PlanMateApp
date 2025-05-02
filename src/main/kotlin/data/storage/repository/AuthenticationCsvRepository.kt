@@ -2,6 +2,7 @@ package org.example.data.storage.repository
 
 import data.storage.UserCsvStorage
 import org.example.domain.NoFoundException
+import org.example.domain.UnauthorizedException
 import org.example.domain.entity.User
 import org.example.domain.repository.AuthenticationRepository
 import java.security.MessageDigest
@@ -43,6 +44,27 @@ class AuthenticationCsvRepository(
             storage.read().find { it.id == userId }
                 ?: throw NoFoundException()
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
+    }
+
+    fun login(username: String, password: String): Result<Unit> {
+        return runCatching {
+            val users = storage.read()
+            val user = users.find { it.username == username }
+                ?: throw UnauthorizedException()
+
+            val encryptedPassword = password.toMD5()
+            if (user.password != encryptedPassword) {
+                throw UnauthorizedException()
+            }
+
+            currentUserId = user.id
+        }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
+    }
+
+    fun logout(): Result<Unit> {
+        return runCatching {
+            currentUserId = null
+        }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
     }
 
 

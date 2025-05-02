@@ -210,6 +210,70 @@ class AuthenticationCsvRepositoryTest {
         assertTrue(result.isFailure)
     }
 
+
+
+    @Test
+    fun `should login successfully with correct credentials`() {
+        // Given
+        val encryptedUser = user.copy(password = user.password.toMD5())
+        every { storage.read() } returns listOf(encryptedUser)
+
+        // When
+        val result = repository.login(user.username, user.password)
+
+        // Then
+        assertTrue(result.isSuccess)
+    }
+    @Test
+    fun `should fail login with incorrect password`() {
+        // Given
+        val encryptedUser = user.copy(password = user.password.toMD5())
+        every { storage.read() } returns listOf(encryptedUser)
+
+        // When
+        val result = repository.login(user.username, "wrongPassword")
+
+        // Then
+        assertTrue(result.isFailure)
+    }
+    @Test
+    fun `should fail login with non-existent username`() {
+        // Given
+        every { storage.read() } returns listOf(user.copy(password = user.password.toMD5()))
+
+        // When
+        val result = repository.login("nonExistingUser", "somePassword")
+
+        // Then
+        assertTrue(result.isFailure)
+    }
+    @Test
+    fun `should logout successfully`() {
+        // Given
+        val encryptedUser = user.copy(password = user.password.toMD5())
+        every { storage.read() } returns listOf(encryptedUser)
+        repository.login(user.username, user.password)
+
+        // When
+        val result = repository.logout()
+
+        // Then
+        assertTrue(result.isSuccess)
+    }
+    @Test
+    fun `should fail to get current user after logout`() {
+        // Given
+        val encryptedUser = user.copy(password = user.password.toMD5())
+        every { storage.read() } returns listOf(encryptedUser)
+        repository.login(user.username, user.password)
+        repository.logout()
+
+        // When
+        val result = repository.getCurrentUser()
+
+        // Then
+        assertTrue(result.isFailure)
+    }
   
     private fun String.toMD5(): String {
         val bytes = MessageDigest.getInstance("MD5").digest(this.toByteArray())
