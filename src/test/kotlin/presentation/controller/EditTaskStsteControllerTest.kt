@@ -49,7 +49,7 @@ class EditTaskStateControllerTest {
         // given
         val taskId = "456"
         val newState = "completed"
-        val exception = UnknownException("Test Failed")
+        val exception = UnknownException()
 
         every { interactor.getInput() } returnsMany listOf(taskId, newState)
         every { editTaskStateUseCase(any(), any()) } throws exception

@@ -11,14 +11,14 @@ class EditTaskStateUseCase (
     operator fun invoke(taskId: String, state: String) {
         tasksRepository.get(taskId).onSuccess { task ->
             if (task.state == state) {
-                throw InvalidIdException("Task is already in the desired state")
+                throw InvalidIdException()
             }
             val updatedTask = task.copy(state = state)
             tasksRepository.update(updatedTask)
         }.onFailure { exception ->
             throw when (exception) {
-                is NoFoundException -> NoFoundException("Task with id $taskId not found")
-                is InvalidIdException -> InvalidIdException("Invalid task id: $taskId")
+                is NoFoundException -> NoFoundException()
+                is InvalidIdException -> InvalidIdException()
                 else -> exception
             }
         }

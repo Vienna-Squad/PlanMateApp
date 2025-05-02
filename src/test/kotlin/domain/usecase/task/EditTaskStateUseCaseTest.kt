@@ -77,7 +77,7 @@ class EditTaskStateUseCaseTest {
     @Test
     fun `should throw InvalidIdException when task id is blank`() {
         // given
-        val exception = InvalidIdException("Invalid task id: ")
+        val exception = InvalidIdException()
         every { tasksRepository.get(" ") } throws exception
         // when & then
         val thrown = assertThrows<InvalidIdException> {

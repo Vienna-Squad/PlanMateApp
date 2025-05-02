@@ -48,7 +48,7 @@ class EditProjectStatesControllerTest {
         // given
         val projectId = "123"
         val statesInput = "state1, state2"
-        val exception = UnknownException("Test Failed")
+        val exception = UnknownException()
 
         every { interactor.getInput() } returnsMany listOf(projectId, statesInput)
         every { editProjectStatesUseCase(any(), any()) } throws exception
