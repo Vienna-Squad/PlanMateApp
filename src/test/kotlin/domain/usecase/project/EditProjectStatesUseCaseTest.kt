@@ -109,7 +109,19 @@ class EditProjectStatesUseCaseTest {
     }
 
     @Test
-    fun `should edit project states and add log when project exists`() {
+    fun `should add ChangedLog when project states are updated`() {
+        //given
+        val project = randomProject.copy(createdBy = dummyAdmin.id)
+        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { projectsRepository.get(project.id) } returns Result.success(project)
+        //when
+        editProjectStatesUseCase(project.id, listOf("new state 1", "new state 2"))
+        //then
+        verify { logsRepository.add(match { it is ChangedLog }) }
+    }
+
+    @Test
+    fun `should edit project states when project exists`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
@@ -125,7 +137,6 @@ class EditProjectStatesUseCaseTest {
                 )
             })
         }
-        verify { logsRepository.add(match { it is ChangedLog }) }
     }
 
     @Test
@@ -134,7 +145,6 @@ class EditProjectStatesUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns Result.failure(
             UnauthorizedException()
         )
-        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<UnauthorizedException> {
             editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
@@ -145,7 +155,6 @@ class EditProjectStatesUseCaseTest {
     fun `should throw AccessDeniedException when user is mate`() {
         //given
         every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
-        every { projectsRepository.get(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
             editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
@@ -181,23 +190,8 @@ class EditProjectStatesUseCaseTest {
         every { projectsRepository.get(" ") } returns Result.failure(InvalidIdException())
         //when && then
         assertThrows<InvalidIdException> {
-            editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
+            editProjectStatesUseCase(" ", listOf("new state 1", "new state 2"))
         }
     }
 
-    @Test
-    fun `should not update or log when new states are the same as old states`() {
-        //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
-        every { projectsRepository.get(randomProject.id) } returns Result.success(
-            randomProject.copy(
-                createdBy = dummyAdmin.id
-            )
-        )
-        //when
-        editProjectStatesUseCase(randomProject.id, randomProject.states)
-        //then
-        verify(exactly = 0) { projectsRepository.update(any()) }
-        verify(exactly = 0) { logsRepository.add(any()) }
-    }
 }
