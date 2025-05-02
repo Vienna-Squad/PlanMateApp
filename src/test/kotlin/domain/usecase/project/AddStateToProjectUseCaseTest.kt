@@ -3,9 +3,7 @@ package domain.usecase.project
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.NoFoundException
-import org.example.domain.UnauthorizedException
+import org.example.domain.*
 
 import org.example.domain.entity.AddedLog
 import org.example.domain.entity.Project
@@ -34,6 +32,7 @@ class AddStateToProjectUseCaseTest {
             AddStateToProjectUseCase(authenticationRepository, projectsRepository, logsRepository)
 
     }
+
     @Test
     fun `should throw UnauthorizedException when no logged-in user is found`() {
         //Given
@@ -48,13 +47,26 @@ class AddStateToProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw UnauthorizedException when attempting to add a state to project given current user is not admin`() {
+    fun `should throw AccessDeniedException when attempting to add a state to project given current user is not admin`() {
         //Given
         every { authenticationRepository.getCurrentUser() } returns Result.success(mate)
         // Then&&When
         assertThrows<AccessDeniedException> {
             addStateToProjectUseCase.invoke(
                 projectId = projects[0].id,
+                state = "New State"
+            )
+        }
+    }
+
+    @Test
+    fun `should throw AccessDeniedException when attempting to add a state to project given current user non-related to project`() {
+        //Given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(mate)
+        // Then&&When
+        assertThrows<AccessDeniedException> {
+            addStateToProjectUseCase.invoke(
+                projectId = projects[1].id,
                 state = "New State"
             )
         }
@@ -69,6 +81,40 @@ class AddStateToProjectUseCaseTest {
         assertThrows<NoFoundException> {
             addStateToProjectUseCase.invoke(
                 projectId = "non-existent project",
+                state = "New State"
+            )
+        }
+
+    }
+
+    @Test
+
+    fun `should throw DuplicateStateException state add log to logs given project id`() {
+        // Given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(admin)
+        every { projectsRepository.get(any()) } returns Result.success(projects[0])
+        // When
+        //Then
+        assertThrows<AlreadyExistException> {
+            addStateToProjectUseCase(
+                projectId = projects[0].id,
+                state = "Done"
+            )
+        }
+    }
+
+    @Test
+
+    fun `should throw FailedToLogException when fail to log `() {
+        // Given
+        every { authenticationRepository.getCurrentUser() } returns Result.success(admin)
+        every { projectsRepository.get(any()) } returns Result.success(projects[0])
+        every { logsRepository.add(any()) } returns Result.failure(FailedToLogException())
+        // When
+        //Then
+        assertThrows<FailedToLogException> {
+            addStateToProjectUseCase(
+                projectId = projects[0].id,
                 state = "New State"
             )
         }
@@ -93,22 +139,6 @@ class AddStateToProjectUseCaseTest {
         verify { logsRepository.add(match { it is AddedLog }) }
     }
 
-
-
-    private val projects = listOf(
-        Project(
-            name = "Project Alpha",
-            states = mutableListOf("Backlog", "In Progress", "Done"),
-            createdBy = "user-123",
-            matesIds = listOf("user-234", "user-345")
-        ),
-        Project(
-            name = "Project Beta",
-            states = mutableListOf("Planned", "Ongoing", "Completed"),
-            createdBy = "user-456",
-            matesIds = listOf("user-567", "user-678")
-        )
-    )
     private val admin = User(
         username = "admin",
         password = "admin",
@@ -120,6 +150,20 @@ class AddStateToProjectUseCaseTest {
         type = UserType.MATE
     )
 
+    private val projects = listOf(
+        Project(
+            name = "Project Alpha",
+            states = mutableListOf("Backlog", "In Progress", "Done"),
+            createdBy = admin.id,
+            matesIds = listOf("user-234", "user-345", admin.id)
+        ),
+        Project(
+            name = "Project Beta",
+            states = mutableListOf("Planned", "Ongoing", "Completed"),
+            createdBy = "user-456",
+            matesIds = listOf("user-567", "user-678")
+        )
+    )
 }
 
 

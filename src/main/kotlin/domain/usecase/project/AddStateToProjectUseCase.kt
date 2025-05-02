@@ -1,9 +1,7 @@
 package org.example.domain.usecase.project
 
 
-import org.example.domain.AccessDeniedException
-import org.example.domain.NoFoundException
-import org.example.domain.UnauthorizedException
+import org.example.domain.*
 import org.example.domain.entity.AddedLog
 import org.example.domain.entity.Log
 import org.example.domain.entity.UserType
@@ -15,40 +13,46 @@ import java.time.LocalDateTime
 
 
 class AddStateToProjectUseCase(
-    private val authenticationRepository: AuthenticationRepository= getKoin().get(),
-    private val projectsRepository: ProjectsRepository= getKoin().get(),
-    private val logsRepository: LogsRepository= getKoin().get()
+    private val authenticationRepository: AuthenticationRepository = getKoin().get(),
+    private val projectsRepository: ProjectsRepository = getKoin().get(),
+    private val logsRepository: LogsRepository = getKoin().get()
 ) {
+
+
     operator fun invoke(projectId: String, state: String) {
-        val currentUser = authenticationRepository
+        authenticationRepository
             .getCurrentUser()
             .getOrElse {
                 throw UnauthorizedException()
-            }.also {
-                if (it.type != UserType.ADMIN) {
+            }.also { currentUser ->
+                if (currentUser.type != UserType.ADMIN) {
                     throw AccessDeniedException()
                 }
-            }
-        projectsRepository.get(projectId)
-            .getOrElse {
-                throw NoFoundException()
-            }
-            .also {
-                projectsRepository.update(
-                        it.copy(
-                            states = it.states + state
+                projectsRepository.get(projectId)
+                    .getOrElse {
+                        throw NoFoundException()
+                    }
+                    .also { project ->
+                        if (project.createdBy != currentUser.id) throw AccessDeniedException()
+                        if (project.states.contains(state)) throw AlreadyExistException()
+                        projectsRepository.update(
+                            project.copy(
+                                states = project.states + state
+                            )
                         )
+                    }
+
+                logsRepository.add(
+                    AddedLog(
+                        username = currentUser.username,
+                        affectedId = state,
+                        affectedType = Log.AffectedType.STATE,
+                        dateTime = LocalDateTime.now(),
+                        addedTo = projectId,
                     )
+                ).getOrElse { throw FailedToLogException() }
             }
-        logsRepository.add(
-            AddedLog(
-                username = currentUser.username,
-                affectedId = state,
-                affectedType = Log.AffectedType.STATE,
-                dateTime = LocalDateTime.now(),
-                addedTo = projectId,
-            )
-        )
+
     }
 }
 
