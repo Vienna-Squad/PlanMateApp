@@ -1,11 +1,23 @@
 package org.example.presentation.controller
 
+import org.example.domain.NoFoundException
+import org.example.domain.UnauthorizedException
+import org.example.domain.entity.User
+import org.example.domain.entity.UserType
 import org.example.domain.usecase.auth.LoginUseCase
+import org.example.presentation.AdminApp
+import org.example.presentation.App
+import org.example.presentation.MateApp
 import org.example.presentation.utils.interactor.Interactor
+import org.example.presentation.utils.interactor.StringInteractor
+import org.koin.core.qualifier.named
+import org.koin.java.KoinJavaComponent.getKoin
 
 class LoginUiController(
-    private val loginUseCase: LoginUseCase,
-    private val interactor: Interactor<String>,
+    private val loginUseCase: LoginUseCase=getKoin().get() ,
+    private val interactor: Interactor<String> = StringInteractor(),
+     private val mateApp: App =  getKoin().get(named("mate")),
+     private val adminApp: App = getKoin().get(named("admin"))
 ) : UiController {
     override fun execute() {
         tryAndShowError {
@@ -13,7 +25,15 @@ class LoginUiController(
             val username = interactor.getInput()
             print("enter password: ")
             val password = interactor.getInput()
-            loginUseCase(username, password)
+            if (username.isBlank() || password.isBlank())
+                throw NoFoundException()
+            val user = loginUseCase(username, password).getOrElse { throw UnauthorizedException() }
+            when (user.type) {
+                UserType.MATE -> mateApp.run()
+                UserType.ADMIN -> adminApp.run()
+
+            }
         }
     }
 }
+

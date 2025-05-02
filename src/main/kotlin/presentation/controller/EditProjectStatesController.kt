@@ -3,9 +3,10 @@ package org.example.presentation.controller
 import org.example.domain.usecase.project.EditProjectStatesUseCase
 import org.example.presentation.utils.interactor.Interactor
 import org.example.presentation.utils.viewer.ExceptionViewer
+import org.koin.mp.KoinPlatform.getKoin
 
 class EditProjectStatesController(
-    private val editProjectStatesUseCase: EditProjectStatesUseCase,
+    private val editProjectStatesUseCase: EditProjectStatesUseCase= getKoin().get(),
     private val interactor: Interactor<String>,
     private val exceptionViewer: ExceptionViewer
 ) : UiController {

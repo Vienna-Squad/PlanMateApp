@@ -7,4 +7,6 @@ interface AuthenticationRepository {
     fun createUser(user: User): Result<Unit>
     fun getCurrentUser(): Result<User>
     fun getUser(userId: String): Result<User>
+    fun login(username: String, password: String):Result<User>
+    fun logout(): Result<Unit>
 }
