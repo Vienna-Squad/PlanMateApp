@@ -14,10 +14,9 @@ class GetAllTasksOfProjectController(
     private val getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase = getKoin().get(),
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val interactor: Interactor<String> = StringInteractor(),
-    private val exceptionViewer: ItemViewer<PlanMateAppException> = ExceptionViewer()
 ): UiController {
     override fun execute() {
-        tryAndShowError(exceptionViewer){
+        tryAndShowError{
             println("enter project ID: ")
             val projectId = interactor.getInput()
             if (projectId.isBlank()) {
