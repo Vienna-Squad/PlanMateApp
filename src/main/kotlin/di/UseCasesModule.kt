@@ -10,7 +10,7 @@ import org.koin.dsl.module
 val useCasesModule = module {
     single { LoginUseCase(get()) }
     single { RegisterUserUseCase(get()) }
-    single { AddMateToProjectUseCase(get(),get(),get()) }
+    single { AddMateToProjectUseCase(get()) }
     single { AddStateToProjectUseCase(get()) }
     single { CreateProjectUseCase(get()) }
     single { DeleteMateFromProjectUseCase(get()) }
@@ -23,7 +23,7 @@ val useCasesModule = module {
     single { DeleteTaskUseCase(get()) }
     single { GetTaskHistoryUseCase(get()) }
     single { GetTaskUseCase(get()) }
-    single { AddMateToTaskUseCase(get(),get(),get(),get() )  }
+    single { AddMateToTaskUseCase(get()) }
     single { DeleteMateFromTaskUseCase(get()) }
     single { EditTaskStateUseCase(get()) }
     single { EditTaskTitleUseCase(get()) }
