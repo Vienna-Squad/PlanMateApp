@@ -7,16 +7,21 @@ import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.usecase.auth.LoginUseCase
+import org.junit.Before
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class LoginUseCaseTest {
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
-    lateinit var loginUseCase: LoginUseCase
-    @BeforeEach
-    fun setUp() {
-        loginUseCase = LoginUseCase(authenticationRepository)
+    companion object{
+        private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+        lateinit var loginUseCase: LoginUseCase
+        @BeforeAll
+        @JvmStatic
+        fun setUp() {
+            loginUseCase = LoginUseCase(authenticationRepository)
+        }
     }
 
     @Test
@@ -24,7 +29,7 @@ class LoginUseCaseTest {
         // given
         every { authenticationRepository.login(any(),any()) } returns Result.failure(LoginException())
         // when
-        val result = loginUseCase.invoke("Medo","235657333")
+        val result = loginUseCase.invoke(username = "Medo", password = "235657333")
 
         // then
         assertTrue { result.isFailure }

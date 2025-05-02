@@ -9,9 +9,11 @@ class RegisterUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     operator fun invoke(username: String, password: String, role: UserType) {
-        //authenticationRepository.getCurrentUser().getOrElse { }
+        authenticationRepository.getCurrentUser().getOrElse { throw RegisterException()}.let { user->
+            if (user.type != UserType.ADMIN) return throw RegisterException()
+        }
 
-        //if (user.type != UserType.ADMIN) return throw RegisterException()
+
 
         if (!isValid(username, password)) return throw RegisterException()
 
