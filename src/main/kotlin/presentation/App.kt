@@ -1,8 +1,10 @@
 package org.example.presentation
 
-import org.example.presentation.controller.GetAllTasksOfProjectController
+import org.example.presentation.controller.GetTaskHistoryUIController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
+import org.example.presentation.utils.interactor.StringInteractor
+import org.example.presentation.utils.viewer.TaskHistoryViewer
 
 abstract class App(val menuItems: List<MenuItem>) {
     fun run() {
@@ -38,7 +40,8 @@ class AdminApp : App(
         MenuItem("Edit Task Details"),
         MenuItem("Edit Task Title ", EditTaskTitleUiController()),
         MenuItem("View Task Details"),
-        MenuItem("View Task Change History"),
+        MenuItem("View Task Change History",GetTaskHistoryUIController(viewer = TaskHistoryViewer(),interactor = StringInteractor()
+        )),
         MenuItem("Log Out")
     )
 )
