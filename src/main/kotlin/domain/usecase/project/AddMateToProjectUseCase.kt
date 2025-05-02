@@ -15,27 +15,25 @@ class AddMateToProjectUseCase(
     operator fun invoke(projectId: String, mateId: String) {
 
 
-        val user = authenticationRepository.getCurrentUser().getOrElse {
-            throw UnauthorizedException()
-        }
+        authenticationRepository.getCurrentUser()
+            .getOrElse { throw UnauthorizedException() }
+            .also { user ->
+                validateUserAuthorization(user)
+                projectsRepository.get(projectId)
+                    .getOrElse { throw NoFoundException() }
+                    .also { project ->
+                        validateMateNotInProject(project, mateId)
+                        updateProjectWithMate(project, mateId)
+                            .also { updatedProject ->
+                                projectsRepository.update(updatedProject)
+                                    .getOrElse { throw RuntimeException("Failed to update project", it) }
+                                createAndLogAction(updatedProject, mateId, user.username)
+                            }
+                    }
+            }
 
-        validateUserAuthorization(user)
 
-        val project = projectsRepository.get(projectId).getOrElse {
-            throw NoFoundException()
-        }
-        validateMateNotInProject(project, mateId)
-
-        val updatedProject = updateProjectWithMate(project, mateId)
-
-        projectsRepository.update(updatedProject).getOrElse {
-            throw RuntimeException("Failed to update project", it)
-        }
-
-        createAndLogAction(updatedProject, mateId, user.username)
     }
-
-
 
     private fun validateUserAuthorization(user: User) {
         require(user.type != UserType.MATE) { throw AccessDeniedException() }
