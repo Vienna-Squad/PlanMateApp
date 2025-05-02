@@ -3,6 +3,10 @@ package org.example.domain.repository
 import org.example.domain.entity.User
 
 interface AuthenticationRepository {
-    fun getUsers(): Result<List<User>>
-    fun addUser(user: User)
+    fun getAllUsers(): Result<List<User>>
+    fun createUser(user: User): Result<Unit>
+    fun getCurrentUser(): Result<User>
+    fun getUser(userId: String): Result<User>
+    fun login(username: String, password: String):Result<User>
+    fun logout(): Result<Unit>
 }

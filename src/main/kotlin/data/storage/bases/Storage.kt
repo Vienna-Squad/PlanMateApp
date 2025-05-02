@@ -1,7 +1,6 @@
-package data.storage
+package data.storage.bases
 
 interface Storage<T> {
-    fun write(list: List<T>)
     fun read(): List<T>
     fun append(item: T)
 }
