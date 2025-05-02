@@ -4,6 +4,7 @@ import org.example.data.storage.bases.EditableCsvStorage
 import org.example.domain.entity.Project
 import java.io.File
 import java.time.LocalDateTime
+import java.util.UUID
 
 class ProjectCsvStorage(file: File) :  EditableCsvStorage<Project>(file) {
     init {
@@ -21,11 +22,11 @@ class ProjectCsvStorage(file: File) :  EditableCsvStorage<Project>(file) {
         val matesIds = if (fields[MATES_IDS_INDEX].isNotEmpty()) fields[MATES_IDS_INDEX].split("|") else emptyList()
 
         val project = Project(
-            id = fields[ID_INDEX],
+            id = UUID.fromString(fields[ID_INDEX]),
             name = fields[NAME_INDEX],
             states = states,
-            createdBy = fields[CREATED_BY_INDEX],
-            matesIds = matesIds,
+            createdBy = UUID.fromString(fields[CREATED_BY_INDEX]),
+            matesIds = matesIds.map(UUID::fromString),
             cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
 

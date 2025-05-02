@@ -21,7 +21,7 @@ class CreateTaskUseCase(
             .getOrElse {
                 throw UnauthorizedException()
             }.also { currentUser ->
-                projectsRepository.get(newTask.projectId)
+                projectsRepository.getProjectById(newTask.projectId)
                     .getOrElse {
                         throw NoFoundException()
                     }.also { project ->
@@ -29,8 +29,8 @@ class CreateTaskUseCase(
                 if (!project.matesIds.contains(currentUser.id)
                     &&(project.createdBy != currentUser.id)){throw AccessDeniedException()}
 
-                tasksRepository.add(newTask).getOrElse {throw FailedToAddException() }
-                logsRepository.add(
+                tasksRepository.addTask(newTask).getOrElse {throw FailedToAddException() }
+                logsRepository.addLog(
                     CreatedLog(
                         username = currentUser.username,
                         affectedId = newTask.id,

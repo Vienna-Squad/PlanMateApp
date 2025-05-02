@@ -10,6 +10,11 @@ java {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    exclude("**/test/**") // Excludes all test packages
+    // or be more specific
+    // exclude("com/example/mypackage/test/**")
+}
 fun findTestedProductionClasses(): List<String> {
     val testFiles = fileTree("src/test/kotlin") {
         include("**/*Test.kt")

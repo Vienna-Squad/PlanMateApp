@@ -6,7 +6,10 @@ import data.storage.UserCsvStorage
 import org.example.data.storage.LogsCsvStorage
 import org.example.data.storage.ProjectCsvStorage
 import org.example.data.storage.TaskCsvStorage
-import org.example.data.storage.repository.AuthenticationCsvRepository
+import org.example.data.storage.repository.AuthenticationRepositoryImpl
+import org.example.data.storage.repository.LogsRepositoryImpl
+import org.example.data.storage.repository.ProjectsRepositoryImpl
+import org.example.data.storage.repository.TasksRepositoryImpl
 import org.example.domain.entity.Log
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
@@ -20,7 +23,6 @@ import org.example.presentation.controller.LoginUiController
 import org.example.presentation.controller.RegisterUiController
 import org.koin.core.qualifier.named
 
-import org.koin.dsl.module
 import java.io.File
 
 val appModule = module {
@@ -32,79 +34,20 @@ val appModule = module {
         }
         dataDir
     }
+    single { UserCsvStorage(File(get<String>(), "users.csv")) }
 
-    // CSV Storage implementations
-    single {
-        UserCsvStorage(File(get<String>(), "users.csv"))
-    }
+    single { ProjectCsvStorage(File(get<String>(), "projects.csv")) }
 
-    single {
-        ProjectCsvStorage(File(get<String>(), "projects.csv"))
-    }
+    single { TaskCsvStorage(File(get<String>(), "tasks.csv")) }
 
-    single {
-        TaskCsvStorage(File(get<String>(), "tasks.csv"))
-    }
-
-    single {
-        LogsCsvStorage(File(get<String>(), "logs.csv"))
-    }
+    single { LogsCsvStorage(File(get<String>(), "logs.csv")) }
 
     // Repository implementations
-    single<AuthenticationRepository> {
-        AuthenticationCsvRepository(get(), null)
-    }
+    single<AuthenticationRepository> { AuthenticationRepositoryImpl(get(), null) }
+    single<LogsRepository> { LogsRepositoryImpl(get()) }
+    single<ProjectsRepository> { ProjectsRepositoryImpl(get(),) }
+    single<TasksRepository> { TasksRepositoryImpl(get()) }
 
-    single<ProjectsRepository> {
-        // Create your ProjectsRepository implementation
-        object : ProjectsRepository {
-            override fun get(projectId: String): Result<Project> =
-                Result.failure(Exception("Not implemented yet"))
-
-            override fun getAll(): Result<List<Project>> =
-                Result.success(emptyList())
-
-            override fun add(project: Project): Result<Unit> =
-                Result.success(Unit)
-
-            override fun update(project: Project): Result<Unit> =
-                Result.success(Unit)
-
-            override fun delete(projectId: String): Result<Unit> =
-                Result.success(Unit)
-        }
-    }
-
-    single<TasksRepository> {
-        // Create your TasksRepository implementation
-        object : TasksRepository {
-            override fun get(taskId: String): Result<Task> =
-                Result.failure(Exception("Not implemented yet"))
-
-            override fun getAll(): Result<List<Task>> =
-                Result.success(emptyList())
-
-            override fun add(task: Task): Result<Unit> =
-                Result.success(Unit)
-
-            override fun update(task: Task): Result<Unit> =
-                Result.success(Unit)
-
-            override fun delete(taskId: String): Result<Unit> =
-                Result.success(Unit)
-        }
-    }
-
-    single<LogsRepository> {
-        // Create your LogsRepository implementation
-        object : LogsRepository {
-            override fun getAll(): Result<List<Log>> =
-                Result.success(emptyList())
-
-            override fun add(log: Log): Result<Unit> =
-                Result.success(Unit)
-        }
-    }
     // UI components
     single<App>(named("admin")) { AdminApp() }
     single<App>(named("auth")) { AuthApp() }
@@ -112,5 +55,11 @@ val appModule = module {
     single { LoginUiController() }
     single { RegisterUiController() }
     single { ExitUiController() }
+    single { LoginUiController() }
+
+    single { LogsRepositoryImpl(get()) }
+    single { TasksRepositoryImpl(get()) }
+    single { ProjectsRepositoryImpl(get()) }
+    single { AuthenticationRepositoryImpl(get()) }
 
 }

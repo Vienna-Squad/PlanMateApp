@@ -4,10 +4,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class Project(
-    val id: String = UUID.randomUUID().toString(),
+    val id: UUID = UUID.randomUUID(),
     val name: String,
     val states: List<String>,
-    val createdBy: String,
+    val createdBy: UUID,
     val cratedAt: LocalDateTime = LocalDateTime.now(),
-    val matesIds: List<String>
+    val matesIds: List<UUID>
 )

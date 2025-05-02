@@ -9,27 +9,26 @@ class RegisterUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     operator fun invoke(username: String, password: String, role: UserType) {
-        authenticationRepository.getCurrentUser().getOrElse { throw RegisterException()}.let { user->
+        /*authenticationRepository.getCurrentUser().getOrElse { throw RegisterException()}.let { user->
             if (user.type != UserType.ADMIN) return throw RegisterException()
         }
+*/
 
-
-
-        if (!isValid(username, password)) return throw RegisterException()
+        if (!isValid(username, password))  throw RegisterException()
 
         authenticationRepository.getAllUsers()
-            .getOrElse { return throw RegisterException() }
+            .getOrElse {  throw RegisterException() }
             .filter { user -> user.username == username }
             .let { users ->
-                if (users.isNotEmpty()) return throw RegisterException()
+                if (users.isNotEmpty())  throw RegisterException()
 
                 authenticationRepository.createUser(
                     User(
                         username = username,
-                        password = password,
+                        hashedPassword = password,
                         type = role
                     )
-                ).getOrElse { return throw RegisterException() }
+                ).getOrElse {  throw RegisterException() }
             }
 
     }

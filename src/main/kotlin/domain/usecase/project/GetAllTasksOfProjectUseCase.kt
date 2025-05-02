@@ -8,6 +8,7 @@ import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
+import java.util.*
 
 class GetAllTasksOfProjectUseCase(
     private val tasksRepository: TasksRepository,
@@ -15,13 +16,13 @@ class GetAllTasksOfProjectUseCase(
     private val authenticationRepository: AuthenticationRepository
 
 ) {
-    operator fun invoke(projectId: String): List<Task> {
+    operator fun invoke(projectId: UUID): List<Task> {
 
         val currentUser = authenticationRepository.getCurrentUser().getOrElse {
             throw UnauthorizedException()
         }
 
-        val project = projectsRepository.get(projectId).getOrElse {
+        val project = projectsRepository.getProjectById(projectId).getOrElse {
             throw InvalidIdException()
         }
 
@@ -31,7 +32,7 @@ class GetAllTasksOfProjectUseCase(
             throw UnauthorizedException()
         }
 
-        val allTasks = tasksRepository.getAll().getOrElse {
+        val allTasks = tasksRepository.getAllTasks().getOrElse {
             throw NoFoundException()
         }
 

@@ -8,6 +8,7 @@ import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.util.*
 
 
 class CreateProjectUseCase(
@@ -15,7 +16,7 @@ class CreateProjectUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val logsRepository: LogsRepository
 ) {
-    operator fun invoke(name: String, states: List<String>, creatorId: String, matesIds: List<String>) {
+    operator fun invoke(name: String, states: List<String>, creatorId: UUID, matesIds: List<UUID>) {
 
         authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
 
@@ -24,9 +25,9 @@ class CreateProjectUseCase(
             }
 
             val newProject = Project(name = name, states = states, createdBy = creatorId, matesIds = matesIds)
-            projectsRepository.add(newProject).getOrElse { throw FailedToCreateProject() }
+            projectsRepository.addProject(newProject).getOrElse { throw FailedToCreateProject() }
 
-            logsRepository.add(
+            logsRepository.addLog(
                 log = CreatedLog(
                     username = currentUser.username,
                     affectedType = Log.AffectedType.PROJECT,

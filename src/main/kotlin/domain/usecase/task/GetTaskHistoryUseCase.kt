@@ -15,7 +15,7 @@ class GetTaskHistoryUseCase(
          authenticationRepository.getCurrentUser().getOrElse {
           throw UnauthorizedException()
         }
-        return logsRepository.getAll()
+        return logsRepository.getAllLogs()
             .getOrElse {
                 throw NoFoundException()
             }

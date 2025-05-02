@@ -14,6 +14,7 @@ import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import java.util.*
 
 class DeleteTaskUseCase(
     private val projectsRepository: ProjectsRepository,
@@ -21,15 +22,15 @@ class DeleteTaskUseCase(
     private val logsRepository: LogsRepository,
     private val authenticationRepository: AuthenticationRepository
 ) {
-    operator fun invoke(taskId: String) {
+    operator fun invoke(taskId: UUID) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
             if (user.type == UserType.MATE) throw AccessDeniedException()
-            doIfExistedProject(taskId, projectsRepository::get) { project ->
+            doIfExistedProject(taskId, projectsRepository::getProjectById) { project ->
                 if (project.createdBy != user.id) throw AccessDeniedException()
-                doIfExistedTask(taskId, tasksRepository::get) { task ->
+                doIfExistedTask(taskId, tasksRepository::getTaskById) { task ->
                     if (task.projectId != project.id) throw AccessDeniedException()
-                    tasksRepository.delete(task.id)
-                    logsRepository.add(
+                    tasksRepository.deleteTaskById(task.id)
+                    logsRepository.addLog(
                         DeletedLog(
                             username = user.username,
                             affectedId = taskId,
@@ -46,18 +47,18 @@ class DeleteTaskUseCase(
     }
 
     private fun doIfExistedProject(
-        projectId: String,
-        getProject: (String) -> Result<Project>,
+        projectId: UUID,
+        getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
     }
 
     private fun doIfExistedTask(
-        taskId: String,
-        getTask: (String) -> Result<Task>,
+        taskId: UUID,
+        getTask: (UUID) -> Result<Task>,
         block: (Task) -> Unit
     ) {
-        block(getTask(taskId).getOrElse { throw if (taskId.isBlank()) InvalidIdException() else NoFoundException() })
+        block(getTask(taskId).getOrElse { throw if (taskId.toString().isBlank()) InvalidIdException() else NoFoundException() })
     }
 }

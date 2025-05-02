@@ -12,6 +12,7 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.util.*
 
 class EditProjectStatesUseCase(
     private val projectsRepository: ProjectsRepository,
@@ -19,17 +20,17 @@ class EditProjectStatesUseCase(
     private val authenticationRepository: AuthenticationRepository
 ) {
 
-    operator fun invoke(projectId: String, states: List<String>) {
+    operator fun invoke(projectId: UUID, states: List<String>) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
             if (user.type == UserType.MATE) throw AccessDeniedException()
-            doIfExistedProject(projectId, projectsRepository::get) { project ->
+            doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
                 if (project.createdBy != user.id) throw AccessDeniedException()
                 val isSameStates = project.states.containsAll(states) && states.containsAll(project.states)
                 if (isSameStates) {
                     throw InvalidIdException();
                 } else {
-                    projectsRepository.update(project.copy(states = states))
-                    logsRepository.add(
+                    projectsRepository.updateProject(project.copy(states = states))
+                    logsRepository.addLog(
                         ChangedLog(
                             username = user.username,
                             affectedId = projectId,
@@ -49,10 +50,10 @@ class EditProjectStatesUseCase(
     }
 
     private fun doIfExistedProject(
-        projectId: String,
-        getProject: (String) -> Result<Project>,
+        projectId: UUID,
+        getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
     }
 }

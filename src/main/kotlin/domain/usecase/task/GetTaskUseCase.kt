@@ -8,19 +8,20 @@ import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.TasksRepository
+import java.util.*
 
 class GetTaskUseCase(
     private val tasksRepository: TasksRepository,
     private val authenticationRepository: AuthenticationRepository
 ) {
 
-    operator fun invoke(taskId: String): Task {
+    operator fun invoke(taskId: UUID): Task {
 
 
         val currentUser = authenticationRepository.getCurrentUser()
             .getOrElse { throw UnauthorizedException() }
 
-        val task = tasksRepository.get(taskId).getOrElse {
+        val task = tasksRepository.getTaskById(taskId).getOrElse {
             throw NoFoundException()
         }
 
@@ -34,7 +35,7 @@ class GetTaskUseCase(
 
     private fun isAuthorized(user: User, task: Task): Boolean {
         return user.type == UserType.ADMIN ||
-                task.createdBy == user.username ||
+                task.createdBy == user.id ||
                 task.assignedTo.contains(user.id)
     }
 

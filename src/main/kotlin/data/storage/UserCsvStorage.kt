@@ -5,6 +5,7 @@ import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import java.io.File
 import java.time.LocalDateTime
+import java.util.*
 
 class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
 
@@ -13,15 +14,15 @@ class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
     }
 
     override fun toCsvRow(item: User): String {
-        return "${item.id},${item.username},${item.password},${item.type},${item.cratedAt}\n"
+        return "${item.id},${item.username},${item.hashedPassword},${item.type},${item.cratedAt}\n"
     }
 
     override fun fromCsvRow(fields: List<String>): User {
         require(fields.size == EXPECTED_COLUMNS) { "Invalid user data format: " }
         val user = User(
-            id = fields[ID_INDEX],
+            id = UUID.fromString(fields[ID_INDEX]),
             username = fields[USERNAME_INDEX],
-            password = fields[PASSWORD_INDEX],
+            hashedPassword = fields[PASSWORD_INDEX],
             type = UserType.valueOf(fields[TYPE_INDEX]),
             cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )

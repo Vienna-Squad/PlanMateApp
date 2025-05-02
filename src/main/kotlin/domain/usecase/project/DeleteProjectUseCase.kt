@@ -12,19 +12,20 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.util.UUID
 
 class DeleteProjectUseCase(
     private val projectsRepository: ProjectsRepository,
     private val logsRepository: LogsRepository,
     private val authenticationRepository: AuthenticationRepository
 ) {
-    operator fun invoke(projectId: String) {
+    operator fun invoke(projectId: UUID) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
             if (user.type == UserType.MATE) throw AccessDeniedException()
-            doIfExistedProject(projectId, projectsRepository::get) { project ->
+            doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
                 if (project.createdBy != user.id) throw AccessDeniedException()
-                projectsRepository.delete(project.id)
-                logsRepository.add(
+                projectsRepository.deleteProjectById(project.id)
+                logsRepository.addLog(
                     DeletedLog(
                         username = user.username,
                         affectedId = projectId,
@@ -40,10 +41,10 @@ class DeleteProjectUseCase(
     }
 
     private fun doIfExistedProject(
-        projectId: String,
-        getProject: (String) -> Result<Project>,
+        projectId: UUID,
+        getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
     }
 }

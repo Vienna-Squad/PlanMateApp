@@ -8,24 +8,25 @@ import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.util.UUID
 
 class DeleteMateFromProjectUseCase(
     private val projectsRepository: ProjectsRepository,
     private val logsRepository: LogsRepository,
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    operator fun invoke(projectId: String, mateId: String) {
+    operator fun invoke(projectId: UUID, mateId: UUID) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
             if (user.type == UserType.MATE) throw AccessDeniedException()
-            doIfExistedProject(projectId, projectsRepository::get) { project ->
+            doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
                 if (project.createdBy != user.id) throw AccessDeniedException()
-                doIfExistedMate(mateId, authenticationRepository::getUser) { mate ->
+                doIfExistedMate(mateId, authenticationRepository::getUserByID) { mate ->
                     if (!project.matesIds.contains(mateId)) throw NoFoundException()
-                    projectsRepository.update(
+                    projectsRepository.updateProject(
                         project.copy(
-                            matesIds = project.matesIds.toMutableList().apply { remove(mateId) })
+                            matesIds = project.matesIds.toMutableList().apply { remove((mateId)) })
                     )
-                    logsRepository.add(
+                    logsRepository.addLog(
                         DeletedLog(
                             username = user.username,
                             affectedId = projectId,
@@ -43,14 +44,14 @@ class DeleteMateFromProjectUseCase(
     }
 
     private fun doIfExistedProject(
-        projectId: String,
-        getProject: (String) -> Result<Project>,
+        projectId: UUID,
+        getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
     }
 
-    private fun doIfExistedMate(userId: String, getUser: (userId: String) -> Result<User>, block: (User) -> Unit) {
+    private fun doIfExistedMate(userId: UUID, getUser: (userId: UUID) -> Result<User>, block: (User) -> Unit) {
         block(getUser(userId).getOrElse { throw NoFoundException() })
     }
 }

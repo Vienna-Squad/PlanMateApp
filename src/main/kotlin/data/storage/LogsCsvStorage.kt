@@ -7,6 +7,7 @@ import org.example.domain.entity.Log.AffectedType
 import java.io.File
 import java.text.ParseException
 import java.time.LocalDateTime
+import java.util.UUID
 
 class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
     init {
@@ -69,7 +70,7 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
         return when (actionType) {
             ActionType.CHANGED -> ChangedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = fields[AFFECTED_ID_INDEX],
+                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
                 changedFrom = fields[FROM_INDEX],
@@ -78,15 +79,15 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
 
             ActionType.ADDED -> AddedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = fields[AFFECTED_ID_INDEX],
+                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
-                addedTo = fields[TO_INDEX]
+                addedTo = UUID.fromString(fields[TO_INDEX])
             )
 
             ActionType.DELETED -> DeletedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = fields[AFFECTED_ID_INDEX],
+                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
                 deletedFrom = fields[FROM_INDEX],
@@ -94,7 +95,7 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
 
             ActionType.CREATED -> CreatedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = fields[AFFECTED_ID_INDEX],
+                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
             )

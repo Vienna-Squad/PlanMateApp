@@ -6,6 +6,7 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.util.*
 
 class GetProjectHistoryUseCase(
     private val projectsRepository: ProjectsRepository,
@@ -13,11 +14,11 @@ class GetProjectHistoryUseCase(
     private val logsRepository: LogsRepository
 
 ) {
-    operator fun invoke(projectId: String): List<Log> {
+    operator fun invoke(projectId: UUID): List<Log> {
 
         authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
 
-            projectsRepository.get(projectId)
+            projectsRepository.getProjectById(projectId)
                 .getOrElse { throw NoFoundException() }.let { project ->
 
                     when (currentUser.type) {
@@ -35,7 +36,7 @@ class GetProjectHistoryUseCase(
                     }
                 }
         }
-        return logsRepository.getAll().getOrElse { throw FailedToCallLogException() }.filter { logs ->
+        return logsRepository.getAllLogs().getOrElse { throw FailedToCallLogException() }.filter { logs ->
             logs.affectedId == projectId
         }
 

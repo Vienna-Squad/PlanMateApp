@@ -10,6 +10,7 @@ import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import java.util.*
 
 class AddMateToTaskUseCase(
     private val tasksRepository: TasksRepository,
@@ -17,12 +18,12 @@ class AddMateToTaskUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val projectsRepository: ProjectsRepository
 ) {
-    operator fun invoke(taskId: String, mate: String) {
+    operator fun invoke(taskId: UUID, mate: UUID) {
 
         val currentUser = authenticationRepository.getCurrentUser()
             .getOrElse { throw UnauthorizedException() }
 
-        val task = tasksRepository.get(taskId)
+        val task = tasksRepository.getTaskById(taskId)
             .getOrElse { throw InvalidIdException() }
 
 
@@ -32,11 +33,11 @@ class AddMateToTaskUseCase(
             throw UnauthorizedException()
         }
 
-        authenticationRepository.getUser(mate)
+        authenticationRepository.getUserByID(mate)
             .getOrElse { throw NoFoundException() }
 
 
-        val project = projectsRepository.get(task.projectId)
+        val project = projectsRepository.getProjectById(task.projectId)
             .getOrElse { throw NoFoundException() }
 
 
@@ -51,7 +52,7 @@ class AddMateToTaskUseCase(
         }
 
         val updatedTask = task.copy(assignedTo = updatedAssignedTo)
-        tasksRepository.update(updatedTask)
+        tasksRepository.updateTask(updatedTask)
             .getOrElse { throw NoFoundException() }
 
         val log = AddedLog(
@@ -60,7 +61,7 @@ class AddMateToTaskUseCase(
             affectedType = Log.AffectedType.MATE,
             addedTo = taskId
         )
-        logsRepository.add(log)
+        logsRepository.addLog(log)
             .getOrElse { throw NoFoundException() }
     }
 }

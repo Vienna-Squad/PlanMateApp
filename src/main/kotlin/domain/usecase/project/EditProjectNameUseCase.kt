@@ -12,6 +12,7 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.util.*
 
 class EditProjectNameUseCase(
     private val projectsRepository: ProjectsRepository,
@@ -19,14 +20,14 @@ class EditProjectNameUseCase(
     private val authenticationRepository: AuthenticationRepository
 ) {
 
-    operator fun invoke(projectId: String, name: String) {
+    operator fun invoke(projectId: UUID, name: String) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
             if (user.type == UserType.MATE) throw AccessDeniedException()
-            doIfExistedProject(projectId, projectsRepository::get) { project ->
+            doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
                 if (project.createdBy != user.id) throw AccessDeniedException()
                 if (name != project.name) {
-                    projectsRepository.update(project.copy(name = name))
-                    logsRepository.add(
+                    projectsRepository.updateProject(project.copy(name = name))
+                    logsRepository.addLog(
                         ChangedLog(
                             username = user.username,
                             affectedId = projectId,
@@ -45,10 +46,10 @@ class EditProjectNameUseCase(
     }
 
     private fun doIfExistedProject(
-        projectId: String,
-        getProject: (String) -> Result<Project>,
+        projectId: UUID,
+        getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
     }
 }

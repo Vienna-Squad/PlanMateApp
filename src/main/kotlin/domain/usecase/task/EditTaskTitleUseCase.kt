@@ -7,20 +7,21 @@ import org.example.domain.entity.Log
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
+import java.util.*
 
 class EditTaskTitleUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val tasksRepository: TasksRepository,
     private val logsRepository: LogsRepository
 ) {
-    operator fun invoke(taskId: String, title: String) {
-        authenticationRepository.getCurrentUser().getOrElse { return throw UnauthorizedException() }.let { user ->
-            tasksRepository.getAll().getOrElse { return throw NoFoundException() }
+    operator fun invoke(taskId: UUID, title: String) {
+        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { user ->
+            tasksRepository.getAllTasks().getOrElse {  throw NoFoundException() }
                 .filter { task -> task.id == taskId }
-                .also { tasks -> if (tasks.isEmpty()) return throw NoFoundException() }
+                .also { tasks -> if (tasks.isEmpty())  throw NoFoundException() }
                 .first()
                 .also { task ->
-                    logsRepository.add(
+                    logsRepository.addLog(
                         ChangedLog(
                             username = user.username,
                             affectedId = taskId,
@@ -32,7 +33,7 @@ class EditTaskTitleUseCase(
                 }
                 .copy(title = title)
                 .let { task ->
-                    tasksRepository.update(task).getOrElse { throw NoFoundException() }
+                    tasksRepository.updateTask(task).getOrElse { throw NoFoundException() }
                 }
         }
     }

@@ -10,6 +10,7 @@ import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.koin.mp.KoinPlatform.getKoin
 import java.time.LocalDateTime
+import java.util.UUID
 
 
 class AddStateToProjectUseCase(
@@ -19,7 +20,7 @@ class AddStateToProjectUseCase(
 ) {
 
 
-    operator fun invoke(projectId: String, state: String) {
+    operator fun invoke(projectId: UUID, state: String) {
         authenticationRepository
             .getCurrentUser()
             .getOrElse {
@@ -28,24 +29,24 @@ class AddStateToProjectUseCase(
                 if (currentUser.type != UserType.ADMIN) {
                     throw AccessDeniedException()
                 }
-                projectsRepository.get(projectId)
+                projectsRepository.getProjectById(projectId)
                     .getOrElse {
                         throw NoFoundException()
                     }
                     .also { project ->
                         if (project.createdBy != currentUser.id) throw AccessDeniedException()
                         if (project.states.contains(state)) throw AlreadyExistException()
-                        projectsRepository.update(
+                        projectsRepository.updateProject(
                             project.copy(
                                 states = project.states + state
                             )
                         )
                     }
 
-                logsRepository.add(
+                logsRepository.addLog(
                     AddedLog(
                         username = currentUser.username,
-                        affectedId = state,
+                        affectedId = UUID.fromString(state),
                         affectedType = Log.AffectedType.STATE,
                         dateTime = LocalDateTime.now(),
                         addedTo = projectId,

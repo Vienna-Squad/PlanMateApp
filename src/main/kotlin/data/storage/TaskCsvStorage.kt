@@ -4,6 +4,7 @@ import org.example.data.storage.bases.EditableCsvStorage
 import org.example.domain.entity.Task
 import java.io.File
 import java.time.LocalDateTime
+import java.util.UUID
 
 class TaskCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
 
@@ -19,14 +20,14 @@ class TaskCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
     override fun fromCsvRow(fields: List<String>): Task {
         require(fields.size == EXPECTED_COLUMNS) { "Invalid task data format: " }
         val assignedTo =
-            if (fields[ASSIGNED_TO_INDEX].isNotEmpty()) fields[ASSIGNED_TO_INDEX].split("|") else emptyList()
+            if (fields[ASSIGNED_TO_INDEX].isNotEmpty()) fields[ASSIGNED_TO_INDEX].split(MULTI_VALUE_SEPARATOR).map { UUID.fromString(it) } else emptyList()
         val task = Task(
-            id = fields[ID_INDEX],
+            id = UUID.fromString(fields[ID_INDEX]),
             title = fields[TITLE_INDEX],
             state = fields[STATE_INDEX],
             assignedTo = assignedTo,
-            createdBy = fields[CREATED_BY_INDEX],
-            projectId = fields[PROJECT_ID_INDEX],
+            createdBy = UUID.fromString(fields[CREATED_BY_INDEX]),
+            projectId = UUID.fromString(fields[PROJECT_ID_INDEX]),
             createdAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
         return task

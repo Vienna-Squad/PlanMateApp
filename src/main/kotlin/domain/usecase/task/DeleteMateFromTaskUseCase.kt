@@ -10,13 +10,14 @@ import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
+import java.util.*
 
 class DeleteMateFromTaskUseCase(
     private val tasksRepository: TasksRepository,
     private val authenticationRepository: AuthenticationRepository,
     private val logRepository: LogsRepository
 ) {
-    operator fun invoke(taskId: String, mate: String) {
+    operator fun invoke(taskId: UUID, mate: UUID) {
 
         authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
 
@@ -24,7 +25,7 @@ class DeleteMateFromTaskUseCase(
                 throw AccessDeniedException()
             }
 
-            tasksRepository.get(taskId).getOrElse { throw NoFoundException() }.let { task ->
+            tasksRepository.getTaskById(taskId).getOrElse { throw NoFoundException() }.let { task ->
 
                 if (!task.assignedTo.contains(mate)) {
                     throw NoFoundException()
@@ -32,9 +33,9 @@ class DeleteMateFromTaskUseCase(
 
                 val updatedAssignedTo = task.assignedTo.filter { it != mate }
                 val updatedTask = task.copy(assignedTo = updatedAssignedTo)
-                tasksRepository.update(updatedTask)
+                tasksRepository.updateTask(updatedTask)
 
-                logRepository.add(
+                logRepository.addLog(
                     log = DeletedLog(
                         username = currentUser.username,
                         affectedType = Log.AffectedType.MATE,

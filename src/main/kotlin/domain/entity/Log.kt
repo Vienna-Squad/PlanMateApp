@@ -1,12 +1,11 @@
 package org.example.domain.entity
 
 import java.time.LocalDateTime
+import java.util.UUID
 
-//user abc changed task/project XYZ-001 from InProgress to InDevReview at 2025/05/24 8:00 PM
-//[ActionType,username, affectedId, affectedType, dateTime,changedFrom, changedTo]
 sealed class Log(
     val username: String,
-    val affectedId: String,
+    val affectedId: UUID,
     val affectedType: AffectedType,
     val dateTime: LocalDateTime = LocalDateTime.now()
 ) {
@@ -27,7 +26,7 @@ sealed class Log(
 
 class ChangedLog(
     username: String,
-    affectedId: String,
+    affectedId: UUID,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
     val changedFrom: String,
@@ -39,10 +38,10 @@ class ChangedLog(
 
 class AddedLog(
     username: String,
-    affectedId: String,
+    affectedId: UUID,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
-    val addedTo: String,
+    val addedTo: UUID,
 ) : Log(username, affectedId, affectedType, dateTime) {
     override fun toString() =
         "user $username ${ActionType.ADDED.name.lowercase()} ${affectedType.name.lowercase()} $affectedId to $addedTo at $dateTime"
@@ -50,7 +49,7 @@ class AddedLog(
 
 class DeletedLog(
     username: String,
-    affectedId: String,
+    affectedId: UUID,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
     val deletedFrom: String? = null,
@@ -61,7 +60,7 @@ class DeletedLog(
 
 class CreatedLog(
     username: String,
-    affectedId: String,
+    affectedId: UUID,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
 ) : Log(username, affectedId, affectedType, dateTime) {
