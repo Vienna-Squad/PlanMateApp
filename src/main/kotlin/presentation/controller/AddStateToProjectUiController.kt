@@ -3,10 +3,12 @@ package org.example.presentation.controller
 import org.example.domain.InvalidIdException
 import org.example.domain.usecase.project.AddStateToProjectUseCase
 import org.example.presentation.utils.interactor.Interactor
+import org.example.presentation.utils.interactor.StringInteractor
+import org.koin.mp.KoinPlatform.getKoin
 
 class AddStateToProjectUiController(
-    private val addStateToProjectUseCase: AddStateToProjectUseCase,
-    private val interactor: Interactor<String>,
+    private val addStateToProjectUseCase: AddStateToProjectUseCase= getKoin().get(),
+    private val interactor: Interactor<String> = StringInteractor(),
 
     ) : UiController {
 
@@ -24,6 +26,7 @@ class AddStateToProjectUiController(
             )
             println("State added successfully")
         }
+
     }
 
     private fun isValidInput(input: String): Boolean {

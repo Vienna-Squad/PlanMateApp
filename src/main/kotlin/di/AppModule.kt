@@ -11,7 +11,14 @@ import org.example.domain.entity.Log
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.repository.*
+import org.example.presentation.AdminApp
+import org.example.presentation.App
 import org.example.presentation.AuthApp
+import org.example.presentation.MateApp
+import org.example.presentation.controller.ExitUiController
+import org.example.presentation.controller.LoginUiController
+import org.example.presentation.controller.RegisterUiController
+import org.koin.core.qualifier.named
 
 import org.koin.dsl.module
 import java.io.File
@@ -99,7 +106,11 @@ val appModule = module {
         }
     }
     // UI components
-    single { AuthApp() }
-   // single {  }
+    single<App>(named("admin")) { AdminApp() }
+    single<App>(named("auth")) { AuthApp() }
+    single<App>(named("mate")) { MateApp() }
+    single { LoginUiController() }
+    single { RegisterUiController() }
+    single { ExitUiController() }
 
 }

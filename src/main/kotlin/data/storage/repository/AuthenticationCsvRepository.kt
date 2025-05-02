@@ -50,18 +50,17 @@ class AuthenticationCsvRepository(
         var user: User? = null
         runCatching {
             val users = storage.read()
-             user = users.find { it.username == username }
+            user = users.find { it.username == username }
                 ?: throw UnauthorizedException()
 
             val encryptedPassword = password.toMD5()
             if (user.password != encryptedPassword) {
                 throw UnauthorizedException()
             }
-
             currentUserId = user.id
-        }.getOrElse { return Result.failure(it) }
+        }.getOrElse{ return Result.failure(it) }
         return if (user!=null)
-            Result.success(user)
+            Result.success(user!!)
         else
             Result.failure(NoFoundException())
     }

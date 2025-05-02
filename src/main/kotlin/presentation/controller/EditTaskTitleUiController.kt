@@ -6,9 +6,10 @@ import org.example.presentation.utils.interactor.StringInteractor
 import org.example.presentation.utils.viewer.ItemViewer
 import org.example.presentation.utils.viewer.StringViewer
 import org.koin.core.Koin
+import org.koin.java.KoinJavaComponent.getKoin
 
 class EditTaskTitleUiController(
-    private val editTaskTitleUseCase: EditTaskTitleUseCase = Koin().get(),
+    private val editTaskTitleUseCase: EditTaskTitleUseCase = getKoin().get(),
     private val interactor: Interactor<String> = StringInteractor(),
     private val itemViewer: ItemViewer<String> = StringViewer(),
 ): UiController {

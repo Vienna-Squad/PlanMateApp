@@ -24,5 +24,6 @@ class AddMateToProjectUiController(
             addMateToProjectUseCase(projectId, mateId)
             stringViewer.view("The Mate has been added successfully")
         }
+
     }
 }

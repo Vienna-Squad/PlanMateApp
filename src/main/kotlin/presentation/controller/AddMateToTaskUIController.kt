@@ -32,6 +32,7 @@ class AddMateToTaskUIController(
             addMateToTaskUseCase(taskId, mateId)
             stringViewer.view("Mate: $mateId added to task: $taskId successfully")
         }
+
     }
 
 }
