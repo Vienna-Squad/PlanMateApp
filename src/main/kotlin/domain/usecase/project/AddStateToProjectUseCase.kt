@@ -46,7 +46,7 @@ class AddStateToProjectUseCase(
                 logsRepository.addLog(
                     AddedLog(
                         username = currentUser.username,
-                        affectedId = UUID.fromString(state),
+                        affectedId = projectId,
                         affectedType = Log.AffectedType.STATE,
                         dateTime = LocalDateTime.now(),
                         addedTo = projectId,

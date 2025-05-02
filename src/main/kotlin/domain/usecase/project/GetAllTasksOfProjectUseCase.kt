@@ -31,17 +31,12 @@ class GetAllTasksOfProjectUseCase(
             currentUser.id !in project.matesIds) {
             throw UnauthorizedException()
         }
-
         val allTasks = tasksRepository.getAllTasks().getOrElse {
             throw NoFoundException()
         }
-
-
-        return allTasks
+        var task=allTasks
             .filter { it.projectId == project.id }
-            .takeIf { it.isNotEmpty() }
-            ?: throw NoFoundException()
+        return task
+
     }
-
-
 }

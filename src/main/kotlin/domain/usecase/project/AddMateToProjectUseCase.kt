@@ -54,7 +54,7 @@ class AddMateToProjectUseCase(
         val log = AddedLog(
             username = username,
             affectedId = mateId,
-            affectedType = Log.AffectedType.PROJECT,
+            affectedType = Log.AffectedType.MATE,
             addedTo = project.id
         )
         val logResult = logsRepository.addLog(log)

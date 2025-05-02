@@ -56,7 +56,6 @@ class AdminApp : App(
             MenuItem("Delete Mate From Project", DeleteMateFromProjectUiController()),
             MenuItem("Add State to Project", AddStateToProjectUiController()),
             MenuItem("Delete State from Project"),
-            MenuItem("Remove Mate User from Project"),
         )),
         Category("Task Management", listOf(
             MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
