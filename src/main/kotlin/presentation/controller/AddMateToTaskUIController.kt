@@ -10,7 +10,7 @@ import org.example.presentation.utils.viewer.ItemViewer
 import org.example.presentation.utils.viewer.StringViewer
 import org.koin.java.KoinJavaComponent.getKoin
 
-class AddMateToTaskController(
+class AddMateToTaskUIController(
     private val addMateToTaskUseCase: AddMateToTaskUseCase = getKoin().get(),
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val interactor: Interactor<String> = StringInteractor(),

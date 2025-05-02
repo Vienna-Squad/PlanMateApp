@@ -26,7 +26,7 @@ class EditProjectStatesUseCase(
                 if (project.createdBy != user.id) throw AccessDeniedException()
                 val isSameStates = project.states.containsAll(states) && states.containsAll(project.states)
                 if (isSameStates) {
-                    throw InvalidIdException("all states are the same");
+                    throw InvalidIdException();
                 } else {
                     projectsRepository.update(project.copy(states = states))
                     logsRepository.add(

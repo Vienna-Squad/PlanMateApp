@@ -1,9 +1,9 @@
 package org.example.presentation
 
 import org.example.presentation.controller.GetTaskUiController
-import org.example.presentation.controller.SoonUiController
-import org.example.presentation.controller.UiController
+import org.example.presentation.controller.*
 import org.example.presentation.utils.interactor.StringInteractor
+import org.koin.java.KoinJavaComponent.getKoin
 import org.example.presentation.utils.viewer.TaskHistoryViewer
 
 abstract class App(val menuItems: List<MenuItem>) {
@@ -26,9 +26,9 @@ class AdminApp : App(
     menuItems = listOf(
         MenuItem("Create New Project",CreateProjectUiController()),
         MenuItem("Edit Project Name"),
-        MenuItem("Add New State to Project", uiController = AddStateToProjectUiController(AddStateToProjectUseCase(),StringInteractor())),
+        MenuItem("Add New State to Project", uiController = AddStateToProjectUiController(getKoin().get(),StringInteractor())),
         MenuItem("Remove State from Project"),
-        MenuItem("Add Mate User to Project",AddMateToProjectUiController()),
+        MenuItem("Add Mate User to Project", AddMateToProjectUiController()),
         MenuItem("Remove Mate User from Project"),
         MenuItem("Delete Project"),
         MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
