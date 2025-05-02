@@ -58,12 +58,14 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
     }
 
     override fun fromCsvRow(fields: List<String>): Log {
-        if (fields.size != EXPECTED_COLUMNS) throw ParseException("wrong size of fields it is: ${fields.size}", 0)
+        if (fields.size != EXPECTED_COLUMNS) {
+            throw IllegalArgumentException("Invalid CSV format: wrong size of fields, expected $EXPECTED_COLUMNS but got ${fields.size}")
+        }
+
         val actionType =
-            ActionType.entries.firstOrNull { it.name == fields[ACTION_TYPE_INDEX] } ?: throw ParseException(
-                fields[ACTION_TYPE_INDEX],
-                0
-            )
+            ActionType.entries.firstOrNull { it.name == fields[ACTION_TYPE_INDEX] }
+                ?: throw IllegalArgumentException("Invalid action type: ${fields[ACTION_TYPE_INDEX]}")
+
         return when (actionType) {
             ActionType.CHANGED -> ChangedLog(
                 username = fields[USERNAME_INDEX],
