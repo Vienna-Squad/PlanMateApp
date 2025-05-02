@@ -1,9 +1,7 @@
 package org.example.presentation
 
-import org.example.presentation.controller.CreateTaskUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
-import org.koin.java.KoinJavaComponent.getKoin
 
 abstract class App(val menuItems: List<MenuItem>) {
     fun run() {
@@ -35,6 +33,7 @@ class AdminApp : App(
         MenuItem("Create New Task", CreateTaskUiController()),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
+        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
@@ -53,9 +52,10 @@ class MateApp : App(
     menuItems = listOf(
         MenuItem("View All Tasks in Project"),
         MenuItem("View Project Change History"),
-        MenuItem("Create New Task", CreateTaskUiController()),
+        MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
+        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
