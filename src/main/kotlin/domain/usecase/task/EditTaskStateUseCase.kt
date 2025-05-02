@@ -10,6 +10,9 @@ class EditTaskStateUseCase (
 ) {
     operator fun invoke(taskId: String, state: String) {
         tasksRepository.get(taskId).onSuccess { task ->
+            if (task.state == state) {
+                throw InvalidIdException("Task is already in the desired state")
+            }
             val updatedTask = task.copy(state = state)
             tasksRepository.update(updatedTask)
         }.onFailure { exception ->
