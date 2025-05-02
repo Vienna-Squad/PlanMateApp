@@ -1,6 +1,6 @@
 package org.example.presentation
 
-import org.example.presentation.controller.GetTaskHistoryUIController
+import org.example.presentation.controller.GetTaskUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.StringInteractor
@@ -39,6 +39,7 @@ class AdminApp : App(
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
         MenuItem("Edit Task Title ", EditTaskTitleUiController()),
+        MenuItem("Edit Task Details", GetTaskUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History",GetTaskHistoryUIController(viewer = TaskHistoryViewer(),interactor = StringInteractor()
         )),
@@ -62,6 +63,7 @@ class MateApp : App(
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
         MenuItem("Edit Task Title ", EditTaskTitleUiController()),
+        MenuItem("Edit Task Details",GetTaskUiController()),
         MenuItem("View Task Details"),
         MenuItem("View Task Change History"),
         MenuItem("Log Out")
