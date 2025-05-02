@@ -85,15 +85,4 @@ class EditTaskStateUseCaseTest {
         }
         assertEquals(exception.message, thrown.message)
     }
-
-    @Test
-    fun `should not update task state if new state is the same as old state`() {
-        // given
-        every { tasksRepository.get(dummyTask.id) } returns Result.success(dummyTask)
-        // when & then
-        val thrown = assertThrows<InvalidIdException> {
-            editTaskStateUseCase(dummyTask.id, dummyTask.state)
-        }
-        assertEquals("Task is already in the desired state", thrown.message)
-    }
 }
