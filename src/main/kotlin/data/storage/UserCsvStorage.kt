@@ -1,34 +1,44 @@
 package data.storage
 
-import org.example.data.storage.bases.CsvStorage
+import org.example.data.storage.bases.EditableCsvStorage
 import org.example.domain.entity.User
 import org.example.domain.entity.UserType
 import java.io.File
 import java.time.LocalDateTime
 
-class UserCsvStorage(file: File) : CsvStorage<User>(file) {
+class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
 
     init {
-        writeHeader(CSV_HEADER)
+        writeHeader(getHeaderString())
     }
 
     override fun toCsvRow(item: User): String {
-        return "${item.id},${item.username},${item.password},${item.type},${item.cratedAt}"
+        return "${item.id},${item.username},${item.password},${item.type},${item.cratedAt}\n"
     }
 
     override fun fromCsvRow(fields: List<String>): User {
-        require(fields.size == 5) { "Invalid user data format: " }
+        require(fields.size == EXPECTED_COLUMNS) { "Invalid user data format: " }
         val user = User(
-            id = fields[0],
-            username = fields[1],
-            password = fields[2],
-            type = UserType.valueOf(fields[3]),
-            cratedAt = LocalDateTime.parse(fields[4])
+            id = fields[ID_INDEX],
+            username = fields[USERNAME_INDEX],
+            password = fields[PASSWORD_INDEX],
+            type = UserType.valueOf(fields[TYPE_INDEX]),
+            cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
         return user
     }
 
+    override fun getHeaderString(): String {
+        return CSV_HEADER
+    }
+
     companion object {
         const val CSV_HEADER = "id,username,password,type,createdAt\n"
+        private const val ID_INDEX = 0
+        private const val USERNAME_INDEX = 1
+        private const val PASSWORD_INDEX = 2
+        private const val TYPE_INDEX = 3
+        private const val CREATED_AT_INDEX = 4
+        private const val EXPECTED_COLUMNS = 5
     }
 }
