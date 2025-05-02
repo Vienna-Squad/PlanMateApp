@@ -1,6 +1,5 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.InvalidIdException
 import org.example.domain.NoFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Task
@@ -16,19 +15,13 @@ class GetTaskUseCase(
 
     operator fun invoke(taskId: String): Task {
 
-
         val currentUser = authenticationRepository.getCurrentUser()
             .getOrElse { throw UnauthorizedException() }
 
-        val task = tasksRepository.get(taskId).getOrElse {
-            throw NoFoundException()
-        }
+        val task = tasksRepository.get(taskId)
+            .getOrElse { throw NoFoundException() }
 
-        if (!isAuthorized(currentUser, task)) {
-            throw UnauthorizedException()
-        }
-
-        return task
+        return if (isAuthorized(currentUser, task)) task else throw UnauthorizedException()
     }
 
 
