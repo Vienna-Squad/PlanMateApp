@@ -1,4 +1,3 @@
-
 package org.example.presentation
 
 import org.example.presentation.controller.*
@@ -22,47 +21,48 @@ abstract class App(val menuItems: List<MenuItem>) {
 class AdminApp : App(
     menuItems = listOf(
         MenuItem("Add Mate to Project", AddMateToProjectUiController()),
-        MenuItem("Add State to Project",AddStateToProjectUiController()),
-        MenuItem("Create New Project",CreateProjectUiController()),
-        MenuItem("Delete Mate From Project",DeleteMateFromProjectUiController()),
-        MenuItem("Delete Project",DeleteProjectUiController()),
+        MenuItem("Add State to Project", AddStateToProjectUiController()),
+        MenuItem("Create New Project", CreateProjectUiController()),
+        MenuItem("Delete Mate From Project", DeleteMateFromProjectUiController()),
+        MenuItem("Delete Project", DeleteProjectUiController()),
         MenuItem("Delete State from Project"),
-        MenuItem("Edit Project Name",EditProjectNameUiController()),
-        MenuItem("View Project History",GetProjectHistoryUiController()),
+        MenuItem("Edit Project Name", EditProjectNameUiController()),
+        MenuItem("View Project History", GetProjectHistoryUiController()),
         MenuItem("Remove State from Project"),
         MenuItem("Remove Mate User from Project"),
         MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
-        MenuItem("Add Mate To Task",AddMateToTaskUIController()),
+        MenuItem("Add Mate To Task", AddMateToTaskUIController()),
         MenuItem("Create New Task", CreateTaskUiController()),
-        MenuItem("Delete Mate From Task",DeleteMateFromTaskUiController()),
+        MenuItem("Delete Mate From Task", DeleteMateFromTaskUiController()),
         MenuItem("Delete  Task"),
         MenuItem("Edit Task State"),
-        MenuItem("View Task Change History",GetTaskHistoryUIController()),
+        MenuItem("View Task Change History", GetTaskHistoryUIController()),
         MenuItem("Edit Task Title ", EditTaskTitleUiController()),
-        MenuItem("View Task Details",GetTaskUiController()),
+        MenuItem("View Task Details", GetTaskUiController()),
         MenuItem("Log Out", LogoutUiController())
 
+    )
 )
-)
+
 class AuthApp : App(
     menuItems = listOf(
         MenuItem("Log In", LoginUiController()),
         MenuItem("Sign Up (Register New Account),", RegisterUiController()),
-        MenuItem("Exit Application",)
+        MenuItem("Exit Application")
     )
 )
 
 class MateApp : App(
     menuItems = listOf(
-            MenuItem("View Project History",GetProjectHistoryUiController()),
-            MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
-            MenuItem("Add Mate To Task",AddMateToTaskUIController()),
-            MenuItem("Create New Task", CreateTaskUiController()),
-            MenuItem("Delete Task"),
-            MenuItem("Edit Task State"),
-            MenuItem("View Task History",GetTaskHistoryUIController()),
-            MenuItem("Edit Task Title ", EditTaskTitleUiController()),
-            MenuItem("View Task Details",GetTaskUiController()),
-            MenuItem("Log Out", LogoutUiController())
+        MenuItem("View Project History", GetProjectHistoryUiController()),
+        MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
+        MenuItem("Add Mate To Task", AddMateToTaskUIController()),
+        MenuItem("Create New Task", CreateTaskUiController()),
+        MenuItem("Delete Task", DeleteProjectUiController()),
+        MenuItem("Edit Task State"),
+        MenuItem("View Task History", GetTaskHistoryUIController()),
+        MenuItem("Edit Task Title ", EditTaskTitleUiController()),
+        MenuItem("View Task Details", GetTaskUiController()),
+        MenuItem("Log Out", LogoutUiController())
     )
 )

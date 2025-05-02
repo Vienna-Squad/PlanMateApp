@@ -1,6 +1,6 @@
 package org.example.presentation.controller
 
-import org.example.domain.AuthException
+import org.example.domain.UnknownException
 import org.example.domain.entity.Task
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.usecase.task.CreateTaskUseCase
@@ -24,7 +24,7 @@ class CreateTaskUiController(
             println("Enter project id: ")
             val projectId = interactor.getInput()
             val createdBy = authenticationRepository.getCurrentUser().getOrElse {
-                throw AuthException("User not authenticated")
+                throw UnknownException()
             }
             createTaskUseCase(
                 Task(
