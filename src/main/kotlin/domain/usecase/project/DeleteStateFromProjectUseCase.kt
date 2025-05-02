@@ -1,10 +1,54 @@
 package domain.usecase.project
 
-/*
-class DeleteStateFromProjectUseCase(
+import org.example.domain.*
+import org.example.domain.entity.DeletedLog
+import org.example.domain.entity.Log
+import org.example.domain.entity.UserType
+import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
+import org.koin.mp.KoinPlatform.getKoin
+import java.time.LocalDateTime
+import java.util.UUID
 
+class DeleteStateFromProjectUseCase(
+    private val authenticationRepository: AuthenticationRepository = getKoin().get(),
+    private val projectsRepository: ProjectsRepository = getKoin().get(),
+    private val logsRepository: LogsRepository = getKoin().get()
 ) {
-    operator fun invoke(projectId: String, state: String) : Boolean {
-        return  statesRepository.deleteStateFromProject(projectId, state)
+    operator fun invoke(projectId: UUID, state: String) {
+        authenticationRepository
+            .getCurrentUser()
+            .getOrElse {
+                throw UnauthorizedException()
+            }.also { currentUser ->
+                if (currentUser.type != UserType.ADMIN) {
+                    throw AccessDeniedException()
+                }
+                projectsRepository.getProjectById(projectId)
+                    .getOrElse {
+                        throw NoFoundException()
+                    }
+                    .also { project ->
+                        if (project.createdBy != currentUser.id) throw AccessDeniedException()
+                        if (!project.states.contains(state)) throw NoFoundException()  // state doesn't exist
+
+                        projectsRepository.updateProject(
+                            project.copy(
+                                states = project.states - state
+                            )
+                        )
+                    }
+
+                logsRepository.addLog(
+                    DeletedLog(
+                        username = currentUser.username,
+                        affectedId = UUID.fromString(state),
+                        affectedType = Log.AffectedType.STATE,
+                        dateTime = LocalDateTime.now(),
+                        deletedFrom = projectId.toString(),
+                    )
+                ).getOrElse { throw FailedToLogException() }
+            }
     }
-}*/
+}
