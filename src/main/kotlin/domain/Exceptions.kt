@@ -15,3 +15,5 @@ class UnknownException() : PlanMateAppException("")
 class FailedToLogException(): PlanMateAppException("")
 class FailedToAddException(): PlanMateAppException("")
 class FailedToCreateProject():PlanMateAppException("")
+
+class FailedToCallLogException():PlanMateAppException("")

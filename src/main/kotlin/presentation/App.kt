@@ -31,6 +31,8 @@ class AdminApp : App(
         MenuItem("View All Tasks in Project"),
         MenuItem("View Project Change History"),
         MenuItem("Create New Task", CreateTaskUiController()),
+        MenuItem("View Project Change History",GetProjectHistoryUiController()),
+        MenuItem("Create New Task"),
         MenuItem("Delete Task"),
         MenuItem("Edit Task Details"),
         MenuItem("Edit Task Title ", EditTaskTitleUiController()),
