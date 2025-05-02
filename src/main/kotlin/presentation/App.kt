@@ -1,8 +1,6 @@
 
 package org.example.presentation
 
-import org.example.domain.usecase.project.DeleteStateFromProjectUseCase
-import org.example.domain.usecase.task.EditTaskStateUseCase
 import org.example.presentation.controller.*
 
 abstract class App(val menuItems: List<MenuItem>) {
