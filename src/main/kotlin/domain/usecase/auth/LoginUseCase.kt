@@ -13,7 +13,7 @@ class LoginUseCase(
             .filter { user -> user.username == username }
             .also { users -> if (users.isEmpty()) return Result.failure(LoginException()) }
             .first()
-            .also { user -> return Result.success(user) }
+            .let { user -> return Result.success(user) }
     }
     companion object{
         const val LOGIN_EXCEPTION_MESSAGE = "The user name or password you entered isn't found in storage"
