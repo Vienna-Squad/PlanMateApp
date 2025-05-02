@@ -14,11 +14,10 @@ class AddMateToTaskUIController(
     private val addMateToTaskUseCase: AddMateToTaskUseCase = getKoin().get(),
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val interactor: Interactor<String> = StringInteractor(),
-    private val exceptionViewer: ItemViewer<PlanMateAppException> = ExceptionViewer()
 
 ): UiController {
     override fun execute() {
-        tryAndShowError(exceptionViewer){
+        tryAndShowError{
             println("enter task ID: ")
             val taskId = interactor.getInput()
             if (taskId.isBlank()) {
