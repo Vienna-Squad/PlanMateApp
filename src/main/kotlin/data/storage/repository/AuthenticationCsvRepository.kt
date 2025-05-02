@@ -46,10 +46,11 @@ class AuthenticationCsvRepository(
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
     }
 
-    override fun login(username: String, password: String): Result<Unit> {
-        return runCatching {
+    override fun login(username: String, password: String): Result<User> {
+        var user: User? = null
+        runCatching {
             val users = storage.read()
-            val user = users.find { it.username == username }
+             user = users.find { it.username == username }
                 ?: throw UnauthorizedException()
 
             val encryptedPassword = password.toMD5()
@@ -58,7 +59,11 @@ class AuthenticationCsvRepository(
             }
 
             currentUserId = user.id
-        }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
+        }.getOrElse { return Result.failure(it) }
+        return if (user!=null)
+            Result.success(user)
+        else
+            Result.failure(NoFoundException())
     }
 
     override fun logout(): Result<Unit> {

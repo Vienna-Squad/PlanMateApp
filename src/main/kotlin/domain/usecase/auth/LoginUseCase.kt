@@ -1,18 +1,15 @@
 package org.example.domain.usecase.auth
 
-import org.example.domain.LoginException
 import org.example.domain.entity.User
 import org.example.domain.repository.AuthenticationRepository
+import javax.security.auth.login.LoginException
 
 class LoginUseCase(
     private val authenticationRepository: AuthenticationRepository
 ) {
     operator fun invoke(username: String, password: String): Result<User> {
-        authenticationRepository.getAllUsers()
+        authenticationRepository.login(username = username , password = password)
             .getOrElse { return Result.failure(LoginException()) }
-            .filter { user -> user.username == username }
-            .also { users -> if (users.isEmpty()) return Result.failure(LoginException()) }
-            .first()
             .let { user -> return Result.success(user) }
     }
     companion object{
