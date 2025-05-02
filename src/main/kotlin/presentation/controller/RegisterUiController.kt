@@ -23,7 +23,7 @@ class RegisterUiController(
             print("please Enter (ADMIN) or (MATE) : ")
             val role = interactor.getInput()
 
-            if(username.isBlank()&&password.isBlank()&&role.isBlank())
+            if(username.isBlank()||password.isBlank()||role.isBlank())
                 throw NoFoundException()
 
             registerUserUseCase.invoke(
