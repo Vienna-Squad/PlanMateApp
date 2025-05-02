@@ -94,6 +94,6 @@ class EditTaskStateUseCaseTest {
         val thrown = assertThrows<InvalidIdException> {
             editTaskStateUseCase(dummyTask.id, dummyTask.state)
         }
-        assertEquals("Invalid task id: ${dummyTask.id}", thrown.message)
+        assertEquals("Task is already in the desired state", thrown.message)
     }
 }
