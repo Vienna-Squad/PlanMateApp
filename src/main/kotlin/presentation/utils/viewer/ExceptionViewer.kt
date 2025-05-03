@@ -4,6 +4,6 @@ import org.example.domain.PlanMateAppException
 
 class ExceptionViewer : ItemViewer<PlanMateAppException> {
     override fun view(item: PlanMateAppException) {
-        println("\u001B[31m$item\u001B[0m")
+        println("\u001B[31m${item.message}\u001B[0m")
     }
 }

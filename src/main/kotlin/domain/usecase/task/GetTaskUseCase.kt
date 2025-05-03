@@ -1,7 +1,6 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.InvalidIdException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
@@ -19,14 +18,20 @@ class GetTaskUseCase(
 
 
         val currentUser = authenticationRepository.getCurrentUser()
-            .getOrElse { throw UnauthorizedException() }
+            .getOrElse { throw UnauthorizedException(
+                "You are not authorized to perform this action. Please log in again."
+            ) }
 
         val task = tasksRepository.getTaskById(taskId).getOrElse {
-            throw NoFoundException()
+            throw NotFoundException(
+                "The task with ID $taskId was not found. Please check the ID and try again."
+            )
         }
 
         if (!isAuthorized(currentUser, task)) {
-            throw UnauthorizedException()
+            throw UnauthorizedException(
+                "You are not authorized to view this task. Please contact your project manager."
+            )
         }
 
         return task

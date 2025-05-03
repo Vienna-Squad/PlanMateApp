@@ -26,7 +26,9 @@ class CreateTaskUiController(
             println("Enter project id: ")
             val projectId = inputReader.getInput()
             val createdBy = authenticationRepository.getCurrentUser().getOrElse {
-                throw UnknownException()
+                throw UnknownException(
+                    "User not authenticated. Please log in to create a task."
+                )
             }
             createTaskUseCase(
                 Task(

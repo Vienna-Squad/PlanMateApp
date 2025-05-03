@@ -2,7 +2,7 @@ package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
 import org.example.domain.InvalidIdException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
@@ -17,11 +17,17 @@ class DeleteMateFromProjectUseCase(
 ) {
     operator fun invoke(projectId: UUID, mateId: UUID) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
-            if (user.type == UserType.MATE) throw AccessDeniedException()
+            if (user.type == UserType.MATE) throw AccessDeniedException(
+                "Mates are not allowed to delete other mates from projects"
+            )
             doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
-                if (project.createdBy != user.id) throw AccessDeniedException()
+                if (project.createdBy != user.id) throw AccessDeniedException(
+                    "Only the creator of the project can delete mates from it"
+                )
                 doIfExistedMate(mateId, authenticationRepository::getUserByID) { mate ->
-                    if (!project.matesIds.contains(mateId)) throw NoFoundException()
+                    if (!project.matesIds.contains(mateId)) throw NotFoundException(
+                        "Mate with id $mateId is not in the project"
+                    )
                     projectsRepository.updateProject(
                         project.copy(
                             matesIds = project.matesIds.toMutableList().apply { remove((mateId)) })
@@ -40,7 +46,9 @@ class DeleteMateFromProjectUseCase(
     }
 
     private fun doIfAuthorized(getCurrentUser: () -> Result<User>, block: (User) -> Unit) {
-        block(getCurrentUser().getOrElse { throw UnauthorizedException() })
+        block(getCurrentUser().getOrElse { throw UnauthorizedException(
+            "User not found"
+        ) })
     }
 
     private fun doIfExistedProject(
@@ -48,10 +56,16 @@ class DeleteMateFromProjectUseCase(
         getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException(
+            "Project ID is invalid"
+        ) else NotFoundException(
+            "Project with id $projectId not found"
+        ) })
     }
 
     private fun doIfExistedMate(userId: UUID, getUser: (userId: UUID) -> Result<User>, block: (User) -> Unit) {
-        block(getUser(userId).getOrElse { throw NoFoundException() })
+        block(getUser(userId).getOrElse { throw NotFoundException(
+            "User with id $userId not found"
+        ) })
     }
 }

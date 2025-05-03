@@ -2,7 +2,7 @@ package org.example.domain.usecase.task
 
 import org.example.domain.AccessDeniedException
 import org.example.domain.FailedToAddLogException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Log
@@ -19,16 +19,24 @@ class DeleteMateFromTaskUseCase(
 ) {
     operator fun invoke(taskId: UUID, mate: UUID) {
 
-        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
+        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException(
+            "User not found"
+        ) }.let { currentUser ->
 
             if (currentUser.type != UserType.ADMIN) {
-                throw AccessDeniedException()
+                throw AccessDeniedException(
+                    "Only admins can delete mates from tasks"
+                )
             }
 
-            tasksRepository.getTaskById(taskId).getOrElse { throw NoFoundException() }.let { task ->
+            tasksRepository.getTaskById(taskId).getOrElse { throw NotFoundException(
+                " Task with id $taskId not found"
+            ) }.let { task ->
 
                 if (!task.assignedTo.contains(mate)) {
-                    throw NoFoundException()
+                    throw NotFoundException(
+                        "User with id $mate is not assigned to task $taskId"
+                    )
                 }
 
                 val updatedAssignedTo = task.assignedTo.filter { it != mate }
@@ -42,7 +50,9 @@ class DeleteMateFromTaskUseCase(
                         affectedId = taskId,
                         deletedFrom = task.title
                     )
-                ).getOrElse { throw FailedToAddLogException() }
+                ).getOrElse { throw FailedToAddLogException(
+                    "Failed to add log"
+                ) }
 
             }
         }

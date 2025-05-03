@@ -20,18 +20,28 @@ class DeleteStateFromProjectUseCase(
         authenticationRepository
             .getCurrentUser()
             .getOrElse {
-                throw UnauthorizedException()
+                throw UnauthorizedException(
+                    "User not found"
+                )
             }.also { currentUser ->
                 if (currentUser.type != UserType.ADMIN) {
-                    throw AccessDeniedException()
+                    throw AccessDeniedException(
+                        "Only admins can delete states from projects"
+                    )
                 }
                 projectsRepository.getProjectById(projectId)
                     .getOrElse {
-                        throw NoFoundException()
+                        throw NotFoundException(
+                            "Project not found"
+                        )
                     }
                     .also { project ->
-                        if (project.createdBy != currentUser.id) throw AccessDeniedException()
-                        if (!project.states.contains(state)) throw NoFoundException()  // state doesn't exist
+                        if (project.createdBy != currentUser.id) throw AccessDeniedException(
+                            "Only the creator of the project can delete states"
+                        )
+                        if (!project.states.contains(state)) throw NotFoundException(
+                            "State with name $state not found in the project"
+                        )  // state doesn't exist
 
                         projectsRepository.updateProject(
                             project.copy(
@@ -43,12 +53,14 @@ class DeleteStateFromProjectUseCase(
                 logsRepository.addLog(
                     DeletedLog(
                         username = currentUser.username,
-                        affectedId = UUID.fromString(state),
+                        affectedId = projectId,
                         affectedType = Log.AffectedType.STATE,
                         dateTime = LocalDateTime.now(),
                         deletedFrom = projectId.toString(),
                     )
-                ).getOrElse { throw FailedToLogException() }
+                ).getOrElse { throw FailedToLogException(
+                    "Failed to log the deletion of state $state from project $projectId"
+                ) }
             }
     }
 }

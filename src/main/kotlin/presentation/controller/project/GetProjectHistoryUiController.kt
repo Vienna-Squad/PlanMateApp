@@ -17,7 +17,9 @@ class GetProjectHistoryUiController(
         tryAndShowError {
             println("enter your project id: ")
             val projectId = stringInputReader.getInput()
-            if (projectId.isEmpty()) throw InvalidIdException()
+            if (projectId.isEmpty()) throw InvalidIdException(
+                "Project ID cannot be empty. Please provide a valid ID."
+            )
 
             val projectHistory = getProjectHistoryUseCase(projectId = UUID.fromString(projectId))
             if (projectHistory.isEmpty()) {

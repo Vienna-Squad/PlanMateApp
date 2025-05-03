@@ -1,6 +1,6 @@
 package org.example.presentation.controller
 
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.UserType
 import org.example.domain.usecase.auth.LoginUseCase
@@ -23,8 +23,8 @@ class LoginUiController(
             print("enter password: ")
             val password = inputReader.getInput()
             if (username.isBlank() || password.isBlank())
-                throw NoFoundException()
-            val user = loginUseCase(username, password).getOrElse { throw UnauthorizedException() }
+                throw NotFoundException("Username or password cannot be empty!")
+            val user = loginUseCase(username, password).getOrElse { throw UnauthorizedException("User Not Found!") }
             when (user.type) {
                 UserType.MATE -> mateApp.run()
                 UserType.ADMIN -> adminApp.run()

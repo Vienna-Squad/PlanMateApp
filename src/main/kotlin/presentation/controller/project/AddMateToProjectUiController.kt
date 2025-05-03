@@ -19,10 +19,14 @@ class AddMateToProjectUiController(
         tryAndShowError {
             println("enter mate ID: ")
             val mateId = inputReader.getInput()
-            require(mateId.isNotBlank()) { throw InvalidIdException() }
+            require(mateId.isNotBlank()) { throw InvalidIdException(
+                "Mate ID cannot be blank. Please provide a valid ID."
+            ) }
             println("enter project ID: ")
             val projectId = inputReader.getInput()
-            require(projectId.isNotBlank()) { throw InvalidIdException() }
+            require(projectId.isNotBlank()) { throw InvalidIdException(
+                "Project ID cannot be blank. Please provide a valid ID."
+            ) }
             addMateToProjectUseCase(UUID.fromString( projectId), UUID.fromString( mateId))
             stringViewer.view("The Mate has been added successfully")
         }

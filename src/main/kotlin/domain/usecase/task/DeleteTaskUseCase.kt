@@ -2,7 +2,7 @@ package org.example.domain.usecase.task
 
 import org.example.domain.AccessDeniedException
 import org.example.domain.InvalidIdException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Log
@@ -24,11 +24,17 @@ class DeleteTaskUseCase(
 ) {
     operator fun invoke(taskId: UUID) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
-            if (user.type == UserType.MATE) throw AccessDeniedException()
+            if (user.type == UserType.MATE) throw AccessDeniedException(
+                "You are not authorized to delete tasks. Please contact your project manager."
+            )
             doIfExistedProject(taskId, projectsRepository::getProjectById) { project ->
-                if (project.createdBy != user.id) throw AccessDeniedException()
+                if (project.createdBy != user.id) throw AccessDeniedException(
+                    "You are not authorized to delete tasks in this project. Please contact the project manager."
+                )
                 doIfExistedTask(taskId, tasksRepository::getTaskById) { task ->
-                    if (task.projectId != project.id) throw AccessDeniedException()
+                    if (task.projectId != project.id) throw AccessDeniedException(
+                        "You are not authorized to delete this task. Please contact the project manager."
+                    )
                     tasksRepository.deleteTaskById(task.id)
                     logsRepository.addLog(
                         DeletedLog(
@@ -43,7 +49,9 @@ class DeleteTaskUseCase(
     }
 
     private fun doIfAuthorized(getCurrentUser: () -> Result<User>, block: (User) -> Unit) {
-        block(getCurrentUser().getOrElse { throw UnauthorizedException() })
+        block(getCurrentUser().getOrElse { throw UnauthorizedException(
+            "You are not authorized to perform this action. Please log in again."
+        ) })
     }
 
     private fun doIfExistedProject(
@@ -51,7 +59,11 @@ class DeleteTaskUseCase(
         getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException(
+            "Project ID is blank"
+        ) else NotFoundException(
+            "Project with ID $projectId not found"
+        ) })
     }
 
     private fun doIfExistedTask(
@@ -59,6 +71,10 @@ class DeleteTaskUseCase(
         getTask: (UUID) -> Result<Task>,
         block: (Task) -> Unit
     ) {
-        block(getTask(taskId).getOrElse { throw if (taskId.toString().isBlank()) InvalidIdException() else NoFoundException() })
+        block(getTask(taskId).getOrElse { throw if (taskId.toString().isBlank()) InvalidIdException(
+            "Task ID is blank"
+        ) else NotFoundException(
+            "Task with ID $taskId not found"
+        ) })
     }
 }

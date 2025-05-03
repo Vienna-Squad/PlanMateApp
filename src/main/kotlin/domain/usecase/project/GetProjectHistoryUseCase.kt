@@ -16,29 +16,53 @@ class GetProjectHistoryUseCase(
 ) {
     operator fun invoke(projectId: UUID): List<Log> {
 
-        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
+        authenticationRepository.getCurrentUser().getOrElse {
+            throw UnauthorizedException(
+                "User not found"
+            )
+        }.let { currentUser ->
 
             projectsRepository.getProjectById(projectId)
-                .getOrElse { throw NoFoundException() }.let { project ->
+                .getOrElse {
+                    throw NotFoundException(
+                        "Project with id $projectId not found"
+                    )
+                }.let { project ->
 
-                    when (currentUser.type) {
-                        UserType.ADMIN -> {
-                            if (project.createdBy != currentUser.id) {
-                                throw AccessDeniedException()
+                    projectsRepository.getProjectById(projectId)
+                        .getOrElse {
+                            throw NotFoundException(
+                                "Project with id $projectId not found"
+                            )
+                        }.let { project ->
+
+                            when (currentUser.type) {
+                                UserType.ADMIN -> {
+                                    if (project.createdBy != currentUser.id) {
+                                        throw AccessDeniedException(
+                                            "Only the creator of the project can access the logs"
+                                        )
+                                    }
+                                }
+
+                                UserType.MATE -> {
+                                    if (!project.matesIds.contains(currentUser.id)) {
+                                        throw AccessDeniedException(
+                                            "Only the mates of the project can access the logs"
+                                        )
+                                    }
+                                }
                             }
                         }
-
-                        UserType.MATE -> {
-                            if (!project.matesIds.contains(currentUser.id)) {
-                                throw AccessDeniedException()
-                            }
-                        }
-                    }
                 }
-        }
-        return logsRepository.getAllLogs().getOrElse { throw FailedToCallLogException() }.filter { logs ->
-            logs.affectedId == projectId
-        }
+            return logsRepository.getAllLogs().getOrElse {
+                throw FailedToCallLogException(
+                    "Failed to call logs"
+                )
+            }.filter { logs ->
+                logs.affectedId == projectId
+            }
 
+        }
     }
 }

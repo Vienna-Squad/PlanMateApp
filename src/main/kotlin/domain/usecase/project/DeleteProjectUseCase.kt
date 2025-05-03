@@ -2,7 +2,7 @@ package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
 import org.example.domain.InvalidIdException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Log
@@ -21,9 +21,13 @@ class DeleteProjectUseCase(
 ) {
     operator fun invoke(projectId: UUID) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
-            if (user.type == UserType.MATE) throw AccessDeniedException()
+            if (user.type == UserType.MATE) throw AccessDeniedException(
+                "Mates are not allowed to delete projects"
+            )
             doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
-                if (project.createdBy != user.id) throw AccessDeniedException()
+                if (project.createdBy != user.id) throw AccessDeniedException(
+                    "Only the creator of the project can delete it"
+                )
                 projectsRepository.deleteProjectById(project.id)
                 logsRepository.addLog(
                     DeletedLog(
@@ -37,7 +41,9 @@ class DeleteProjectUseCase(
     }
 
     private fun doIfAuthorized(getCurrentUser: () -> Result<User>, block: (User) -> Unit) {
-        block(getCurrentUser().getOrElse { throw UnauthorizedException() })
+        block(getCurrentUser().getOrElse { throw UnauthorizedException(
+            "User not found"
+        ) })
     }
 
     private fun doIfExistedProject(
@@ -45,6 +51,10 @@ class DeleteProjectUseCase(
         getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException(
+            "Project ID is invalid"
+        ) else NotFoundException(
+            "Project with id $projectId not found"
+        ) })
     }
 }

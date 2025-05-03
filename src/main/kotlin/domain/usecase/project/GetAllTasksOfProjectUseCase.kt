@@ -4,7 +4,7 @@ import org.example.domain.InvalidIdException
 import org.example.domain.entity.Task
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
@@ -19,20 +19,28 @@ class GetAllTasksOfProjectUseCase(
     operator fun invoke(projectId: UUID): List<Task> {
 
         val currentUser = authenticationRepository.getCurrentUser().getOrElse {
-            throw UnauthorizedException()
+            throw UnauthorizedException(
+                "User not found"
+            )
         }
 
         val project = projectsRepository.getProjectById(projectId).getOrElse {
-            throw InvalidIdException()
+            throw InvalidIdException(
+                "Project ID is invalid"
+            )
         }
 
         if (currentUser.type != UserType.ADMIN &&
             currentUser.id != project.createdBy &&
             currentUser.id !in project.matesIds) {
-            throw UnauthorizedException()
+            throw UnauthorizedException(
+                "User is not authorized to access this project"
+            )
         }
         val allTasks = tasksRepository.getAllTasks().getOrElse {
-            throw NoFoundException()
+            throw NotFoundException(
+                "Tasks not found"
+            )
         }
         var task=allTasks
             .filter { it.projectId == project.id }

@@ -19,24 +19,34 @@ class CreateTaskUseCase(
     operator fun invoke(newTask: Task) {
         authenticationRepository.getCurrentUser()
             .getOrElse {
-                throw UnauthorizedException()
+                throw UnauthorizedException(
+                    "User not found"
+                )
             }.also { currentUser ->
                 projectsRepository.getProjectById(newTask.projectId)
                     .getOrElse {
-                        throw NoFoundException()
+                        throw NotFoundException(
+                            "Project with id ${newTask.projectId} not found"
+                        )
                     }.also { project ->
 
                 if (!project.matesIds.contains(currentUser.id)
-                    &&(project.createdBy != currentUser.id)){throw AccessDeniedException()}
+                    &&(project.createdBy != currentUser.id)){throw AccessDeniedException(
+                        " Only the mates of the project or creator can create tasks"
+                    )}
 
-                tasksRepository.addTask(newTask).getOrElse {throw FailedToAddException() }
+                tasksRepository.addTask(newTask).getOrElse {throw FailedToAddException(
+                    "Failed to add task"
+                ) }
                 logsRepository.addLog(
                     CreatedLog(
                         username = currentUser.username,
                         affectedId = newTask.id,
                         affectedType = Log.AffectedType.TASK,
                     )
-                ).getOrElse { throw FailedToLogException() }
+                ).getOrElse { throw FailedToLogException(
+                    "Failed to add log"
+                ) }
             }
     }
 }

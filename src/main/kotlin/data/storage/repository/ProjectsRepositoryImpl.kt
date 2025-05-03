@@ -1,7 +1,7 @@
 package org.example.data.storage.repository
 
 import org.example.data.storage.ProjectCsvStorage
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
 import org.example.domain.repository.ProjectsRepository
 import java.util.UUID
@@ -13,7 +13,7 @@ class ProjectsRepositoryImpl(
     override fun getProjectById(projectId: UUID): Result<Project> {
         return runCatching {
             storage.read().find { it.id == projectId }
-                ?: throw NoFoundException()
+                ?: throw NotFoundException( "Project not found")
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
     }
 
@@ -37,7 +37,7 @@ class ProjectsRepositoryImpl(
                 projects[index] = project
                 storage.write(projects)
             } else {
-                throw NoFoundException()
+                throw NotFoundException( "Project not found")
             }
         }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
     }
@@ -49,7 +49,7 @@ class ProjectsRepositoryImpl(
             if (removed) {
                 storage.write(projects)
             } else {
-                throw NoFoundException()
+                throw NotFoundException( "Project not found")
             }
         }.getOrElse { return Result.failure(it) }.let { Result.success(Unit) }
     }

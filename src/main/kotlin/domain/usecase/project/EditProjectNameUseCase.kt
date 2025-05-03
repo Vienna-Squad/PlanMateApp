@@ -2,13 +2,9 @@ package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
 import org.example.domain.InvalidIdException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
-import org.example.domain.entity.ChangedLog
-import org.example.domain.entity.Log
-import org.example.domain.entity.Project
-import org.example.domain.entity.User
-import org.example.domain.entity.UserType
+import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -22,9 +18,13 @@ class EditProjectNameUseCase(
 
     operator fun invoke(projectId: UUID, name: String) {
         doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
-            if (user.type == UserType.MATE) throw AccessDeniedException()
+            if (user.type == UserType.MATE) throw AccessDeniedException(
+                "Mates are not allowed to edit project names"
+            )
             doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
-                if (project.createdBy != user.id) throw AccessDeniedException()
+                if (project.createdBy != user.id) throw AccessDeniedException(
+                    "Only the creator of the project can edit it"
+                )
                 if (name != project.name) {
                     projectsRepository.updateProject(project.copy(name = name))
                     logsRepository.addLog(
@@ -42,7 +42,11 @@ class EditProjectNameUseCase(
     }
 
     private fun doIfAuthorized(getCurrentUser: () -> Result<User>, block: (User) -> Unit) {
-        block(getCurrentUser().getOrElse { throw UnauthorizedException() })
+        block(getCurrentUser().getOrElse {
+            throw UnauthorizedException(
+                "User not found"
+            )
+        })
     }
 
     private fun doIfExistedProject(
@@ -50,6 +54,13 @@ class EditProjectNameUseCase(
         getProject: (UUID) -> Result<Project>,
         block: (Project) -> Unit
     ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException() else NoFoundException() })
+        block(getProject(projectId).getOrElse {
+            throw if (projectId.toString().isBlank()) InvalidIdException(
+                "Project ID is invalid"
+            ) else NotFoundException(
+                "Project with id $projectId not found"
+            )
+        }
+        )
     }
 }

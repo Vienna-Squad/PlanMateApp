@@ -19,21 +19,27 @@ class CreateProjectUiController(
         tryAndShowError {
             println("enter name of project: ")
             val name = stringInputReader.getInput()
-            if (name.isEmpty()) throw InvalidIdException()
+            if (name.isEmpty()) throw InvalidIdException(
+                "Project name cannot be empty. Please provide a valid name."
+            )
 
             println("Enter your states separated by commas: ")
             val statesInput = stringInputReader.getInput()
             val states = statesInput.split(",").map { it.trim() }
 
-            println("enter your id: ")
-            val creatorId = stringInputReader.getInput()
-            if (creatorId.isEmpty()) throw InvalidIdException()
+//            println("enter your id: ")
+//            val creatorId = stringInputReader.getInput()
+//            if (creatorId.isEmpty()) throw InvalidIdException(
+//                "Creator ID cannot be empty. Please provide a valid ID."
+//            )
 
             println("Enter matesId separated by commas: ")
             val matesIdInput = stringInputReader.getInput()
-            val matesId = matesIdInput.split(",").map { UUID.fromString( it) }
+            val matesId = matesIdInput.split(",").map {
+                UUID.fromString( it)
+            }
 
-            createProjectUseCase(name = name, states = states, creatorId = UUID.fromString(  creatorId), matesIds = matesId)
+            createProjectUseCase(name = name, states = states, matesIds = matesId)
             itemViewer.view("Project created successfully")
 
         }

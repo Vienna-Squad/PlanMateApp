@@ -24,18 +24,28 @@ class AddStateToProjectUseCase(
         authenticationRepository
             .getCurrentUser()
             .getOrElse {
-                throw UnauthorizedException()
+                throw UnauthorizedException(
+                    "User not found"
+                )
             }.also { currentUser ->
                 if (currentUser.type != UserType.ADMIN) {
-                    throw AccessDeniedException()
+                    throw AccessDeniedException(
+                        "Only admins can add states to projects"
+                    )
                 }
                 projectsRepository.getProjectById(projectId)
                     .getOrElse {
-                        throw NoFoundException()
+                        throw NotFoundException(
+                            "Project not found"
+                        )
                     }
                     .also { project ->
-                        if (project.createdBy != currentUser.id) throw AccessDeniedException()
-                        if (project.states.contains(state)) throw AlreadyExistException()
+                        if (project.createdBy != currentUser.id) throw AccessDeniedException(
+                            "Only the creator of the project can add states"
+                        )
+                        if (project.states.contains(state)) throw AlreadyExistException(
+                            "State already exists in the project"
+                        )
                         projectsRepository.updateProject(
                             project.copy(
                                 states = project.states + state
@@ -51,7 +61,9 @@ class AddStateToProjectUseCase(
                         dateTime = LocalDateTime.now(),
                         addedTo = projectId,
                     )
-                ).getOrElse { throw FailedToLogException() }
+                ).getOrElse { throw FailedToLogException(
+                    "Failed to log the action"
+                ) }
             }
 
     }

@@ -1,6 +1,6 @@
 package org.example.presentation.controller
 
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.entity.UserType
 import org.example.domain.usecase.auth.RegisterUserUseCase
 import org.example.presentation.utils.interactor.InputReader
@@ -23,14 +23,14 @@ class RegisterUiController(
             val role = inputReader.getInput()
 
             if(username.isBlank()||password.isBlank()||role.isBlank())
-                throw NoFoundException()
+                throw NotFoundException( "Username or password or role cannot be empty!")
 
             registerUserUseCase.invoke(
                 username = username,
                 password = password ,
                 role = UserType.entries
                     .firstOrNull{ it.name == role}
-                    .also { userType-> if (userType==null) throw NoFoundException() }
+                    .also { userType-> if (userType==null) throw NotFoundException("Invalid role: $role") }
                     .let { UserType.valueOf(role) }
             )
         }

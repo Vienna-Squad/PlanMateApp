@@ -1,6 +1,6 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Log
 import org.example.domain.repository.AuthenticationRepository
@@ -13,16 +13,22 @@ class GetTaskHistoryUseCase(
 {
     operator fun invoke(taskId: String): List<Log> {
          authenticationRepository.getCurrentUser().getOrElse {
-          throw UnauthorizedException()
+          throw UnauthorizedException(
+                "You are not authorized to perform this action. Please log in again."
+          )
         }
         return logsRepository.getAllLogs()
             .getOrElse {
-                throw NoFoundException()
+                throw NotFoundException(
+                    "No logs found. Please check the task ID and try again."
+                )
             }
             .filter {
                 it.toString().contains(taskId)
             }.takeIf {
                 it.isNotEmpty()
-            } ?: throw NoFoundException()
+            } ?: throw NotFoundException(
+                "No logs found for task ID $taskId. Please check the task ID and try again."
+            )
     }
 }

@@ -17,7 +17,9 @@ class GetTaskUiController(
         tryAndShowError {
             print("enter task ID: ")
             val taskId = inputReader.getInput()
-            require (taskId.isBlank()) {throw InvalidIdException()}
+            require (taskId.isBlank()) {throw InvalidIdException(
+                "Task ID cannot be blank. Please provide a valid ID."
+            ) }
             getTaskUseCase(UUID.fromString( taskId))
 
         }

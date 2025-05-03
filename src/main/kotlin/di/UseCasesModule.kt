@@ -1,5 +1,6 @@
 package di
 
+import domain.usecase.project.DeleteStateFromProjectUseCase
 import org.example.domain.usecase.auth.LoginUseCase
 import org.example.domain.usecase.auth.LogoutUseCase
 import org.example.domain.usecase.auth.RegisterUserUseCase
@@ -18,7 +19,7 @@ val useCasesModule = module {
     single { CreateProjectUseCase(get(),get(),get()) }
     single { DeleteMateFromProjectUseCase(get(),get(),get()) }
     single { DeleteProjectUseCase(get(), get(), get()) }
-    //single { DeleteStateFromProjectUseCase(get()) }
+    single { DeleteStateFromProjectUseCase(get()) }
     single { EditProjectNameUseCase(get(),get(),get()) }
     single { EditProjectStatesUseCase(get(),get(),get()) }
     single { GetAllTasksOfProjectUseCase(get(),get(),get()) }

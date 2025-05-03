@@ -20,13 +20,17 @@ class EditProjectStateUiController(
 
             println("Enter Project Id to edit state: ")
             val projectIdInput=inputReader.getInput()
-            if(projectIdInput.isEmpty())throw InvalidIdException()
+            if(projectIdInput.isEmpty())throw InvalidIdException(
+                "Project ID cannot be empty. Please provide a valid ID."
+            )
 
             println("Enter the new states separated by commas: ")
             val statesInput = inputReader.getInput()
             val states = statesInput.split(",").map { it.trim() }
 
-            if (states.isEmpty()) throw InvalidIdException()
+            if (states.isEmpty()) throw InvalidIdException(
+                "States cannot be empty. Please provide at least one state."
+            )
 
             editProjectStatesUseCase(
                 UUID.fromString( projectIdInput), states)

@@ -9,7 +9,7 @@ class LoginUseCase(
 ) {
     operator fun invoke(username: String, password: String): Result<User> {
         authenticationRepository.login(username = username , password = password)
-            .getOrElse { return Result.failure(LoginException()) }
+            .getOrElse { return Result.failure(LoginException("Error During Log in please try again")) }
             .let { user -> return Result.success(user) }
     }
     companion object{

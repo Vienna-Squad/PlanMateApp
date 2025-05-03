@@ -1,7 +1,7 @@
 package org.example.data.storage.repository
 
 import data.storage.UserCsvStorage
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.User
 import org.example.domain.repository.AuthenticationRepository
@@ -25,7 +25,7 @@ class AuthenticationRepositoryImpl(
 
             val existingUsers = storage.read()
             if (existingUsers.any { it.id == user.id || it.username == user.username }) {
-                throw NoFoundException()
+                throw NotFoundException( "User with this ID or username already exists")
             }
             storage.append(encryptedUser)
             currentUserId = user.id
@@ -34,16 +34,16 @@ class AuthenticationRepositoryImpl(
 
     override fun getCurrentUser(): Result<User> {
         return runCatching {
-            if (currentUserId == null) throw NoFoundException()
+            if (currentUserId == null) throw NotFoundException( "User not logged in")
             storage.read().find { it.id == currentUserId }
-                ?: throw NoFoundException()
+                ?: throw NotFoundException( "User not found")
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
     }
 
     override fun getUserByID(userId: UUID): Result<User> {
         return runCatching {
             storage.read().find { it.id == userId }
-                ?: throw NoFoundException()
+                ?: throw NotFoundException( "User not found")
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }
     }
 
@@ -51,11 +51,11 @@ class AuthenticationRepositoryImpl(
         return runCatching {
             val users = storage.read()
             val user = users.find { it.username == username }
-                ?: throw UnauthorizedException()
+                ?: throw UnauthorizedException( "User not found")
 
             val encryptedPassword = password.toMD5()
             if (user.hashedPassword != encryptedPassword) {
-                throw UnauthorizedException()
+                throw UnauthorizedException( "Invalid password")
             }
 
             currentUserId = user.id

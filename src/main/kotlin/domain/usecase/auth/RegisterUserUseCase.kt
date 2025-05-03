@@ -14,13 +14,19 @@ class RegisterUserUseCase(
         }
 */
 
-        if (!isValid(username, password))  throw RegisterException()
+        if (!isValid(username, password))  throw RegisterException(
+            "Username or password is invalid. Username should not contain spaces and password should be at least 8 characters long"
+        )
 
         authenticationRepository.getAllUsers()
-            .getOrElse {  throw RegisterException() }
+            .getOrElse {  throw RegisterException(
+                "Error while fetching users"
+            ) }
             .filter { user -> user.username == username }
             .let { users ->
-                if (users.isNotEmpty())  throw RegisterException()
+                if (users.isNotEmpty())  throw RegisterException(
+                    "Username already exists"
+                )
 
                 authenticationRepository.createUser(
                     User(
@@ -28,7 +34,9 @@ class RegisterUserUseCase(
                         hashedPassword = password,
                         type = role
                     )
-                ).getOrElse {  throw RegisterException() }
+                ).getOrElse {  throw RegisterException(
+                    "Error while creating user"
+                ) }
             }
 
     }

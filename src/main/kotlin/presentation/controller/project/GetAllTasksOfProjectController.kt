@@ -20,7 +20,9 @@ class GetAllTasksOfProjectController(
             println("enter project ID: ")
             val projectId = inputReader.getInput()
             if (projectId.isBlank()) {
-                throw InvalidIdException()
+                throw InvalidIdException(
+                    "Project ID cannot be blank. Please provide a valid ID."
+                )
             }
             val tasks = getAllTasksOfProjectUseCase(
                 UUID.fromString( projectId))

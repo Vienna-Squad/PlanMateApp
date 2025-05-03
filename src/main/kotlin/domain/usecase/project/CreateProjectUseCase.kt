@@ -16,16 +16,22 @@ class CreateProjectUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val logsRepository: LogsRepository
 ) {
-    operator fun invoke(name: String, states: List<String>, creatorId: UUID, matesIds: List<UUID>) {
+    operator fun invoke(name: String, states: List<String>, matesIds: List<UUID>) {
 
-        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException() }.let { currentUser ->
+        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException(
+            "User not found"
+        ) }.let { currentUser ->
 
             if (currentUser.type != UserType.ADMIN) {
-                throw AccessDeniedException()
+                throw AccessDeniedException(
+                    "Only admins can create projects"
+                )
             }
 
-            val newProject = Project(name = name, states = states, createdBy = creatorId, matesIds = matesIds)
-            projectsRepository.addProject(newProject).getOrElse { throw FailedToCreateProject() }
+            val newProject = Project(name = name, states = states, createdBy = currentUser.id, matesIds = matesIds)
+            projectsRepository.addProject(newProject).getOrElse { throw FailedToCreateProject(
+                "Failed to create project"
+            ) }
 
             logsRepository.addLog(
                 log = CreatedLog(
@@ -33,7 +39,9 @@ class CreateProjectUseCase(
                     affectedType = Log.AffectedType.PROJECT,
                     affectedId = newProject.id
                 )
-            ).getOrElse { throw FailedToAddLogException() }
+            ).getOrElse { throw FailedToAddLogException(
+                "Failed to add log"
+            ) }
         }
 
     }
