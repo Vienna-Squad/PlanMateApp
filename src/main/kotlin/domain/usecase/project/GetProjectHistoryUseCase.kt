@@ -1,6 +1,7 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.*
+import org.example.domain.entity.AddedLog
 import org.example.domain.entity.Log
 import org.example.domain.entity.UserType
 import org.example.domain.repository.AuthenticationRepository
@@ -36,8 +37,8 @@ class GetProjectHistoryUseCase(
                     }
                 }
         }
-        return logsRepository.getAllLogs().getOrElse { throw FailedToCallLogException() }.filter { logs ->
-            logs.affectedId == projectId
+        return logsRepository.getAllLogs().getOrElse { throw FailedToCallLogException() }.filter { log ->
+            log.affectedId == projectId || (log is AddedLog && log.addedTo == projectId)
         }
 
     }

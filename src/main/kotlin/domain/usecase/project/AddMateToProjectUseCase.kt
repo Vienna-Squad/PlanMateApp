@@ -5,6 +5,7 @@ import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import java.time.LocalDateTime
 import java.util.UUID
 
 class AddMateToProjectUseCase(
@@ -14,52 +15,37 @@ class AddMateToProjectUseCase(
 ) {
 
     operator fun invoke(projectId: UUID, mateId: UUID) {
+        authenticationRepository
+            .getCurrentUser()
+            .getOrElse {
+                throw UnauthorizedException()
+            }.also { user ->
+                if (user.type != UserType.ADMIN) {
+                    throw AccessDeniedException()
+                }
+                projectsRepository.getProjectById(projectId)
+                    .getOrElse {
+                        throw NoFoundException()
+                    }
+                    .also { project ->
+                        if (project.createdBy != user.id) throw AccessDeniedException()
+                        if (project.matesIds.contains(mateId)) throw AlreadyExistException()
+                        projectsRepository.updateProject(
+                            project.copy(
+                                matesIds = project.matesIds + mateId
+                            )
+                        )
+                    }
 
-
-        val user = authenticationRepository.getCurrentUser().getOrElse {
-            throw UnauthorizedException()
-        }
-
-        validateUserAuthorization(user)
-
-        val project = projectsRepository.getProjectById(projectId).getOrElse {
-            throw NoFoundException()
-        }
-        validateMateNotInProject(project, mateId)
-
-        val updatedProject = updateProjectWithMate(project, mateId)
-
-        projectsRepository.updateProject(updatedProject).getOrElse {
-            throw RuntimeException("Failed to update project", it)
-        }
-
-        createAndLogAction(updatedProject, mateId, user.username)
-    }
-
-
-
-    private fun validateUserAuthorization(user: User) {
-        require(user.type != UserType.MATE) { throw AccessDeniedException() }
-    }
-
-    private fun validateMateNotInProject(project: Project, mateId: UUID) {
-        require(!project.matesIds.contains(mateId)) { throw AlreadyExistException() }
-    }
-
-    private fun updateProjectWithMate(project: Project, mateId: UUID): Project {
-        return project.copy(matesIds = project.matesIds + mateId)
-    }
-
-    private fun createAndLogAction(project: Project, mateId: UUID, username: String) {
-        val log = AddedLog(
-            username = username,
-            affectedId = mateId,
-            affectedType = Log.AffectedType.PROJECT,
-            addedTo = project.id
-        )
-        val logResult = logsRepository.addLog(log)
-        if (logResult.isFailure) {
-            throw RuntimeException("Failed to log action")
-        }
+                logsRepository.addLog(
+                    AddedLog(
+                        username = user.username,
+                        affectedId = mateId,
+                        affectedType = Log.AffectedType.MATE,
+                        dateTime = LocalDateTime.now(),
+                        addedTo = projectId,
+                    )
+                ).getOrElse { throw FailedToLogException() }
+            }
     }
 }
