@@ -38,15 +38,10 @@ class LoginUiController(
            // printSwimlanes(projects,tasks)
             when (user.type) {
                 UserType.MATE -> {
-                    mateApp.run{
-                        printSwimlanes(projects,tasks)
-                    }
+                    mateApp.run()
                 }
                 UserType.ADMIN ->{
-                     adminApp.run{
-                         printSwimlanes(projects,tasks)
-                     }
-
+                     adminApp.run()
                 }
             }
         }

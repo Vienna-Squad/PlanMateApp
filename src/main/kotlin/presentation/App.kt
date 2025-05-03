@@ -11,11 +11,10 @@ import org.example.presentation.controller.project.*
 import org.example.presentation.controller.task.*
 import org.example.presentation.utils.viewer.printSwimlanes
 
-
 data class Category(val name: String, val menuItems: List<MenuItem>)
 
-abstract class App(val categories: List<Category> ){
-    fun run(printui:()->Unit={}) {
+abstract class App(val categories: List<Category>) {
+    fun run() {
         var counter = 1
         categories.forEach { category ->
             println("\n${category.name}:")
@@ -24,13 +23,12 @@ abstract class App(val categories: List<Category> ){
                 counter++
             }
         }
-        printui()
         print("\nEnter your selection: ")
         val input = readln().toIntOrNull() ?: -1
         val menuItem = getMenuItemByGlobalIndex(input)
         if (menuItem != null) {
             menuItem.uiController.execute()
-            run(printui)
+            run()
         }
     }
 
@@ -75,11 +73,9 @@ class AdminApp : App(
         )),
         Category("Account", listOf(
             MenuItem("Create User", RegisterUiController()),
-            MenuItem("Log Out", LogoutUiController())
         ))
     )
 )
-
 
 class AuthApp : App(
     categories = listOf(
@@ -106,9 +102,6 @@ class MateApp : App(
             MenuItem("View Task History", GetTaskHistoryUIController()),
             MenuItem("Edit Task Title ", EditTaskTitleUiController()),
             MenuItem("View Task Details", GetTaskUiController()),
-        )),
-        Category("Account", listOf(
-            MenuItem("Log Out", LogoutUiController())
         ))
     )
 )
