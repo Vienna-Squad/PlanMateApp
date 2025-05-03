@@ -9,6 +9,7 @@ import org.example.presentation.utils.viewer.ItemsViewer
 import org.example.presentation.utils.viewer.LogsViewer
 import org.example.presentation.utils.viewer.TaskHistoryViewer
 import org.koin.java.KoinJavaComponent.getKoin
+import java.util.UUID
 
 class GetTaskHistoryUIController(
     private val getTaskHistoryUseCase: GetTaskHistoryUseCase=getKoin().get(),
@@ -20,7 +21,7 @@ class GetTaskHistoryUIController(
         tryAndShowError {
             println("Enter task id:")
             val taskId = inputReader.getInput()
-            viewer.view(getTaskHistoryUseCase.invoke(taskId))
+            viewer.view(getTaskHistoryUseCase.invoke(UUID.fromString(taskId)))
         }
     }
 }

@@ -3,7 +3,7 @@ package domain.usecase.task
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
@@ -12,6 +12,7 @@ import org.example.domain.usecase.task.GetTaskHistoryUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.*
 
 
 class GetTaskHistoryUseCaseTest {
@@ -30,66 +31,71 @@ class GetTaskHistoryUseCaseTest {
 
     @Test
     fun `should throw UnauthorizedException given no logged-in user is found`() {
-        //Given
+        // Given
         every { authenticationRepository.getCurrentUser() } returns Result.failure(Exception())
-        // Then&&When
+        // When & Then
         assertThrows<UnauthorizedException> {
             getTaskHistoryUseCase(dummyTask.id)
         }
     }
+
     @Test
-    fun `should throw NoTaskFoundException when logsRepository throw an exception`() {
-        //Given
+    fun `should throw NoTaskFoundException when logsRepository throws an exception`() {
+        // Given
         val task = Task(
+            id = UUID.randomUUID(),
             title = " A Task",
             state = "in progress",
-            assignedTo = listOf("12", "123"),
-            createdBy = "1",
-            projectId = "999"
+            assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()), // Random assigned users
+            createdBy = UUID.randomUUID(),
+            projectId = UUID.randomUUID()
         )
-        every { logsRepository.getAll() } returns Result.failure(Exception())
-        //when&then
-        assertThrows<NoFoundException> { getTaskHistoryUseCase(task.id) }
+        every { logsRepository.getAllLogs() } returns Result.failure(Exception())
+        // When & Then
+        assertThrows<NotFoundException> { getTaskHistoryUseCase(task.id) }
     }
 
     @Test
     fun `should throw NoTaskFoundException when task is not found in the given list`() {
-        //Given
+        // Given
         val task = Task(
+            id = UUID.randomUUID(),
             title = " A Task",
             state = "in progress",
-            assignedTo = listOf("12", "123"),
-            createdBy = "1",
-            projectId = "999"
+            assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()), // Random assigned users
+            createdBy = UUID.randomUUID(),
+            projectId = UUID.randomUUID()
         )
-        every { logsRepository.getAll() } returns Result.success(dummyLogs)
-        //when&then
-        assertThrows<NoFoundException> { getTaskHistoryUseCase(task.id) }
+        every { logsRepository.getAllLogs() } returns Result.success(dummyLogs)
+        // When & Then
+        assertThrows<NotFoundException> { getTaskHistoryUseCase(task.id) }
     }
 
     @Test
     fun `should return list of logs associated with a specific task given task id`() {
-        //Given
-        every { logsRepository.getAll() } returns Result.success(dummyLogs)
-        //when
+        // Given
+        every { logsRepository.getAllLogs() } returns Result.success(dummyLogs)
+        // When
         val result = getTaskHistoryUseCase(dummyTask.id)
-        //then
+        // Then
         assertThat(dummyLogs).containsExactlyElementsIn(result)
     }
 
     private val dummyTask = Task(
+        id = UUID.randomUUID(),
         title = " A Task",
         state = "in progress",
-        assignedTo = listOf("12", "123"),
-        createdBy = "1",
-        projectId = "999"
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
     )
+
     private val dummyLogs = listOf(
         AddedLog(
             username = "abc",
             affectedId = dummyTask.id,
             affectedType = Log.AffectedType.TASK,
-            addedTo = "999"
+            addedTo = UUID.randomUUID()
         ),
         CreatedLog(
             username = "abc",
@@ -100,11 +106,8 @@ class GetTaskHistoryUseCaseTest {
             username = "abc",
             affectedId = dummyTask.id,
             affectedType = Log.AffectedType.TASK,
-            deletedFrom = "999"
+            deletedFrom = UUID.randomUUID().toString() // Random project ID
         )
-
     )
-
-
 }
 

@@ -3,10 +3,7 @@ package domain.usecase.task
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.InvalidIdException
-import org.example.domain.NoFoundException
-import org.example.domain.UnauthorizedException
+import org.example.domain.*
 import org.example.domain.entity.ChangedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
@@ -30,58 +27,59 @@ class EditTaskStateUseCaseTest {
     private lateinit var editTaskStateUseCase: EditTaskStateUseCase
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
 
-    private val dummyTask =
-        Task(
-            id = UUID.randomUUID().toString(),
-            title = "Sample Task",
-            state = "To Do",
-            assignedTo = listOf("user1", "user2"),
-            createdBy = "admin1",
-            createdAt = LocalDateTime.now(),
-            projectId = "project123"
-        )
-
+    private val dummyTask = Task(
+        id = UUID.randomUUID(),
+        title = "Sample Task",
+        state = "To Do",
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        createdAt = LocalDateTime.now(),
+        projectId = UUID.randomUUID()
+    )
 
     @BeforeEach
     fun setup() {
         editTaskStateUseCase = EditTaskStateUseCase(
-            tasksRepository,
-
-            )
+            tasksRepository
+        )
     }
 
     @Test
     fun `should edit task state when task exists`() {
-        // given
-        every { tasksRepository.get(dummyTask.id) } returns Result.success(dummyTask)
-        // when
+        // Given
+        every { tasksRepository.getTaskById(dummyTask.id) } returns Result.success(dummyTask)
+
+        // When
         editTaskStateUseCase(dummyTask.id, "In Progress")
-        // then
+
+        // Then
         verify {
-            tasksRepository.update(match {
-                it.state == "In Progress" && it.id == dummyTask.id
+            tasksRepository.updateTask(match {
+                it.state == "In Progress" && it.id == dummyTask.id // Using random UUID comparison
             })
         }
     }
 
     @Test
     fun `should throw NoFoundException when task does not exist`() {
-        // given
-        every { tasksRepository.get(dummyTask.id) } returns Result.failure(NoFoundException())
-        // when & then
-        assertThrows<NoFoundException> {
+        // Given
+        every { tasksRepository.getTaskById(dummyTask.id) } returns Result.failure(NotFoundException(""))
+
+        // When & Then
+        assertThrows<NotFoundException> {
             editTaskStateUseCase(dummyTask.id, "In Progress")
         }
     }
 
     @Test
     fun `should throw InvalidIdException when task id is blank`() {
-        // given
-        val exception = InvalidIdException()
-        every { tasksRepository.get(" ") } throws exception
-        // when & then
+        // Given
+        val exception = InvalidIdException("")
+        every { tasksRepository.getTaskById(any()) } throws exception // Allow any UUID for invalid id
+
+        // When & Then
         val thrown = assertThrows<InvalidIdException> {
-            editTaskStateUseCase(" ", "In Progress")
+            editTaskStateUseCase(UUID.randomUUID(), "In Progress") // Use random UUID
         }
         assertEquals(exception.message, thrown.message)
     }

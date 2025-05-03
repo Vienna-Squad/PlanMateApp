@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.AccessDeniedException
 import org.example.domain.FailedToAddLogException
-import org.example.domain.NoFoundException
+import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
 import org.example.domain.repository.AuthenticationRepository
@@ -15,6 +15,7 @@ import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.*
 
 class DeleteMateFromTaskUseCaseTest {
 
@@ -22,16 +23,27 @@ class DeleteMateFromTaskUseCaseTest {
     lateinit var deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase
     lateinit var logsRepository: LogsRepository
     lateinit var authRepository: AuthenticationRepository
-
     val task = Task(
         title = "machine learning task",
         state = "in-progress",
-        assignedTo = listOf("nada", "hend", "mariam"),
-        createdBy = "admin1",
-        projectId = ""
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
     )
-    val adminUser = User(username = "admin", hashedPassword = "123", type = UserType.ADMIN)
-    val mateUser = User(username = "mate", hashedPassword = "5466", type = UserType.MATE)
+
+    val adminUser = User(
+        id = UUID.randomUUID(),
+        username = "admin",
+        hashedPassword = "123",
+        type = UserType.ADMIN
+    )
+
+    val mateUser = User(
+        id = UUID.randomUUID(),
+        username = "mate",
+        hashedPassword = "5466",
+        type = UserType.MATE
+    )
 
     @BeforeEach
     fun setUp() {
@@ -40,13 +52,21 @@ class DeleteMateFromTaskUseCaseTest {
         authRepository = mockk()
         deleteMateFromTaskUseCase = DeleteMateFromTaskUseCase(tasksRepository, authRepository, logsRepository)
     }
-
     @Test
     fun `should throw UnauthorizedException when user is not logged in`() {
-        //given
-        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException())
+        // Given
+        val task = Task(
+            id = UUID.randomUUID(),
+            title = "Sample Task",
+            state = "todo",
+            assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()), // Assigned users with UUID
+            createdBy = UUID.randomUUID(), // Created by with UUID
+            projectId = UUID.randomUUID() // Project ID with UUID
+        )
 
-        //when & then
+        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+
+        // When & Then
         assertThrows<UnauthorizedException> {
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
         }
@@ -67,10 +87,10 @@ class DeleteMateFromTaskUseCaseTest {
     fun `should throw NoFoundException when task id does not exist`() {
         //given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(task.id) } returns Result.failure(NoFoundException())
+        every { tasksRepository.getTaskById(task.id) } returns Result.failure(NotFoundException(""))
 
         //when & then
-        assertThrows<NoFoundException> {
+        assertThrows<NotFoundException> {
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
         }
 
@@ -78,47 +98,46 @@ class DeleteMateFromTaskUseCaseTest {
 
     @Test
     fun `should throw NoFoundException when mate is not assigned to the task`() {
-        //given
+        // Given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(task.id) } returns Result.success(task)
+        every { tasksRepository.getTaskById(task.id) } returns Result.success(task)
 
-        //when & then
-        assertThrows<NoFoundException> {
-            deleteMateFromTaskUseCase(task.id, "no-mate-found")
+        // When & Then
+        assertThrows<NotFoundException> {
+            deleteMateFromTaskUseCase(task.id, UUID.randomUUID())
         }
-
     }
 
 
     @Test
     fun `should throw FailedToAddLogException when logging mate deletion fails`() {
-        //given
+        // Given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(task.id) } returns Result.success(task)
-        every { logsRepository.add(any()) } returns Result.failure(FailedToAddLogException())
+        every { tasksRepository.getTaskById(task.id) } returns Result.success(task)
+        every { logsRepository.addLog(any()) } returns Result.failure(FailedToAddLogException(""))
 
-
-        //when & then
+        // When & Then
         assertThrows<FailedToAddLogException> {
             deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
-
         }
     }
-
     @Test
-    fun `should create log mate deletion when admin removes mate from task successfully`() {
-        //given
+    fun `should log mate deletion when admin successfully removes mate from task`() {
+        // Given
         every { authRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(task.id) } returns Result.success(task)
+        every { tasksRepository.getTaskById(task.id) } returns Result.success(task)
 
-        // when
+        // When
         deleteMateFromTaskUseCase(task.id, task.assignedTo[1])
 
-        // then
-        verify { tasksRepository.update(any()) }
+        // Then
+        verify { tasksRepository.updateTask(any()) }
         verify {
-            logsRepository.add(match {
-                it is DeletedLog
+            logsRepository.addLog(match { log ->
+                log is DeletedLog &&
+                        log.affectedId == task.id &&
+                        log.affectedType == Log.AffectedType.MATE &&
+                        log.username == adminUser.username
             })
         }
     }

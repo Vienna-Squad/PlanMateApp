@@ -6,12 +6,13 @@ import org.example.domain.entity.Log
 import org.example.domain.repository.AuthenticationRepository
 import org.example.domain.repository.LogsRepository
 import org.koin.java.KoinJavaComponent.getKoin
+import java.util.UUID
 
 class GetTaskHistoryUseCase(
     private val authenticationRepository: AuthenticationRepository=getKoin().get(),
     private val logsRepository: LogsRepository=getKoin().get())
 {
-    operator fun invoke(taskId: String): List<Log> {
+    operator fun invoke(taskId: UUID): List<Log> {
          authenticationRepository.getCurrentUser().getOrElse {
           throw UnauthorizedException(
                 "You are not authorized to perform this action. Please log in again."
@@ -24,7 +25,7 @@ class GetTaskHistoryUseCase(
                 )
             }
             .filter {
-                it.toString().contains(taskId)
+                it.toString().contains(taskId.toString(), ignoreCase = true)
             }.takeIf {
                 it.isNotEmpty()
             } ?: throw NotFoundException(

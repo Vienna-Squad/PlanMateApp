@@ -13,6 +13,7 @@ import org.example.domain.usecase.task.CreateTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.*
 
 class CreateTaskUseCaseTest {
     private lateinit var tasksRepository: TasksRepository
@@ -52,39 +53,37 @@ class CreateTaskUseCaseTest {
         val task = createTask()
         val user = createUser()
         every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(task.projectId) } returns Result.failure(Exception())
+        every { projectsRepository.getProjectById(task.projectId) } returns Result.failure(Exception())
 
         // When & Then
-        assertThrows<NoFoundException> {
+        assertThrows<NotFoundException> {
             createTaskUseCase(task)
         }
     }
-
     @Test
     fun `should throw AccessDeniedException when user is not in matesIds`() {
         // Given
-        val user = createUser().copy(id = "15")
-        val project = createProject(createdBy = "999").copy(matesIds = listOf("20", "21"))
+        val user = createUser().copy(id = UUID.randomUUID())
+        val project = createProject(createdBy = UUID.randomUUID()).copy(matesIds = listOf(UUID.randomUUID(), UUID.randomUUID()))
         val task = createTask()
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(task.projectId) } returns Result.success(project)
+        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
 
         // When & Then
         assertThrows<AccessDeniedException> {
             createTaskUseCase(task)
         }
     }
-
     @Test
     fun `should throw AccessDeniedException when project createdBy is not current user`() {
         // Given
+        val user = createUser().copy(id = UUID.randomUUID())
+        val project = createProject(createdBy = UUID.randomUUID())
         val task = createTask()
-        val user = createUser().copy(id = "13")
-        val project = createProject(createdBy = "999")
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(task.projectId) } returns Result.success(project)
+        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
 
         // When & Then
         assertThrows<AccessDeniedException> {
@@ -95,37 +94,36 @@ class CreateTaskUseCaseTest {
     @Test
     fun `should throw FailedToAddException when task addition fails`() {
         // Given
-        val user = createUser().copy(id = "12")
-        val project = createProject(createdBy = "12").copy(matesIds = listOf("12"))
-        val task = createTask().copy(createdBy = "12")
+        val user = createUser().copy(id = UUID.randomUUID())
+        val project = createProject(createdBy = UUID.randomUUID()).copy(matesIds = listOf(user.id))
+        val task = createTask().copy(createdBy = user.id)
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(task.projectId) } returns Result.success(project)
-        every { tasksRepository.add(task) } returns Result.failure(Exception())
+        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
+        every { tasksRepository.addTask(task) } returns Result.failure(Exception())
+
         // When & Then
         assertThrows<FailedToAddException> {
             createTaskUseCase(task)
         }
     }
-
     @Test
     fun `should throw FailedToLogException when logging creation fails`() {
         // Given
-        val user = createUser().copy(id = "12")
-        val project = createProject(createdBy = "12").copy(matesIds = listOf("12"))
-        val task = createTask().copy(createdBy = "12")
+        val user = createUser().copy(id = UUID.randomUUID())
+        val project = createProject(createdBy = UUID.randomUUID()).copy(matesIds = listOf(user.id))
+        val task = createTask().copy(createdBy = user.id)
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(task.projectId) } returns Result.success(project)
-        every { tasksRepository.add(task) } returns Result.success(Unit)
-        every { logsRepository.add(any()) } returns Result.failure(Exception("Log error"))
+        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
+        every { tasksRepository.addTask(task) } returns Result.success(Unit)
+        every { logsRepository.addLog(any()) } returns Result.failure(Exception("Log error"))
 
         // When & Then
         assertThrows<FailedToLogException> {
             createTaskUseCase(task)
         }
     }
-
     @Test
     fun `should add task and log creation in logs repository`() {
         // Given
@@ -134,17 +132,17 @@ class CreateTaskUseCaseTest {
         val task = createTask()
 
         every { authenticationRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.get(task.projectId) } returns Result.success(project)
-        every { tasksRepository.add(task) } returns Result.success(Unit)
-        every { logsRepository.add(any()) } returns Result.success(Unit)
+        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
+        every { tasksRepository.addTask(task) } returns Result.success(Unit)
+        every { logsRepository.addLog(any()) } returns Result.success(Unit)
 
         // When
         createTaskUseCase(task)
 
         // Then
-        verify { tasksRepository.add(task) }
+        verify { tasksRepository.addTask(task) }
         verify {
-            logsRepository.add(match {
+            logsRepository.addLog(match {
                 it.username == user.username &&
                         it.affectedId == task.id &&
                         it.affectedType == Log.AffectedType.TASK
@@ -152,19 +150,20 @@ class CreateTaskUseCaseTest {
         }
     }
 
+
     private fun createTask(): Task {
         return Task(
-            title = " A Task",
+            title = "A Task",
             state = "in progress",
-            assignedTo = listOf("12", "123"),
-            createdBy = "12",
-            projectId = "999"
+            assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+            createdBy = UUID.randomUUID(),
+            projectId = UUID.randomUUID()
         )
     }
 
-    private fun createProject(createdBy:String): Project {
+    private fun createProject(createdBy: UUID): Project {
         return Project(
-            id = "999",
+            id = UUID.randomUUID(),
             name = "Test Project",
             createdBy = createdBy,
             states = emptyList(),

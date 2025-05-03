@@ -14,155 +14,143 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
+import java.util.*
+
 
 class GetTaskUseCaseTest {
-    private lateinit var tasksRepository: TasksRepository
-    private lateinit var authenticationRepository: AuthenticationRepository
-    private lateinit var getTaskUseCase: GetTaskUseCase
 
-    private val taskId = "T1"
-    private val username = "admin1"
+        // Mock repositories
+        private lateinit var tasksRepository: TasksRepository
+        private lateinit var authenticationRepository: AuthenticationRepository
+        private lateinit var getTaskUseCase: GetTaskUseCase
 
+        @BeforeEach
+        fun setup() {
+            tasksRepository = mockk(relaxed = true)
+            authenticationRepository = mockk(relaxed = true)
+            getTaskUseCase = GetTaskUseCase(tasksRepository, authenticationRepository)
+        }
+
+        @Test
+        fun `getTask should return task when user is admin regardless of assignment`() {
+            // Given: Admin user and any task (even unassigned)
+            every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
+            every { tasksRepository.getTaskById(taskId) } returns Result.success(baseTask)
+
+            // When
+            val result = getTaskUseCase(taskId)
+
+            // Then: Admin can access any task
+            assertEquals(baseTask, result)
+        }
+
+        @Test
+        fun `getTask should return task when mate user is assigned to the task`() {
+            // Given: Task is assigned to mate user
+            val assignedTask = baseTask.copy(assignedTo = listOf(mateUserId))
+            every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
+            every { tasksRepository.getTaskById(taskId) } returns Result.success(assignedTask)
+
+            // When
+            val result = getTaskUseCase(taskId)
+
+            // Then: Mate can access assigned tasks
+            assertEquals(assignedTask, result)
+        }
+
+        @Test
+        fun `getTask should return task when user is the creator of the task`() {
+            // Given: Task was created by mate user
+            val creatorTask = baseTask.copy(createdBy = mateUserId)
+            every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
+            every { tasksRepository.getTaskById(taskId) } returns Result.success(creatorTask)
+
+            // When
+            val result = getTaskUseCase(taskId)
+
+            // Then: Creator can access their own tasks
+            assertEquals(creatorTask, result)
+        }
+
+        @Test
+        fun `getTask should throw UnauthorizedException when mate user is not assigned or creator`() {
+            // Given: Task belongs to someone else and isn't assigned to current user
+            val otherUserTask = baseTask.copy(
+                createdBy = otherUserId,
+                assignedTo = listOf(otherUserId)
+            )
+            every { authenticationRepository.getCurrentUser() } returns Result.success(strangerUser)
+            every { tasksRepository.getTaskById(taskId) } returns Result.success(otherUserTask)
+
+            // When & Then: Regular user can't access unrelated tasks
+            assertThrows<UnauthorizedException> {
+                getTaskUseCase(taskId)
+            }
+        }
+
+        @Test
+        fun `getTask should throw UnauthorizedException when authentication fails`() {
+            // Given: Authentication fails
+            every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+
+            // When & Then: Should propagate authentication failure
+            assertThrows<UnauthorizedException> {
+                getTaskUseCase(taskId)
+            }
+        }
+
+        @Test
+        fun `getTask should throw NotFoundException when task doesn't exist`() {
+            // Given: Task doesn't exist (but user is valid)
+            every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
+            every { tasksRepository.getTaskById(taskId) } returns Result.failure(NotFoundException(""))
+
+            // When & Then: Should propagate not found error
+            assertThrows<NotFoundException> {
+                getTaskUseCase(taskId)
+            }
+        }
+
+    // Test UUIDs
+    private val taskId = UUID.randomUUID()
+    private val adminUserId = UUID.randomUUID()
+    private val mateUserId = UUID.randomUUID()
+    private val strangerUserId = UUID.randomUUID()
+    private val otherUserId = UUID.randomUUID()
+    private val projectId = UUID.randomUUID()
+
+    // Test users
     private val adminUser = User(
-        id = "U1",
-        username = username,
-        hashedPassword = "pass1",
+        id = adminUserId,
+        username = "admin1",
+        hashedPassword = "hashedPass1",
         type = UserType.ADMIN,
-        cratedAt = LocalDateTime.now()
-    )
+
+        )
 
     private val mateUser = User(
-        id = "U2",
+        id = mateUserId,
         username = "mate",
-        hashedPassword = "pass2",
+        hashedPassword = "hashedPass2",
         type = UserType.MATE,
-        cratedAt = LocalDateTime.now()
     )
-    private val task = Task(
+
+    private val strangerUser = User(
+        id = strangerUserId,
+        username = "stranger",
+        hashedPassword = "hashedPass3",
+        type = UserType.MATE,
+    )
+
+    // Base task
+    private val baseTask = Task(
         id = taskId,
         title = "Task 1",
         state = "ToDo",
         assignedTo = emptyList(),
-        createdBy = username,
+        createdBy = adminUserId,
         createdAt = LocalDateTime.now(),
-        projectId = "P1"
+        projectId = projectId
     )
 
-    @BeforeEach
-    fun setup() {
-        tasksRepository = mockk(relaxed = true)
-        authenticationRepository = mockk(relaxed = true)
-        getTaskUseCase = GetTaskUseCase(tasksRepository, authenticationRepository)
-    }
-
-    @Test
-    fun `should return task when user is admin and task exists`() {
-        // Given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(taskId) } returns Result.success(task)
-
-        // When
-        val result = getTaskUseCase(taskId)
-
-        // Then
-        assertEquals(task, result)
-    }
-
-    @Test
-    fun `should return task when user is mate and is assigned to task`() {
-        // Given
-        val assignedTask = task.copy(assignedTo = listOf("U2"))
-        every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
-        every { tasksRepository.get(taskId) } returns Result.success(assignedTask)
-
-        // When
-        val result = getTaskUseCase(taskId)
-
-        // Then
-        assertEquals(assignedTask, result)
-    }
-    @Test
-    fun `should return task when user is owner of the task`() {
-        // Given
-        val ownerTask = task.copy(createdBy = "mate")
-        every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
-        every { tasksRepository.get(taskId) } returns Result.success(ownerTask)
-
-        // When
-        val result = getTaskUseCase(taskId)
-
-        // Then
-        assertEquals(ownerTask, result)
-    }
-
-    @Test
-    fun `should throw UnauthorizedException when task is unassigned and user is not admin`() {
-        // Given
-        val unassignedTask = task.copy(assignedTo = emptyList())
-        val strangerUser = User(
-            id = "U3",
-            username = "stranger",
-            hashedPassword = "pass3",
-            type = UserType.MATE,
-            cratedAt = LocalDateTime.now()
-        )
-
-        every { authenticationRepository.getCurrentUser() } returns Result.success(strangerUser)
-        every { tasksRepository.get(taskId) } returns Result.success(unassignedTask)
-
-        // When & Then
-        assertThrows<UnauthorizedException> {
-            getTaskUseCase(taskId)
-        }
-    }
-    @Test
-    fun `should throw UnauthorizedException when user is not owner, not assigned, and not admin`() {
-        val strangerUser = User(
-            id = "U3",
-            username = "stranger",
-            hashedPassword = "pass3",
-            type = UserType.MATE,
-            cratedAt = LocalDateTime.now()
-        )
-
-        val taskNotBelongingToUser = task.copy(
-            createdBy = "someone-else",
-            assignedTo = listOf("U4")
-        )
-
-        every { authenticationRepository.getCurrentUser() } returns Result.success(strangerUser)
-        every { tasksRepository.get(taskId) } returns Result.success(taskNotBelongingToUser)
-
-        assertThrows<UnauthorizedException> {
-            getTaskUseCase(taskId)
-        }
-    }
-
-
-
-    @Test
-    fun `should throw UnauthorizedException when getCurrentUser fails`() {
-        // Given
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException())
-
-        // When & Then
-        assertThrows<UnauthorizedException> {
-            getTaskUseCase(taskId)
-        }
-    }
-
-
-
-
-    @Test
-    fun `should throw NoFoundException when task does not exist`() {
-        // Given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
-        every { tasksRepository.get(taskId) } returns Result.failure(NoFoundException())
-
-        // When && Then
-        assertThrows<NoFoundException> {
-            getTaskUseCase(taskId)
-        }
-    }
 }
