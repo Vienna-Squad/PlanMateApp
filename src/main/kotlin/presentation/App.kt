@@ -3,15 +3,19 @@
 
 package org.example.presentation
 
+import org.example.domain.entity.Project
+import org.example.domain.entity.Task
 import org.example.presentation.App.MenuItem
 import org.example.presentation.controller.*
 import org.example.presentation.controller.project.*
 import org.example.presentation.controller.task.*
+import org.example.presentation.utils.viewer.printSwimlanes
+
 
 data class Category(val name: String, val menuItems: List<MenuItem>)
 
-abstract class App(val categories: List<Category>) {
-    fun run() {
+abstract class App(val categories: List<Category> ){
+    fun run(printui:()->Unit={}) {
         var counter = 1
         categories.forEach { category ->
             println("\n${category.name}:")
@@ -20,13 +24,13 @@ abstract class App(val categories: List<Category>) {
                 counter++
             }
         }
-
+        printui()
         print("\nEnter your selection: ")
         val input = readln().toIntOrNull() ?: -1
         val menuItem = getMenuItemByGlobalIndex(input)
         if (menuItem != null) {
             menuItem.uiController.execute()
-            run()
+            run(printui)
         }
     }
 
@@ -82,7 +86,7 @@ class AuthApp : App(
         Category("Authentication", listOf(
             MenuItem("Log In", LoginUiController()),
             MenuItem("Sign Up (Register New Account)", RegisterUiController()),
-            MenuItem("Exit Application")
+            MenuItem("Exit Application", ExitUiController())
         ))
     )
 )
@@ -97,8 +101,8 @@ class MateApp : App(
             MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
             MenuItem("Add Mate To Task", AddMateToTaskUIController()),
             MenuItem("Create New Task", CreateTaskUiController()),
-            MenuItem("Delete Task", DeleteTaskUiController()), // ?? DeleteProject used for DeleteTask?
-            MenuItem("Edit Task State"),
+            MenuItem("Delete Task", DeleteTaskUiController()),
+            MenuItem("Edit Task State", EditTaskStateController()),
             MenuItem("View Task History", GetTaskHistoryUIController()),
             MenuItem("Edit Task Title ", EditTaskTitleUiController()),
             MenuItem("View Task Details", GetTaskUiController()),
