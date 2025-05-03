@@ -1,0 +1,4 @@
+id,title,state,assignedTo,createdBy,projectId,createdAt
+59fcec6c-b8b0-455b-aa9a-d5ac129a09d5,github,in progress,,d94b57cd-30a4-44de-b113-ac9eeafd0a09,4f0cd0cd-45a6-44b9-a5de-3be547d28b9e,2025-05-03T11:49:05.796703200
+fac330a7-5c8d-4229-9b33-715d55e58141,messi,testing,,d94b57cd-30a4-44de-b113-ac9eeafd0a09,4f0cd0cd-45a6-44b9-a5de-3be547d28b9e,2025-05-03T11:51:01.260302400
+ab4808be-e0a9-48a1-b9f6-57ff8fac616b,taskmate1,inprogress,d4af517f-97a8-4561-97ac-449b1f203d2b,ba75fb7e-0e05-469d-943c-1377a5938386,4f0cd0cd-45a6-44b9-a5de-3be547d28b9e,2025-05-03T12:32:55.434304
