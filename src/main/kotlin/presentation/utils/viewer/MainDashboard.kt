@@ -52,56 +52,83 @@ val colorsPool = listOf(
 
     fun padCell(text: String, width: Int): String = text.padEnd(width, ' ')
 
-    fun printSwimlanes(projects: List<Project>, tasks: List<Task>) {
-        println("Welcome to PlanMate App - Project Task Swimlanes")
+fun printSwimlanes(projects: List<Project>, tasks: List<Task>) {
+    println("Welcome to PlanMate App - Project Task Swimlanes")
 
-        // Assign random distinct colors
-        val usedColors = mutableMapOf<UUID, String>()
-        val availableColors = colorsPool.toMutableList()
-        projects.forEach { project ->
-            val color = availableColors.removeAt(Random.nextInt(availableColors.size))
-            usedColors[project.id] = color
-        }
+    // Handle the case when there are no projects
+    if (projects.isEmpty()) {
+        println("No projects available.")
+        return
+    }
 
-        // Calculate column widths
-        val columnWidths = projects.map { project ->
-            val header = "${project.name}"
-            val taskTitles = tasks.filter { it.projectId == project.id }.map { it.title }
-            val maxTaskLength = taskTitles.maxOfOrNull { it.length } ?: 0
-            maxOf(header.length, maxTaskLength) + 2
-        }
+    // Assign random distinct colors
+    val usedColors = mutableMapOf<UUID, String>()
+    val availableColors = colorsPool.toMutableList()
 
-        val totalWidth = columnWidths.sum() + (3 * projects.size)
+    // Make sure we don't run out of colors
+    while (availableColors.size < projects.size) {
+        availableColors.addAll(colorsPool)
+    }
 
-        println("=".repeat(totalWidth))
+    projects.forEach { project ->
+        val colorIndex = if (availableColors.isNotEmpty())
+            Random.nextInt(availableColors.size)
+        else
+            0
 
-        // Header
+        val color = if (availableColors.isNotEmpty())
+            availableColors.removeAt(colorIndex)
+        else
+            reset
+
+        usedColors[project.id] = color
+    }
+
+    // Calculate column widths
+    val columnWidths = projects.map { project ->
+        val header = "${project.name}"
+        val taskTitles = tasks.filter { it.projectId == project.id }.map { it.title }
+        val maxTaskLength = taskTitles.maxOfOrNull { it.length } ?: 0
+        maxOf(header.length, maxTaskLength) + 2
+    }
+
+    // Handle the case when columnWidths is empty
+    if (columnWidths.isEmpty()) {
+        println("No data to display.")
+        return
+    }
+
+    val totalWidth = columnWidths.sum() + (3 * projects.size)
+
+    println("=".repeat(totalWidth))
+
+    // Header
+    print("|")
+    projects.forEachIndexed { i, project ->
+        val color = usedColors[project.id] ?: reset
+        val header = project.name
+        val padded = padCell(header, columnWidths[i])
+        print("$color $padded $reset|")
+    }
+    println()
+    println("-".repeat(totalWidth))
+
+    // Tasks
+    val maxTasks = projects.maxOf { project -> tasks.count { it.projectId == project.id } }
+
+    for (row in 0 until maxTasks) {
         print("|")
         projects.forEachIndexed { i, project ->
-            val color = usedColors[project.id] ?: ""
-            val header = project.name
-            val padded = padCell(header, columnWidths[i])
-            print("$color $padded $reset|")
+            val color = usedColors[project.id] ?: reset
+            val projectTasks = tasks.filter { it.projectId == project.id }
+            val taskTitle = if (row < projectTasks.size) projectTasks[row].title else ""
+            val paddedTask = padCell(taskTitle, columnWidths[i])
+            print("$color $paddedTask $reset|")
         }
         println()
-        println("-".repeat(totalWidth))
-
-        // Tasks
-        val maxTasks = projects.maxOf { project -> tasks.count { it.projectId == project.id } }
-
-        for (row in 0 until maxTasks) {
-            print("|")
-            projects.forEachIndexed { i, project ->
-                val color = usedColors[project.id] ?: ""
-                val projectTasks = tasks.filter { it.projectId == project.id }
-                val taskTitle = if (row < projectTasks.size) projectTasks[row].title else ""
-                val paddedTask = padCell(taskTitle, columnWidths[i])
-                print("$color $paddedTask $reset|")
-            }
-            println()
-        }
-
-        println("=".repeat(totalWidth))
     }
+
+    println("=".repeat(totalWidth))
+}
 
 
