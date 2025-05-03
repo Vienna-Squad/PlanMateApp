@@ -52,12 +52,10 @@ class AuthenticationRepositoryImpl(
             val users = storage.read()
             val user = users.find { it.username == username }
                 ?: throw UnauthorizedException( "User not found")
-
             val encryptedPassword = password.toMD5()
             if (user.hashedPassword != encryptedPassword) {
                 throw UnauthorizedException( "Invalid password")
             }
-
             currentUserId = user.id
             user
         }.getOrElse { return Result.failure(it) }.let { Result.success(it) }

@@ -19,7 +19,7 @@ class DeleteTaskUiController(
             viewer.view("enter task ID to delete: ")
             val taskId = inputReader.getInput()
             deleteTaskUseCase(
-                UUID.fromString( taskId))
+                UUID.fromString(taskId))
             viewer.view("the task #$taskId deleted.")
         }
     }

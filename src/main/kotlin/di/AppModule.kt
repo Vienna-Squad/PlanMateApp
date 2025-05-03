@@ -20,6 +20,7 @@ import org.example.presentation.AuthApp
 import org.example.presentation.MateApp
 import org.example.presentation.controller.ExitUiController
 import org.example.presentation.controller.LoginUiController
+import org.example.presentation.controller.LogoutUiController
 import org.example.presentation.controller.RegisterUiController
 import org.koin.core.qualifier.named
 
@@ -52,10 +53,12 @@ val appModule = module {
     single<App>(named("admin")) { AdminApp() }
     single<App>(named("auth")) { AuthApp() }
     single<App>(named("mate")) { MateApp() }
+
     single { LoginUiController() }
     single { RegisterUiController() }
     single { ExitUiController() }
-    single { LoginUiController() }
+    single { LogoutUiController(
+    ) }
 
     single { LogsRepositoryImpl(get()) }
     single { TasksRepositoryImpl(get()) }

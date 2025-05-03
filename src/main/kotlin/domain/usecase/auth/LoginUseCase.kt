@@ -1,8 +1,8 @@
 package org.example.domain.usecase.auth
 
+import org.example.domain.LoginException
 import org.example.domain.entity.User
 import org.example.domain.repository.AuthenticationRepository
-import javax.security.auth.login.LoginException
 
 class LoginUseCase(
     private val authenticationRepository: AuthenticationRepository

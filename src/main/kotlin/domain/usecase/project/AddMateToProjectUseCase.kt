@@ -18,18 +18,28 @@ class AddMateToProjectUseCase(
         authenticationRepository
             .getCurrentUser()
             .getOrElse {
-                throw UnauthorizedException()
+                throw UnauthorizedException(
+                    "You need to be logged in to perform this action"
+                )
             }.also { user ->
                 if (user.type != UserType.ADMIN) {
-                    throw AccessDeniedException()
+                    throw AccessDeniedException(
+                        "You need to be an admin to perform this action"
+                    )
                 }
                 projectsRepository.getProjectById(projectId)
                     .getOrElse {
-                        throw NoFoundException()
+                        throw NotFoundException(
+                            "Project with id $projectId not found"
+                        )
                     }
                     .also { project ->
-                        if (project.createdBy != user.id) throw AccessDeniedException()
-                        if (project.matesIds.contains(mateId)) throw AlreadyExistException()
+                        if (project.createdBy != user.id) throw AccessDeniedException(
+                            "You are not the owner of this project"
+                        )
+                        if (project.matesIds.contains(mateId)) throw AlreadyExistException(
+                            "Mate with id $mateId already exists in this project"
+                        )
                         projectsRepository.updateProject(
                             project.copy(
                                 matesIds = project.matesIds + mateId
@@ -45,7 +55,9 @@ class AddMateToProjectUseCase(
                         dateTime = LocalDateTime.now(),
                         addedTo = projectId,
                     )
-                ).getOrElse { throw FailedToLogException() }
+                ).getOrElse { throw FailedToLogException(
+                    "Failed to add log for adding mate with id $mateId to project with id $projectId"
+                ) }
             }
     }
 }

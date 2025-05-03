@@ -14,7 +14,7 @@ class LoginUiController(
     private val loginUseCase: LoginUseCase=getKoin().get(),
     private val inputReader: InputReader<String> = StringInputReader(),
     private val mateApp: App =  getKoin().get(named("mate")),
-    private val adminApp: App = getKoin().get(named("admin"))
+    private val adminApp: App = getKoin().get(named("admin")),
 ) : UiController {
     override fun execute() {
         tryAndShowError {
@@ -24,11 +24,10 @@ class LoginUiController(
             val password = inputReader.getInput()
             if (username.isBlank() || password.isBlank())
                 throw NotFoundException("Username or password cannot be empty!")
-            val user = loginUseCase(username, password).getOrElse { throw UnauthorizedException("User Not Found!") }
+            val user = loginUseCase(username, password)
             when (user.type) {
                 UserType.MATE -> mateApp.run()
                 UserType.ADMIN -> adminApp.run()
-
             }
         }
     }

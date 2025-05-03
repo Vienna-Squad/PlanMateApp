@@ -63,13 +63,14 @@ class AdminApp : App(
             MenuItem("Add Mate To Task", AddMateToTaskUIController()),
             MenuItem("Create New Task", CreateTaskUiController()),
             MenuItem("Delete Mate From Task", DeleteMateFromTaskUiController()),
-            MenuItem("Delete Task",DeleteProjectUiController()),
-            MenuItem("Edit Task State"),
+            MenuItem("Delete Task",DeleteTaskUiController()),
+            MenuItem("Edit Task State",EditTaskStateController()),
             MenuItem("Edit Task Title ", EditTaskTitleUiController()),
             MenuItem("View Task Change History", GetTaskHistoryUIController()),
             MenuItem("View Task Details", GetTaskUiController()),
         )),
         Category("Account", listOf(
+            MenuItem("Create User", RegisterUiController()),
             MenuItem("Log Out", LogoutUiController())
         ))
     )
@@ -96,7 +97,7 @@ class MateApp : App(
             MenuItem("View All Tasks in Project", GetAllTasksOfProjectController()),
             MenuItem("Add Mate To Task", AddMateToTaskUIController()),
             MenuItem("Create New Task", CreateTaskUiController()),
-            MenuItem("Delete Task", DeleteProjectUiController()), // ?? DeleteProject used for DeleteTask?
+            MenuItem("Delete Task", DeleteTaskUiController()), // ?? DeleteProject used for DeleteTask?
             MenuItem("Edit Task State"),
             MenuItem("View Task History", GetTaskHistoryUIController()),
             MenuItem("Edit Task Title ", EditTaskTitleUiController()),

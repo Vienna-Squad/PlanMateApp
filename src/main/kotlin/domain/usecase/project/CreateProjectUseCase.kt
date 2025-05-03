@@ -16,7 +16,7 @@ class CreateProjectUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val logsRepository: LogsRepository
 ) {
-    operator fun invoke(name: String, states: List<String>, matesIds: List<UUID>) {
+    operator fun invoke(name: String) {
 
         authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException(
             "User not found"
@@ -28,7 +28,7 @@ class CreateProjectUseCase(
                 )
             }
 
-            val newProject = Project(name = name, states = states, createdBy = currentUser.id, matesIds = matesIds)
+            val newProject = Project(name = name ,createdBy = currentUser.id)
             projectsRepository.addProject(newProject).getOrElse { throw FailedToCreateProject(
                 "Failed to create project"
             ) }

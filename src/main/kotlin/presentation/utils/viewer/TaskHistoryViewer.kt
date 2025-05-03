@@ -6,7 +6,7 @@ class TaskHistoryViewer:ItemsViewer<Log>
 {
     override fun view(items: List<Log>) {
         items.forEach {
-            it.toString()
+            println(it.toString())
         }
     }
 }

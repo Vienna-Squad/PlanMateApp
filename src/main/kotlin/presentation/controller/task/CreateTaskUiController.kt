@@ -20,9 +20,13 @@ class CreateTaskUiController(
         tryAndShowError {
             println("Enter task title: ")
             val taskTitle = inputReader.getInput()
-            inputReader.getInput()
             println("Enter task state: ")
             val taskState = inputReader.getInput()
+            if (taskState.isBlank()) {
+                throw UnknownException(
+                    "Task state cannot be blank. Please provide a valid state."
+                )
+            }
             println("Enter project id: ")
             val projectId = inputReader.getInput()
             val createdBy = authenticationRepository.getCurrentUser().getOrElse {
@@ -39,6 +43,7 @@ class CreateTaskUiController(
                     projectId = UUID.fromString( projectId)
                 )
             )
+            println("Task created successfully")
         }
     }
 }

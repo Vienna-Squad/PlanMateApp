@@ -42,9 +42,12 @@ class GetAllTasksOfProjectUseCase(
                 "Tasks not found"
             )
         }
-        var task=allTasks
-            .filter { it.projectId == project.id }
-        return task
 
+        return allTasks.filter { it.projectId == project.id }
+            .also { if (it.isEmpty()){
+                throw NotFoundException(
+                    "No tasks found for project with id $projectId"
+                )
+            } }
     }
 }

@@ -26,8 +26,8 @@ class AddMateToTaskUseCase(
             ) }
 
         val task = tasksRepository.getTaskById(taskId)
-            .getOrElse { throw InvalidIdException(
-                "Task ID is invalid"
+            .getOrElse { throw NotFoundException(
+                "Task  with $taskId not found"
             ) }
 
 

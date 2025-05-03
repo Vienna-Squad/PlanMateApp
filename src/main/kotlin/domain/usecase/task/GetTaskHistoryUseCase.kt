@@ -17,7 +17,7 @@ class GetTaskHistoryUseCase(
                 "You are not authorized to perform this action. Please log in again."
           )
         }
-        return logsRepository.getAllLogs()
+        val logs= logsRepository.getAllLogs()
             .getOrElse {
                 throw NotFoundException(
                     "No logs found. Please check the task ID and try again."
@@ -30,5 +30,6 @@ class GetTaskHistoryUseCase(
             } ?: throw NotFoundException(
                 "No logs found for task ID $taskId. Please check the task ID and try again."
             )
+        return logs
     }
 }

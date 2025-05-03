@@ -12,7 +12,7 @@ class RegisterUserUseCase(
 
 
         if (!isValid(username, password)) throw RegisterException(
-
+            "Username and password must not contain spaces and password must be at least 8 characters long"
         )
 
         authenticationRepository.createUser(
@@ -21,7 +21,9 @@ class RegisterUserUseCase(
                 hashedPassword = password,
                 type = role
             )
-        ).getOrElse { throw RegisterException() }
+        ).getOrElse { throw RegisterException(
+            "Error during registration, please try again"
+        ) }
 
     }
 

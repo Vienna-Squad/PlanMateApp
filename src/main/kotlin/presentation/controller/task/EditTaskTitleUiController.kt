@@ -16,14 +16,15 @@ class EditTaskTitleUiController(
 ): UiController {
     override fun execute() {
         tryAndShowError {
+            itemViewer.view("Enter The Task Id  : ")
+            val taskId = inputReader.getInput()
             itemViewer.view("Enter The New Title : ")
             val title = inputReader.getInput()
-            itemViewer.view("Enter The Title Id  : ")
-            val taskId = inputReader.getInput()
             editTaskTitleUseCase.invoke(
                 taskId = UUID.fromString( taskId),
                 title = title
             )
+            println("Task title updated successfully.")
         }
     }
 }
