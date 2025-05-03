@@ -9,35 +9,19 @@ class RegisterUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     operator fun invoke(username: String, password: String, role: UserType) {
-        /*authenticationRepository.getCurrentUser().getOrElse { throw RegisterException()}.let { user->
-            if (user.type != UserType.ADMIN) return throw RegisterException()
-        }
-*/
 
-        if (!isValid(username, password))  throw RegisterException(
-            "Username or password is invalid. Username should not contain spaces and password should be at least 8 characters long"
+
+        if (!isValid(username, password)) throw RegisterException(
+
         )
 
-        authenticationRepository.getAllUsers()
-            .getOrElse {  throw RegisterException(
-                "Error while fetching users"
-            ) }
-            .filter { user -> user.username == username }
-            .let { users ->
-                if (users.isNotEmpty())  throw RegisterException(
-                    "Username already exists"
-                )
-
-                authenticationRepository.createUser(
-                    User(
-                        username = username,
-                        hashedPassword = password,
-                        type = role
-                    )
-                ).getOrElse {  throw RegisterException(
-                    "Error while creating user"
-                ) }
-            }
+        authenticationRepository.createUser(
+            User(
+                username = username,
+                hashedPassword = password,
+                type = role
+            )
+        ).getOrElse { throw RegisterException() }
 
     }
 
@@ -48,4 +32,9 @@ class RegisterUserUseCase(
     companion object {
         val WHITE_SPACES = Regex("""\s""")
     }
+
+
 }
+
+
+
