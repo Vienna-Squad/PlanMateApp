@@ -35,7 +35,7 @@ class CreateTaskUiController(
                     title = taskTitle,
                     state = taskState,
                     assignedTo = emptyList(),
-                    createdBy = UUID.fromString( createdBy.username),
+                    createdBy =  createdBy.id,
                     projectId = UUID.fromString( projectId)
                 )
             )

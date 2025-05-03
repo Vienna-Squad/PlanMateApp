@@ -1,6 +1,8 @@
 package org.example.presentation.controller.task
 
 import org.example.domain.InvalidIdException
+import org.example.domain.entity.Log
+import org.example.domain.entity.Task
 import org.example.domain.usecase.task.GetTaskUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
@@ -17,11 +19,8 @@ class GetTaskUiController(
         tryAndShowError {
             print("enter task ID: ")
             val taskId = inputReader.getInput()
-            require (taskId.isBlank()) {throw InvalidIdException(
-                "Task ID cannot be blank. Please provide a valid ID."
-            ) }
-            getTaskUseCase(UUID.fromString( taskId))
-
+            require(taskId.isNotBlank()) {throw InvalidIdException()}
+            println("Task retrieved: ${getTaskUseCase(UUID.fromString(taskId))}")
         }
     }
 }
