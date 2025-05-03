@@ -21,7 +21,7 @@ class AuthenticationRepositoryImplTest {
     private lateinit var storage: UserCsvStorage
 
     private val user = User(
-        id = UUID.fromString("U1"),
+        id = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
         username = "user1",
         hashedPassword = "pass1",
         type = UserType.ADMIN,
@@ -29,12 +29,13 @@ class AuthenticationRepositoryImplTest {
     )
 
     private val anotherUser = User(
-        id = UUID.fromString("U2"),
+        id = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
         username = "user2",
         hashedPassword = "pass2",
         type = UserType.MATE,
         cratedAt = LocalDateTime.now()
     )
+
 
     @BeforeEach
     fun setup() {
@@ -181,11 +182,12 @@ class AuthenticationRepositoryImplTest {
         every { storage.read() } returns listOf(user, anotherUser)
 
         // When
-        val result = repository.getUserByID(UUID.fromString("U2"))
+        val result = repository.getUserByID(UUID.fromString("550e8400-e29b-41d4-a716-446655440001"))
 
         // Then
         assertTrue(result.isSuccess)
     }
+
 
     @Test
     fun `should return failure when getUser is called with invalid id`() {
@@ -193,11 +195,12 @@ class AuthenticationRepositoryImplTest {
         every { storage.read() } returns listOf(user, anotherUser)
 
         // When
-        val result = repository.getUserByID(UUID.fromString("invalid_id"))
+        val result = repository.getUserByID(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
 
         // Then
         assertTrue(result.isFailure)
     }
+
 
     @Test
     fun `should return failure when getUser fails to read`() {
@@ -205,7 +208,7 @@ class AuthenticationRepositoryImplTest {
         every { storage.read() } throws NotFoundException("")
 
         // When
-        val result = repository.getUserByID(UUID.fromString("U1"))
+        val result = repository.getUserByID(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
 
         // Then
         assertTrue(result.isFailure)
