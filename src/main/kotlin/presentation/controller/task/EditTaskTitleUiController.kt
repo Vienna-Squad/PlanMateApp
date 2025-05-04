@@ -11,23 +11,19 @@ import java.util.*
 
 class EditTaskTitleUiController(
     private val editTaskTitleUseCase: EditTaskTitleUseCase = getKoin().get(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
-    private val itemViewer: ItemViewer<String> = StringViewer(),
-): UiController {
+) : UiController {
     override fun execute() {
         tryAndShowError {
-            itemViewer.view("Enter The Task Id  : ")
+            viewer.view("Enter The Task Id  : ")
             val taskId = inputReader.getInput()
-            itemViewer.view("Enter The New Title : ")
+            viewer.view("Enter The New Title : ")
             val title = inputReader.getInput()
-            tryUseCase(useCaseCall = {editTaskTitleUseCase.invoke(
-                taskId = UUID.fromString( taskId),
-                title = title
-            )}){
-                println("Task title updated successfully.")
-            }
-
-
+            editTaskTitleUseCase(taskId = UUID.fromString(taskId), title = title)
+                .onSuccess {
+                    viewer.view("Task title updated successfully.")
+                }.exceptionOrNull()
         }
     }
 }

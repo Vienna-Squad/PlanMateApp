@@ -8,12 +8,11 @@ import org.example.presentation.utils.interactor.StringInputReader
 import org.example.presentation.utils.viewer.ItemViewer
 import org.example.presentation.utils.viewer.StringViewer
 import org.koin.java.KoinJavaComponent.getKoin
-import java.util.*
 
 class CreateProjectUiController(
     private val createProjectUseCase: CreateProjectUseCase = getKoin().get(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val stringInputReader: InputReader<String> = StringInputReader(),
-    private val itemViewer: ItemViewer<String> = StringViewer()
 ) : UiController {
     override fun execute() {
         tryAndShowError {
@@ -22,12 +21,10 @@ class CreateProjectUiController(
             if (name.isEmpty()) throw InvalidIdException(
                 "Project name cannot be empty. Please provide a valid name."
             )
-
-            tryUseCase(useCaseCall ={ createProjectUseCase(name = name) }){
-                itemViewer.view("Project created successfully")
-            }
-
-
+            createProjectUseCase(name = name)
+                .onSuccess {
+                    viewer.view("Project created successfully")
+                }.exceptionOrNull()
         }
     }
 }

@@ -12,7 +12,7 @@ import java.util.*
 
 class GetAllTasksOfProjectController(
     private val getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase = getKoin().get(),
-    private val stringViewer: ItemViewer<String> = StringViewer(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
 ) : UiController {
     override fun execute() {
@@ -24,13 +24,9 @@ class GetAllTasksOfProjectController(
                     "Project ID cannot be blank. Please provide a valid ID."
                 )
             }
-            tryUseCase(useCaseCall = {
-                getAllTasksOfProjectUseCase(
-                    UUID.fromString(projectId)
-                )
-            }) { tasks ->
-                stringViewer.view(tasks.toString())
-            }
+            getAllTasksOfProjectUseCase(UUID.fromString(projectId))
+                .onSuccess { tasks -> tasks.forEach { task -> viewer.view(task.toString()) } }
+                .exceptionOrNull()
         }
 
     }

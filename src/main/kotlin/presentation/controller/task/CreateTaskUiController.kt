@@ -1,51 +1,36 @@
 package org.example.presentation.controller.task
 
 import org.example.domain.UnknownException
-import org.example.domain.entity.Task
-import org.example.domain.repository.AuthRepository
 import org.example.domain.usecase.task.CreateTaskUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
+import org.example.presentation.utils.viewer.ItemViewer
+import org.example.presentation.utils.viewer.StringViewer
 import org.koin.java.KoinJavaComponent.getKoin
 import java.util.*
 
 class CreateTaskUiController(
-    private val createTaskUseCase: CreateTaskUseCase=getKoin().get(),
-    private val authRepository: AuthRepository=getKoin().get(),
+    private val createTaskUseCase: CreateTaskUseCase = getKoin().get(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader()
-
 ) : UiController {
     override fun execute() {
         tryAndShowError {
-            println("Enter task title: ")
+            print("Enter task title: ")
             val taskTitle = inputReader.getInput()
-            println("Enter task state: ")
+            print("Enter task state: ")
             val taskState = inputReader.getInput()
-            if (taskState.isBlank()) {
-                throw UnknownException(
-                    "Task state cannot be blank. Please provide a valid state."
-                )
-            }
-            println("Enter project id: ")
+            if (taskState.isBlank()) throw UnknownException("Task state cannot be blank. Please provide a valid state.")
+            print("Enter project id: ")
             val projectId = inputReader.getInput()
-            val createdBy = authRepository.getCurrentUser().getOrElse {
-                throw UnknownException(
-                    "User not authenticated. Please log in to create a task."
-                )
-            }
-            tryUseCase(useCaseCall = {createTaskUseCase(
-                Task(
-                    title = taskTitle,
-                    state = taskState,
-                    assignedTo = emptyList(),
-                    createdBy =  createdBy.id,
-                    projectId = UUID.fromString( projectId)
-                )
-            )}){
-                println("Task created successfully")
-            }
-
+            createTaskUseCase(
+                title = taskTitle,
+                state = taskState,
+                projectId = UUID.fromString(projectId)
+            ).onSuccess {
+                viewer.view("Task created successfully")
+            }.exceptionOrNull()
         }
     }
 }

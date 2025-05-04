@@ -1,19 +1,17 @@
 package org.example.presentation.controller.task
 
-import org.example.domain.entity.Log
 import org.example.domain.usecase.task.GetTaskHistoryUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
-import org.example.presentation.utils.viewer.ItemsViewer
-import org.example.presentation.utils.viewer.LogsViewer
-import org.example.presentation.utils.viewer.TaskHistoryViewer
+import org.example.presentation.utils.viewer.ItemViewer
+import org.example.presentation.utils.viewer.StringViewer
 import org.koin.java.KoinJavaComponent.getKoin
-import java.util.UUID
+import java.util.*
 
 class GetTaskHistoryUIController(
-    private val getTaskHistoryUseCase: GetTaskHistoryUseCase=getKoin().get(),
-    private val viewer: ItemsViewer<Log> = TaskHistoryViewer(),
+    private val getTaskHistoryUseCase: GetTaskHistoryUseCase = getKoin().get(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader()
 
 ) : UiController {
@@ -21,9 +19,10 @@ class GetTaskHistoryUIController(
         tryAndShowError {
             println("Enter task id:")
             val taskId = inputReader.getInput()
-            tryUseCase(useCaseCall = {getTaskHistoryUseCase.invoke(UUID.fromString(taskId))}){
-                println("Task title updated successfully.")
-            }
+            getTaskHistoryUseCase.invoke(UUID.fromString(taskId))
+                .onSuccess {
+                    viewer.view("Task title updated successfully.")
+                }.exceptionOrNull()
         }
     }
 }

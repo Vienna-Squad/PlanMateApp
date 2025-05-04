@@ -12,10 +12,9 @@ import java.util.*
 
 class DeleteMateFromTaskUiController(
     private val deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase = getKoin().get(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val stringInputReader: InputReader<String> = StringInputReader(),
-    private val itemViewer: ItemViewer<String> = StringViewer()
 ) : UiController {
-
     override fun execute() {
         tryAndShowError {
             println("enter your task id: ")
@@ -28,15 +27,10 @@ class DeleteMateFromTaskUiController(
             if (mateId.isEmpty()) throw InvalidIdException(
                 "Mate ID cannot be empty. Please provide a valid ID."
             )
-            tryUseCase(useCaseCall = {
-                deleteMateFromTaskUseCase(taskId = UUID.fromString(taskId), mateId = UUID.fromString(mateId))
-            }) {
-                itemViewer.view("mate deleted from task successfully")
-            }
-
-
+            deleteMateFromTaskUseCase(taskId = UUID.fromString(taskId), mateId = UUID.fromString(mateId))
+                .onSuccess {
+                    viewer.view("mate deleted from task successfully")
+                }.exceptionOrNull()
         }
     }
-
-
 }

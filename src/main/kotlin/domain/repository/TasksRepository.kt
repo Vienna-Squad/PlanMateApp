@@ -6,7 +6,7 @@ import java.util.*
 interface TasksRepository {
     fun getTaskById(taskId: UUID): Result<Task>
     fun getAllTasks(): Result<List<Task>>
-    fun addTask(task: Task): Result<Unit>
+    fun addTask(title: String, state: String, projectId: UUID): Result<Unit>
     fun updateTask(task: Task): Result<Unit>
     fun deleteTaskById(taskId: UUID): Result<Unit>
     fun addMateToTask(taskId: UUID,mateId: UUID): Result<Unit>

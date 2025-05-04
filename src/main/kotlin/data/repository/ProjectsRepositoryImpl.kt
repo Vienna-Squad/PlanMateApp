@@ -6,7 +6,6 @@ import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.UserRole
 import org.example.domain.repository.ProjectsRepository
-import org.example.data.repository.Repository
 import org.example.domain.AlreadyExistException
 import java.util.*
 
@@ -26,7 +25,7 @@ class ProjectsRepositoryImpl(
         projectsCsvStorage.read().find { it.id == projectId }?.let { project ->
             if (project.createdBy != currentUser.id) throw AccessDeniedException()
             if (mateId in project.matesIds) throw AlreadyExistException()
-            projectsCsvStorage.updateItem(project.copy(matesIds = project.matesIds + listOf(mateId)))
+            projectsCsvStorage.updateItem(project.copy(matesIds = project.matesIds + mateId))
         } ?: throw NotFoundException("project")
     }
 
@@ -34,7 +33,7 @@ class ProjectsRepositoryImpl(
         projectsCsvStorage.read().find { it.id == projectId }?.let { project ->
             if (project.createdBy != currentUser.id) throw AccessDeniedException()
             if (state in project.states) throw AlreadyExistException()
-            projectsCsvStorage.updateItem(project.copy(states = project.states + listOf(state)))
+            projectsCsvStorage.updateItem(project.copy(states = project.states + state))
         } ?: throw NotFoundException("project")
     }
 

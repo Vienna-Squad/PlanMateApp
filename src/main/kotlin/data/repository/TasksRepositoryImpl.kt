@@ -21,7 +21,17 @@ class TasksRepositoryImpl(
 
     override fun getAllTasks() = safeCall { tasksCsvStorage.read() }
 
-    override fun addTask(task: Task) = safeCall { tasksCsvStorage.append(task) }
+    override fun addTask(title: String, state: String, projectId: UUID) = authSafeCall { currentUser ->
+        tasksCsvStorage.append(
+            Task(
+                title = title,
+                state = state,
+                assignedTo = emptyList(),
+                createdBy = currentUser.id,
+                projectId = projectId
+            )
+        )
+    }
 
     override fun updateTask(task: Task) = authSafeCall { currentUser ->
         tasksCsvStorage.read().find { it.id == task.id }?.let { task ->

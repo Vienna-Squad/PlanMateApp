@@ -8,6 +8,3 @@ class RegisterUserUseCase(private val authRepository: AuthRepository) {
     operator fun invoke(username: String, password: String, role: UserRole) =
         authRepository.createUser(User(username = username, hashedPassword = password, role = role))
 }
-
-
-

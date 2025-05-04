@@ -12,7 +12,7 @@ import java.util.*
 
 class AddMateToTaskUIController(
     private val addMateToTaskUseCase: AddMateToTaskUseCase = getKoin().get(),
-    private val stringViewer: ItemViewer<String> = StringViewer(),
+    private val viewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
 
     ) : UiController {
@@ -32,9 +32,9 @@ class AddMateToTaskUIController(
                     "Mate ID cannot be blank. Please provide a valid ID."
                 )
             }
-            tryUseCase(useCaseCall = { addMateToTaskUseCase(UUID.fromString(taskId), UUID.fromString(mateId)) }) {
-                stringViewer.view("Mate: $mateId added to task: $taskId successfully")
-            }
+            addMateToTaskUseCase(UUID.fromString(taskId), UUID.fromString(mateId))
+                .onSuccess { viewer.view("Mate: $mateId added to task: $taskId successfully") }
+                .exceptionOrNull()
         }
 
     }
