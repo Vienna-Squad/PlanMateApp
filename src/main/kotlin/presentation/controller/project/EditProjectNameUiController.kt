@@ -13,7 +13,6 @@ class EditProjectNameUiController(
     private val editProjectNameUseCase: EditProjectNameUseCase = getKoin().get(),
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
-
     ) : UiController {
     override fun execute() {
         tryAndShowError {
@@ -21,9 +20,13 @@ class EditProjectNameUiController(
             val projectId = inputReader.getInput()
             print("enter the new project name: ")
             val newProjectName = inputReader.getInput()
-            editProjectNameUseCase(
-                UUID.fromString( projectId), newProjectName)
-            stringViewer.view("the project $projectId's name has been updated to $newProjectName.")
+            tryUseCase(useCaseCall = {
+                editProjectNameUseCase(
+                    UUID.fromString(projectId), newProjectName
+                )
+            }) {
+                stringViewer.view("the project $projectId's name has been updated to $newProjectName.")
+            }
         }
     }
 }

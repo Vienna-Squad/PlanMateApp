@@ -1,41 +1,12 @@
 package org.example.domain.usecase.auth
 
-import org.example.domain.RegisterException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 
-class RegisterUserUseCase(
-    private val authenticationRepository: AuthenticationRepository,
-) {
-    operator fun invoke(username: String, password: String, role: UserType) {
-
-
-        if (!isValid(username, password)) throw RegisterException(
-            "Username and password must not contain spaces and password must be at least 8 characters long"
-        )
-
-        authenticationRepository.createUser(
-            User(
-                username = username,
-                hashedPassword = password,
-                type = role
-            )
-        ).getOrElse { throw RegisterException(
-            "Error during registration, please try again"
-        ) }
-
-    }
-
-    private fun isValid(username: String, password: String): Boolean {
-        return !(username.contains(WHITE_SPACES) || password.trim().length <= 7)
-    }
-
-    companion object {
-        val WHITE_SPACES = Regex("""\s""")
-    }
-
-
+class RegisterUserUseCase(private val authRepository: AuthRepository) {
+    operator fun invoke(username: String, password: String, role: UserRole) =
+        authRepository.createUser(User(username = username, hashedPassword = password, role = role))
 }
 
 

@@ -1,8 +1,9 @@
 package data.storage
 
 import com.google.common.truth.Truth.assertThat
+import data.datasource.csv.UsersCsvStorage
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
+import org.example.domain.entity.UserRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -15,12 +16,12 @@ import java.util.*
 
 class UserCsvStorageTest {
     private lateinit var tempFile: File
-    private lateinit var storage: UserCsvStorage
+    private lateinit var storage: UsersCsvStorage
 
     @BeforeEach
     fun setUp(@TempDir tempDir: Path) {
         tempFile = tempDir.resolve("users_test.csv").toFile()
-        storage = UserCsvStorage(tempFile)
+        storage = UsersCsvStorage(tempFile)
     }
 
     @Test
@@ -41,7 +42,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
             username = "abdo",
             hashedPassword = "5f4dcc3b5aa765d61d8327deb882cf99", // md5 hash of "password"
-            type = UserType.ADMIN,
+            role = UserRole.ADMIN,
             cratedAt = LocalDateTime.parse("2023-01-01T10:00:00")
         )
 
@@ -56,7 +57,7 @@ class UserCsvStorageTest {
         assertThat(savedUser.id).isEqualTo(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
         assertThat(savedUser.username).isEqualTo("abdo")
         assertThat(savedUser.hashedPassword).isEqualTo("5f4dcc3b5aa765d61d8327deb882cf99")
-        assertThat(savedUser.type).isEqualTo(UserType.ADMIN)
+        assertThat(savedUser.role).isEqualTo(UserRole.ADMIN)
     }
 
     @Test
@@ -66,7 +67,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
             username = "admin",
             hashedPassword = "21232f297a57a5a743894a0e4a801fc3", // md5 hash of "admin"
-            type = UserType.ADMIN,
+            role = UserRole.ADMIN,
             cratedAt = LocalDateTime.parse("2023-01-01T10:00:00")
         )
 
@@ -74,7 +75,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440002"),
             username = "mate",
             hashedPassword = "4ac1b63dfd3c7c4fb3c3a68134bd0c97", // md5 hash of "mate"
-            type = UserType.MATE,
+            role = UserRole.MATE,
             cratedAt = LocalDateTime.parse("2023-01-02T10:00:00")
         )
 
@@ -86,7 +87,7 @@ class UserCsvStorageTest {
         val users = storage.read()
         assertThat(users).hasSize(2)
         assertThat(users.map { it.id }).containsExactly(UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
-        assertThat(users.map { it.type }).containsExactly(UserType.ADMIN, UserType.MATE)
+        assertThat(users.map { it.role }).containsExactly(UserRole.ADMIN, UserRole.MATE)
     }
 
     @Test
@@ -96,7 +97,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
             username = "admin",
             hashedPassword = "21232f297a57a5a743894a0e4a801fc3",
-            type = UserType.ADMIN,
+            role = UserRole.ADMIN,
             cratedAt = LocalDateTime.parse("2023-01-01T10:00:00")
         )
 
@@ -104,7 +105,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440002"),
             username = "mate",
             hashedPassword = "4ac1b63dfd3c7c4fb3c3a68134bd0c97",
-            type = UserType.MATE,
+            role = UserRole.MATE,
             cratedAt = LocalDateTime.parse("2023-01-02T10:00:00")
         )
 
@@ -124,7 +125,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
             username = "admin",
             hashedPassword = "21232f297a57a5a743894a0e4a801fc3",
-            type = UserType.ADMIN,
+            role = UserRole.ADMIN,
             cratedAt = LocalDateTime.parse("2023-01-01T10:00:00")
         )
 
@@ -132,7 +133,7 @@ class UserCsvStorageTest {
             id = UUID.fromString("550e8400-e29b-41d4-a716-446655440002"),
             username = "mate",
             hashedPassword = "4ac1b63dfd3c7c4fb3c3a68134bd0c97",
-            type = UserType.MATE,
+            role = UserRole.MATE,
             cratedAt = LocalDateTime.parse("2023-01-02T10:00:00")
         )
 
@@ -154,7 +155,7 @@ class UserCsvStorageTest {
     fun `should handle reading from non-existent file`() {
         // Given
         val nonExistentFile = File("non_existent_file.csv")
-        val invalidStorage = UserCsvStorage(nonExistentFile)
+        val invalidStorage = UsersCsvStorage(nonExistentFile)
 
         // Ensure the file doesn't exist before reading
         if (nonExistentFile.exists()) {

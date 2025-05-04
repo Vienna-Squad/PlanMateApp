@@ -9,8 +9,8 @@ import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.project.GetAllTasksOfProjectUseCase
@@ -25,12 +25,12 @@ class GetAllTasksOfProjectUseCaseTest {
     private lateinit var getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         getAllTasksOfProjectUseCase =
-            GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository, authenticationRepository)
+            GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository, authRepository)
     }
 
     @Test
@@ -44,7 +44,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val task3 = createTestTask(title = "Task 3", projectId = UUID.randomUUID())
         val allTasks = listOf(task1, task2, task3)
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { authRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.success(allTasks)
 
@@ -66,7 +66,7 @@ class GetAllTasksOfProjectUseCaseTest {
             createTestTask(title = "Task 2", projectId = projectId)
         )
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { authRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.success(allTasks)
 
@@ -82,7 +82,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val nonExistentProjectId = UUID.randomUUID()
         val user = createTestUser(id = UUID.randomUUID())
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { authRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(nonExistentProjectId) } returns Result.failure(InvalidIdException(""))
 
         // When & Then
@@ -98,7 +98,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val user = createTestUser(id = UUID.randomUUID())
         val project = createTestProject(id = projectId, createdBy = user.id)
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { authRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.failure(NotFoundException(""))
 
@@ -113,7 +113,7 @@ class GetAllTasksOfProjectUseCaseTest {
         // Given
         val projectId = UUID.randomUUID()
 
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(NotFoundException(""))
+        every { authRepository.getCurrentUser() } returns Result.failure(NotFoundException(""))
 
         // When & Then
         assertThrows<UnauthorizedException> {
@@ -128,7 +128,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val user = createTestUser(id = UUID.randomUUID())
         val project = createTestProject(id = projectId, createdBy = UUID.randomUUID(), matesIds = listOf("user-456").map { UUID.fromString(it) })
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { authRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
         // When & Then
@@ -141,12 +141,12 @@ class GetAllTasksOfProjectUseCaseTest {
     fun `should return tasks for admin project`() {
         // Given
         val projectId = UUID.randomUUID()
-        val user = createTestUser(id = UUID.randomUUID(), type = UserType.ADMIN)
+        val user = createTestUser(id = UUID.randomUUID(), type = UserRole.ADMIN)
         val project = createTestProject(id = projectId, createdBy = UUID.randomUUID(), matesIds = listOf("user-456").map { UUID.fromString(it) })
         val task1 = createTestTask(title = "Task 1", projectId = projectId)
         val task2 = createTestTask(title = "Task 2", projectId = projectId)
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(user)
+        every { authRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.success(listOf(task1, task2))
 
@@ -197,14 +197,14 @@ class GetAllTasksOfProjectUseCaseTest {
         id: UUID = UUID.fromString("user-123"),
         username: String = "testUser",
         password: String = "hashed",
-        type: UserType = UserType.MATE
+        type: UserRole = UserRole.MATE
 
     ): User {
         return User(
             id = id,
             username = username,
             hashedPassword = password,
-            type = type,
+            role = type,
             cratedAt = LocalDateTime.now()
         )
     }

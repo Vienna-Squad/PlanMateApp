@@ -23,8 +23,10 @@ class CreateProjectUiController(
                 "Project name cannot be empty. Please provide a valid name."
             )
 
-            createProjectUseCase(name = name)
-            itemViewer.view("Project created successfully")
+            tryUseCase(useCaseCall ={ createProjectUseCase(name = name) }){
+                itemViewer.view("Project created successfully")
+            }
+
 
         }
     }

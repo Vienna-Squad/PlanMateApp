@@ -1,24 +1,28 @@
-package org.example.data.storage
+package org.example.data.datasource.csv
 
-import org.example.data.storage.bases.EditableCsvStorage
+import org.example.data.bases.EditableCsvStorage
+import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
 import java.io.File
 import java.time.LocalDateTime
 import java.util.UUID
 
-class ProjectCsvStorage(file: File) :  EditableCsvStorage<Project>(file) {
+class ProjectsCsvStorage(file: File) : EditableCsvStorage<Project>(file) {
     init {
         writeHeader(getHeaderString())
     }
+
     override fun toCsvRow(item: Project): String {
         val states = item.states.joinToString("|")
         val matesIds = item.matesIds.joinToString("|")
         return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.cratedAt}\n"
     }
+
     override fun fromCsvRow(fields: List<String>): Project {
         require(fields.size == EXPECTED_COLUMNS) { "Invalid project data format: " }
 
-        val states = if (fields[STATES_INDEX].isNotEmpty()) fields[STATES_INDEX].split(MULTI_VALUE_SEPARATOR) else emptyList()
+        val states =
+            if (fields[STATES_INDEX].isNotEmpty()) fields[STATES_INDEX].split(MULTI_VALUE_SEPARATOR) else emptyList()
         val matesIds = if (fields[MATES_IDS_INDEX].isNotEmpty()) fields[MATES_IDS_INDEX].split("|") else emptyList()
 
         val project = Project(
@@ -35,6 +39,24 @@ class ProjectCsvStorage(file: File) :  EditableCsvStorage<Project>(file) {
 
     override fun getHeaderString(): String {
         return CSV_HEADER
+    }
+
+    override fun updateItem(item: Project) {
+        if (!file.exists()) throw NotFoundException("file")
+        val list = read().toMutableList()
+        val itemIndex = list.indexOfFirst { it.id == item.id }
+        if (itemIndex == -1) throw NotFoundException("$item")
+        list[itemIndex] = item
+        write(list)
+    }
+
+    override fun deleteItem(item: Project) {
+        if (!file.exists()) throw NotFoundException("file")
+        val list = read().toMutableList()
+        val itemIndex = list.indexOfFirst { it.id == item.id }
+        if (itemIndex == -1) throw NotFoundException("$item")
+        list.removeAt(itemIndex)
+        write(list)
     }
 
     companion object {

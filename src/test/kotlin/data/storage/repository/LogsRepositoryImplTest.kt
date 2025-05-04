@@ -3,8 +3,8 @@ package data.storage.repository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.storage.LogsCsvStorage
-import org.example.data.storage.repository.LogsRepositoryImpl
+import org.example.data.datasource.csv.LogsCsvStorage
+import org.example.data.repository.LogsRepositoryImpl
 import org.example.domain.NotFoundException
 import org.example.domain.entity.*
 import org.junit.jupiter.api.Assertions.*

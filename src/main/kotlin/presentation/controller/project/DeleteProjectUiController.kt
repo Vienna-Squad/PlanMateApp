@@ -15,17 +15,14 @@ class DeleteProjectUiController(
     private val deleteProjectUseCase: DeleteProjectUseCase = getKoin().get(),
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
-    private val exceptionViewer: ItemViewer<PlanMateAppException> = ExceptionViewer(),
 ) : UiController {
     override fun execute() {
-        try {
+        tryAndShowError {
             print("enter project ID: ")
             val projectId = inputReader.getInput()
-            deleteProjectUseCase(
-                UUID.fromString( projectId))
-            stringViewer.view("the project $projectId has been deleted.")
-        } catch (exception: PlanMateAppException) {
-            exceptionViewer.view(exception)
+            tryUseCase(useCaseCall = { deleteProjectUseCase(UUID.fromString(projectId)) }) {
+                stringViewer.view("the project $projectId has been deleted.")
+            }
         }
     }
 }

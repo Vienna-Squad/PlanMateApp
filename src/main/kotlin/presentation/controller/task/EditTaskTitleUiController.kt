@@ -20,11 +20,14 @@ class EditTaskTitleUiController(
             val taskId = inputReader.getInput()
             itemViewer.view("Enter The New Title : ")
             val title = inputReader.getInput()
-            editTaskTitleUseCase.invoke(
+            tryUseCase(useCaseCall = {editTaskTitleUseCase.invoke(
                 taskId = UUID.fromString( taskId),
                 title = title
-            )
-            println("Task title updated successfully.")
+            )}){
+                println("Task title updated successfully.")
+            }
+
+
         }
     }
 }

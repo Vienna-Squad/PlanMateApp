@@ -1,7 +1,7 @@
 package data.storage
 
 import com.google.common.truth.Truth.assertThat
-import org.example.data.storage.ProjectCsvStorage
+import org.example.data.datasource.csv.ProjectsCsvStorage
 import org.example.domain.entity.Project
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.BeforeEach
@@ -16,12 +16,12 @@ import java.util.*
 
 class ProjectCsvStorageTest {
     private lateinit var tempFile: File
-    private lateinit var storage: ProjectCsvStorage
+    private lateinit var storage: ProjectsCsvStorage
 
     @BeforeEach
     fun setUp(@TempDir tempDir: Path) {
         tempFile = tempDir.resolve("projects_test.csv").toFile()
-        storage = ProjectCsvStorage(tempFile)
+        storage = ProjectsCsvStorage(tempFile)
     }
 
     @Test
@@ -183,7 +183,7 @@ class ProjectCsvStorageTest {
     fun `should handle reading from non-existent file`() {
         // Given
         val nonExistentFile = File("non_existent_file.csv")
-        val invalidStorage = ProjectCsvStorage(nonExistentFile)
+        val invalidStorage = ProjectsCsvStorage(nonExistentFile)
 
         // Ensure the file doesn't exist before reading
         if (nonExistentFile.exists()) {

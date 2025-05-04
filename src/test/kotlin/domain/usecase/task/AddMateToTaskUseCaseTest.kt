@@ -7,7 +7,7 @@ import io.mockk.verify
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -23,7 +23,7 @@ class AddMateToTaskUseCaseTest {
     private lateinit var addMateToTaskUseCase: AddMateToTaskUseCase
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
 
     @BeforeEach
@@ -31,7 +31,7 @@ class AddMateToTaskUseCaseTest {
         addMateToTaskUseCase = AddMateToTaskUseCase(
             tasksRepository,
             logsRepository,
-            authenticationRepository,
+            authRepository,
             projectsRepository
         )
     }
@@ -49,9 +49,9 @@ class AddMateToTaskUseCaseTest {
         val project = createTestProject(id = projectId, createdBy = currentUser.id, matesIds = listOf(mateId))
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { authRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.getTaskById(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUserByID(mateId) } returns Result.success(mate)
+        every { authRepository.getUserByID(mateId) } returns Result.success(mate)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
         // When
@@ -72,15 +72,15 @@ class AddMateToTaskUseCaseTest {
         val creatorId = UUID.randomUUID()  // Random UUID
         val adminId = UUID.randomUUID()  // Random UUID
 
-        val currentUser = createTestUser(id = adminId, username = "admin", type = UserType.ADMIN)
+        val currentUser = createTestUser(id = adminId, username = "admin", type = UserRole.ADMIN)
         val task = createTestTask(id = taskId, createdBy = creatorId, assignedTo = emptyList(), projectId = projectId)
         val mate = createTestUser(id = mateId)
         val project = createTestProject(id = projectId, createdBy = creatorId, matesIds = listOf(mateId))
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { authRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.getTaskById(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUserByID(mateId) } returns Result.success(mate)
+        every { authRepository.getUserByID(mateId) } returns Result.success(mate)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
         // When
@@ -112,9 +112,9 @@ class AddMateToTaskUseCaseTest {
         val project = createTestProject(id = projectId, createdBy = creatorId, matesIds = listOf(mateId))
         val updatedTask = task.copy(assignedTo = listOf(currentUserId, mateId))
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { authRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.getTaskById(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUserByID(mateId) } returns Result.success(mate)
+        every { authRepository.getUserByID(mateId) } returns Result.success(mate)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
         // When
@@ -136,7 +136,7 @@ class AddMateToTaskUseCaseTest {
         val unrelatedUserId = UUID.randomUUID()  // Random UUID
         val assignedMateId = UUID.randomUUID()  // Random UUID
 
-        val currentUser = createTestUser(id = unrelatedUserId, type = UserType.MATE)
+        val currentUser = createTestUser(id = unrelatedUserId, type = UserRole.MATE)
         val task = createTestTask(
             id = taskId,
             createdBy = creatorId,
@@ -146,9 +146,9 @@ class AddMateToTaskUseCaseTest {
         val mate = createTestUser(id = mateId)
         val project = createTestProject(id = projectId, createdBy = creatorId, matesIds = listOf(mateId))
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { authRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.getTaskById(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUserByID(mateId) } returns Result.success(mate)
+        every { authRepository.getUserByID(mateId) } returns Result.success(mate)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
         // When & Then
@@ -164,7 +164,7 @@ class AddMateToTaskUseCaseTest {
         val mateId = UUID.randomUUID()  // Random UUID
         val currentUser = createTestUser(id = UUID.randomUUID())  // Random UUID
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { authRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.getTaskById(taskId) } returns Result.failure(NotFoundException(""))
 
         // When & Then
@@ -185,9 +185,9 @@ class AddMateToTaskUseCaseTest {
         val project = createTestProject(id = projectId, matesIds = listOf(mateId))
         val updatedTask = task.copy(assignedTo = listOf(mateId))
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(currentUser)
+        every { authRepository.getCurrentUser() } returns Result.success(currentUser)
         every { tasksRepository.getTaskById(taskId) } returns Result.success(task)
-        every { authenticationRepository.getUserByID(mateId) } returns Result.success(mate)
+        every { authRepository.getUserByID(mateId) } returns Result.success(mate)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.updateTask(updatedTask) } returns Result.failure(NotFoundException(""))
 
@@ -204,7 +204,7 @@ class AddMateToTaskUseCaseTest {
         val mateId = UUID.randomUUID()
 
         // Mocking the failure when fetching the current user
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
         // When & Then
         assertThrows<UnauthorizedException> {
@@ -235,13 +235,13 @@ private fun createTestTask(
         id: UUID = UUID.randomUUID(),
         username: String = "testUser",
         password: String = "hashed",
-        type: UserType = UserType.MATE
+        type: UserRole = UserRole.MATE
     ): User {
         return User(
             id = id,
             username = username,
             hashedPassword = password,
-            type = type,
+            role = type,
             cratedAt = LocalDateTime.now()
         )
     }

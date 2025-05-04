@@ -1,7 +1,7 @@
 package data.storage
 
 import com.google.common.truth.Truth.assertThat
-import org.example.data.storage.LogsCsvStorage
+import org.example.data.datasource.csv.LogsCsvStorage
 import org.example.domain.entity.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

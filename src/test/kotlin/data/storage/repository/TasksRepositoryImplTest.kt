@@ -3,8 +3,8 @@ package data.storage.repository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.storage.TaskCsvStorage
-import org.example.data.storage.repository.TasksRepositoryImpl
+import org.example.data.datasource.csv.TasksCsvStorage
+import org.example.data.repository.TasksRepositoryImpl
 import org.example.domain.NotFoundException
 
 import org.example.domain.entity.Task
@@ -17,7 +17,7 @@ import kotlin.test.Test
 
 class TasksRepositoryImplTest {
     private lateinit var repository: TasksRepositoryImpl
-    private lateinit var storage: TaskCsvStorage
+    private lateinit var storage: TasksCsvStorage
 
     private val task1 = Task(
         id = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),

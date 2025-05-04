@@ -15,9 +15,9 @@ class AddMateToTaskUIController(
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
 
-    ): UiController {
+    ) : UiController {
     override fun execute() {
-        tryAndShowError{
+        tryAndShowError {
             println("enter task ID: ")
             val taskId = inputReader.getInput()
             if (taskId.isBlank()) {
@@ -32,8 +32,9 @@ class AddMateToTaskUIController(
                     "Mate ID cannot be blank. Please provide a valid ID."
                 )
             }
-            addMateToTaskUseCase(UUID.fromString( taskId), UUID.fromString(  mateId))
-            stringViewer.view("Mate: $mateId added to task: $taskId successfully")
+            tryUseCase(useCaseCall = { addMateToTaskUseCase(UUID.fromString(taskId), UUID.fromString(mateId)) }) {
+                stringViewer.view("Mate: $mateId added to task: $taskId successfully")
+            }
         }
 
     }

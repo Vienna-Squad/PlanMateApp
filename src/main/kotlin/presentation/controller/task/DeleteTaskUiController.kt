@@ -18,9 +18,11 @@ class DeleteTaskUiController(
         tryAndShowError {
             viewer.view("enter task ID to delete: ")
             val taskId = inputReader.getInput()
-            deleteTaskUseCase(
-                UUID.fromString(taskId))
-            viewer.view("the task #$taskId deleted.")
+            tryUseCase(useCaseCall = {deleteTaskUseCase(
+                UUID.fromString(taskId))}){
+                viewer.view("the task #$taskId deleted.")
+            }
+
         }
     }
 }

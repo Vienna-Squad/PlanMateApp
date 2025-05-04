@@ -7,8 +7,8 @@ import org.example.domain.UnauthorizedException
 import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.DeleteProjectUseCase
@@ -23,7 +23,7 @@ class DeleteProjectUseCaseTest {
     private lateinit var deleteProjectUseCase: DeleteProjectUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
     private val dummyProjects = listOf(
         Project(
             name = "E-Commerce Platform",
@@ -90,12 +90,12 @@ class DeleteProjectUseCaseTest {
     private val dummyAdmin = User(
         username = "admin1",
         hashedPassword = "adminPass123",
-        type = UserType.ADMIN
+        role = UserRole.ADMIN
     )
     private val dummyMate = User(
         username = "mate1",
         hashedPassword = "matePass456",
-        type = UserType.MATE
+        role = UserRole.MATE
     )
 
 
@@ -104,14 +104,14 @@ class DeleteProjectUseCaseTest {
         deleteProjectUseCase = DeleteProjectUseCase(
             projectsRepository,
             logsRepository,
-            authenticationRepository
+            authRepository
         )
     }
 
     @Test
     fun `should delete project and add log when project exists`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(dummyProject.id) } returns Result.success(dummyProject.copy(createdBy = dummyAdmin.id))
         //when
         deleteProjectUseCase(dummyProject.id)
@@ -123,7 +123,7 @@ class DeleteProjectUseCaseTest {
     @Test
     fun `should throw UnauthorizedException when no logged in user found`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
         every { projectsRepository.getProjectById(dummyProject.id) } returns Result.success(dummyProject)
         //when && then
         assertThrows<UnauthorizedException> {
@@ -134,7 +134,7 @@ class DeleteProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user is mate`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyMate)
         every { projectsRepository.getProjectById(dummyProject.id) } returns Result.success(dummyProject)
         //when && then
         assertThrows<AccessDeniedException> {
@@ -145,7 +145,7 @@ class DeleteProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user has not this project`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(dummyProject.id) } returns Result.success(dummyProject)
         //when && then
         assertThrows<AccessDeniedException> {
@@ -156,7 +156,7 @@ class DeleteProjectUseCaseTest {
     @Test
     fun `should throw NoProjectFoundException when project does not exist`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(dummyProject.id) } returns Result.failure(NotFoundException(""))
         //when && then
         assertThrows<NotFoundException> {

@@ -4,16 +4,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.AccessDeniedException
-import org.example.domain.InvalidIdException
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.ChangedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.ProjectsRepository
-import org.example.domain.usecase.project.EditProjectStatesUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -24,7 +22,7 @@ class EditProjectStatesUseCaseTest {
     private lateinit var editProjectStatesUseCase: EditProjectStatesUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
     private val dummyProjects = listOf(
         Project(
             name = "E-Commerce Platform",
@@ -91,12 +89,12 @@ class EditProjectStatesUseCaseTest {
     private val dummyAdmin = User(
         username = "admin1",
         hashedPassword = "adminPass123",
-        type = UserType.ADMIN
+        role = UserRole.ADMIN
     )
     private val dummyMate = User(
         username = "mate1",
         hashedPassword = "matePass456",
-        type = UserType.MATE
+        role = UserRole.MATE
     )
 
 
@@ -105,7 +103,7 @@ class EditProjectStatesUseCaseTest {
         editProjectStatesUseCase = EditProjectStatesUseCase(
             projectsRepository,
             logsRepository,
-            authenticationRepository
+            authRepository
         )
     }
 
@@ -113,7 +111,7 @@ class EditProjectStatesUseCaseTest {
     fun `should add ChangedLog when project states are updated`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(project.id) } returns Result.success(project)
         //when
         editProjectStatesUseCase(project.id, listOf("new state 1", "new state 2"))
@@ -125,7 +123,7 @@ class EditProjectStatesUseCaseTest {
     fun `should edit project states when project exists`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(project.id) } returns Result.success(project)
         //when
         editProjectStatesUseCase(project.id, listOf("new state 1", "new state 2"))
@@ -143,7 +141,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw UnauthorizedException when no logged in user found`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(
+        every { authRepository.getCurrentUser() } returns Result.failure(
             UnauthorizedException("")
         )
         //when && then
@@ -155,7 +153,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user is mate`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyMate)
         //when && then
         assertThrows<AccessDeniedException> {
             editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
@@ -165,7 +163,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user has not this project`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
@@ -176,7 +174,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw ProjectNotFoundException when project does not exist`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.failure(NotFoundException(""))
         //when && then
         assertThrows<NotFoundException> {

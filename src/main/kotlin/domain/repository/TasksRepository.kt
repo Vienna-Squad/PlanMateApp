@@ -9,4 +9,7 @@ interface TasksRepository {
     fun addTask(task: Task): Result<Unit>
     fun updateTask(task: Task): Result<Unit>
     fun deleteTaskById(taskId: UUID): Result<Unit>
+    fun addMateToTask(taskId: UUID,mateId: UUID): Result<Unit>
+    fun deleteMateFromTask(taskId: UUID,mateId: UUID): Result<Unit>
+    fun editTask(taskId: UUID, updatedTask: Task): Result<Unit>
 }

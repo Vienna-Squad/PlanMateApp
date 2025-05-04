@@ -7,3 +7,9 @@ class ExceptionViewer : ItemViewer<PlanMateAppException> {
         println("\u001B[31m${item.message}\u001B[0m")
     }
 }
+
+class ExceptionViewerDemo : ItemViewer<Throwable> {
+    override fun view(item: Throwable) {
+        println("\u001B[31m${item.message}\u001B[0m")
+    }
+}

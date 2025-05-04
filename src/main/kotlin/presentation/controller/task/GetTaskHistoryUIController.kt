@@ -21,7 +21,9 @@ class GetTaskHistoryUIController(
         tryAndShowError {
             println("Enter task id:")
             val taskId = inputReader.getInput()
-            viewer.view(getTaskHistoryUseCase.invoke(UUID.fromString(taskId)))
+            tryUseCase(useCaseCall = {getTaskHistoryUseCase.invoke(UUID.fromString(taskId))}){
+                println("Task title updated successfully.")
+            }
         }
     }
 }

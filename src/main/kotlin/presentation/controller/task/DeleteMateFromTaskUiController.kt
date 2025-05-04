@@ -11,29 +11,28 @@ import org.koin.java.KoinJavaComponent.getKoin
 import java.util.*
 
 class DeleteMateFromTaskUiController(
-    private val deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase =  getKoin().get(),
+    private val deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase = getKoin().get(),
     private val stringInputReader: InputReader<String> = StringInputReader(),
     private val itemViewer: ItemViewer<String> = StringViewer()
 ) : UiController {
 
     override fun execute() {
-
-        tryAndShowError() {
-
+        tryAndShowError {
             println("enter your task id: ")
             val taskId = stringInputReader.getInput()
-            if(taskId.isEmpty())throw InvalidIdException(
+            if (taskId.isEmpty()) throw InvalidIdException(
                 "Task ID cannot be empty. Please provide a valid ID."
             )
-
             println("enter your mate id to remove: ")
             val mateId = stringInputReader.getInput()
-            if(mateId.isEmpty())throw InvalidIdException(
+            if (mateId.isEmpty()) throw InvalidIdException(
                 "Mate ID cannot be empty. Please provide a valid ID."
             )
-
-            deleteMateFromTaskUseCase(taskId = UUID.fromString( taskId), mate = UUID.fromString( mateId))
-            itemViewer.view("mate deleted from task successfully")
+            tryUseCase(useCaseCall = {
+                deleteMateFromTaskUseCase(taskId = UUID.fromString(taskId), mateId = UUID.fromString(mateId))
+            }) {
+                itemViewer.view("mate deleted from task successfully")
+            }
 
 
         }

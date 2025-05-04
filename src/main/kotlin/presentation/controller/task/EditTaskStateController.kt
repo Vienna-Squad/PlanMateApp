@@ -19,8 +19,9 @@ class EditTaskStateController(
             val taskId = inputReader.getInput()
             print("enter new state: ")
             val newState = inputReader.getInput()
-            editTaskStateUseCase(UUID.fromString( taskId), newState)
-            println("task #$taskId state changed to $newState")
+            tryUseCase(useCaseCall = {editTaskStateUseCase(UUID.fromString( taskId), newState)}){
+                println("task #$taskId state changed to $newState")
+            }
         }
     }
 }

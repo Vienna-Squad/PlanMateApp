@@ -7,7 +7,7 @@ import org.example.domain.FailedToCallLogException
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.GetProjectHistoryUseCase
@@ -21,11 +21,11 @@ class GetProjectHistoryUseCaseTest {
 
     lateinit var projectsRepository: ProjectsRepository
     lateinit var getProjectHistoryUseCase: GetProjectHistoryUseCase
-    lateinit var authRepository: AuthenticationRepository
+    lateinit var authRepository: AuthRepository
     lateinit var logsRepository: LogsRepository
 
-    val adminUser = User(username = "admin", hashedPassword = "123", type = UserType.ADMIN)
-    val mateUser = User(username = "mate", hashedPassword = "5466", type = UserType.MATE)
+    val adminUser = User(username = "admin", hashedPassword = "123", role = UserRole.ADMIN)
+    val mateUser = User(username = "mate", hashedPassword = "5466", role = UserRole.MATE)
 
     private val dummyProjects = listOf(
         Project(

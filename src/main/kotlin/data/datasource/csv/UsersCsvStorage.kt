@@ -1,20 +1,22 @@
-package data.storage
+package data.datasource.csv
 
-import org.example.data.storage.bases.EditableCsvStorage
+import org.example.data.bases.EditableCsvStorage
+import org.example.domain.NotFoundException
+import org.example.domain.entity.Task
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
+import org.example.domain.entity.UserRole
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 
-class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
+class UsersCsvStorage(file: File) : EditableCsvStorage<User>(file) {
 
     init {
         writeHeader(getHeaderString())
     }
 
     override fun toCsvRow(item: User): String {
-        return "${item.id},${item.username},${item.hashedPassword},${item.type},${item.cratedAt}\n"
+        return "${item.id},${item.username},${item.hashedPassword},${item.role},${item.cratedAt}\n"
     }
 
     override fun fromCsvRow(fields: List<String>): User {
@@ -23,7 +25,7 @@ class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
             id = UUID.fromString(fields[ID_INDEX]),
             username = fields[USERNAME_INDEX],
             hashedPassword = fields[PASSWORD_INDEX],
-            type = UserType.valueOf(fields[TYPE_INDEX]),
+            role = UserRole.valueOf(fields[TYPE_INDEX]),
             cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
         return user
@@ -31,6 +33,24 @@ class UserCsvStorage(file: File) :  EditableCsvStorage<User>(file) {
 
     override fun getHeaderString(): String {
         return CSV_HEADER
+    }
+
+    override fun updateItem(item: User) {
+        if (!file.exists()) throw NotFoundException("file")
+        val list = read().toMutableList()
+        val itemIndex = list.indexOfFirst { it.id == item.id }
+        if (itemIndex == -1) throw NotFoundException("$item")
+        list[itemIndex] = item
+        write(list)
+    }
+
+    override fun deleteItem(item: User) {
+        if (!file.exists()) throw NotFoundException("file")
+        val list = read().toMutableList()
+        val itemIndex = list.indexOfFirst { it.id == item.id }
+        if (itemIndex == -1) throw NotFoundException("$item")
+        list.removeAt(itemIndex)
+        write(list)
     }
 
     companion object {

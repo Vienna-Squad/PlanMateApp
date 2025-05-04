@@ -11,24 +11,21 @@ import org.koin.mp.KoinPlatform.getKoin
 import java.util.*
 
 class AddMateToProjectUiController(
-    private val addMateToProjectUseCase: AddMateToProjectUseCase= getKoin().get(),
+    private val addMateToProjectUseCase: AddMateToProjectUseCase = getKoin().get(),
     private val inputReader: InputReader<String> = StringInputReader(),
     private val stringViewer: ItemViewer<String> = StringViewer()
 ) : UiController {
     override fun execute() {
         tryAndShowError {
-            println("enter mate ID: ")
+            print("enter mate ID: ")
             val mateId = inputReader.getInput()
-            require(mateId.isNotBlank()) { throw InvalidIdException(
-                "Mate ID cannot be blank. Please provide a valid ID."
-            ) }
-            println("enter project ID: ")
+            require(mateId.isNotBlank()) { throw InvalidIdException("Mate ID cannot be blank. Please provide a valid ID.") }
+            print("enter project ID: ")
             val projectId = inputReader.getInput()
-            require(projectId.isNotBlank()) { throw InvalidIdException(
-                "Project ID cannot be blank. Please provide a valid ID."
-            ) }
-            addMateToProjectUseCase(UUID.fromString( projectId), UUID.fromString( mateId))
-            stringViewer.view("The Mate has been added successfully")
+            require(projectId.isNotBlank()) { throw InvalidIdException("Project ID cannot be blank. Please provide a valid ID.") }
+            addMateToProjectUseCase(UUID.fromString(projectId), UUID.fromString(mateId))
+                .onSuccess { stringViewer.view("mate #$mateId added successfully!!") }
+                .onFailure { throw it }
         }
 
     }

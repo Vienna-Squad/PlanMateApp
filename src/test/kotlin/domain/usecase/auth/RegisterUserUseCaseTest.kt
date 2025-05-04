@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import org.example.domain.RegisterException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.usecase.auth.RegisterUserUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
@@ -13,12 +13,12 @@ import kotlin.test.Test
 
 class RegisterUserUseCaseTest {
 
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
     lateinit var registerUserUseCase: RegisterUserUseCase
 
     @BeforeEach
     fun setUp() {
-        registerUserUseCase = RegisterUserUseCase(authenticationRepository)
+        registerUserUseCase = RegisterUserUseCase(authRepository)
     }
 
 
@@ -28,18 +28,18 @@ class RegisterUserUseCaseTest {
         val user = User(
             username = " Ah med ",
             hashedPassword = "123456789",
-            type = UserType.MATE
+            role = UserRole.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 username = "Ahmed",
                 hashedPassword = "234sdfg5hn",
-                type = UserType.ADMIN,
+                role = UserRole.ADMIN,
             )
         )
         // when & then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.type)
+            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
 
@@ -51,18 +51,18 @@ class RegisterUserUseCaseTest {
         val user = User(
             username = "AhmedNasser",
             hashedPassword = "1234",
-            type = UserType.MATE
+            role = UserRole.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 username = "Ahmed",
                 hashedPassword = "234sdfg5hn",
-                type = UserType.ADMIN,
+                role = UserRole.ADMIN,
             )
         )
         // when & then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.type)
+            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
     @Test
@@ -71,12 +71,12 @@ class RegisterUserUseCaseTest {
         val user = User(
             username = " Ah med ",
             hashedPassword = "1234",
-            type = UserType.MATE
+            role = UserRole.MATE
         )
 
         // when & then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.type)
+            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
 
@@ -89,34 +89,34 @@ class RegisterUserUseCaseTest {
         val user = User(
             username = "AhmedNaser7",
             hashedPassword = "12345678",
-            type = UserType.MATE
+            role = UserRole.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 username = "Ahmed",
                 hashedPassword = "234sdfg5hn",
-                type = UserType.ADMIN,
+                role = UserRole.ADMIN,
             )
         )
-        every { authenticationRepository.getAllUsers() } returns Result.success(
+        every { authRepository.getAllUsers() } returns Result.success(
             listOf(
                 User(
                     username = "MohamedSalah",
                     hashedPassword = "245G546dfgdfg5",
-                    type = UserType.MATE
+                    role = UserRole.MATE
                 ),
                 User(
                     username = "Marmosh",
                     hashedPassword = "245Gfdksfm653",
-                    type = UserType.MATE
+                    role = UserRole.MATE
                 )
             )
         )
-        every { authenticationRepository.createUser(any()) } returns Result.failure(RuntimeException(""))
+        every { authRepository.createUser(any()) } returns Result.failure(RuntimeException(""))
 
         // when&then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.type)
+            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
 
@@ -126,34 +126,34 @@ class RegisterUserUseCaseTest {
         val user = User(
             username = "AhmedNaser7",
             hashedPassword = "12345678",
-            type = UserType.MATE
+            role = UserRole.MATE
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 username = "Ahmed",
                 hashedPassword = "234sdfg5hn",
-                type = UserType.ADMIN,
+                role = UserRole.ADMIN,
             )
         )
-        every { authenticationRepository.getAllUsers() } returns Result.success(
+        every { authRepository.getAllUsers() } returns Result.success(
             listOf(
                 User(
                     username = "MohamedSalah",
                     hashedPassword = "245G546dfgdfg5",
-                    type = UserType.MATE
+                    role = UserRole.MATE
                 ),
                 User(
                     username = "Marmosh",
                     hashedPassword = "245Gfdksfm653",
-                    type = UserType.MATE
+                    role = UserRole.MATE
                 )
             )
         )
-        every { authenticationRepository.createUser(any()) } returns Result.success(Unit)
+        every { authRepository.createUser(any()) } returns Result.success(Unit)
 
 
         // when&then
-        registerUserUseCase.invoke(user.username, user.hashedPassword, user.type)
+        registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
     }
 
     @Test
@@ -162,34 +162,34 @@ class RegisterUserUseCaseTest {
         val user = User(
             username = "AhmedNaser7",
             hashedPassword = "12345678",
-            type = UserType.ADMIN
+            role = UserRole.ADMIN
         )
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 username = "Ahmed",
                 hashedPassword = "234sdfg5hn",
-                type = UserType.ADMIN,
+                role = UserRole.ADMIN,
             )
         )
-        every { authenticationRepository.getAllUsers() } returns Result.success(
+        every { authRepository.getAllUsers() } returns Result.success(
             listOf(
                 User(
                     username = "MohamedSalah",
                     hashedPassword = "245G546dfgdfg5",
-                    type = UserType.MATE
+                    role = UserRole.MATE
                 ),
                 User(
                     username = "Marmosh",
                     hashedPassword = "245Gfdksfm653",
-                    type = UserType.MATE
+                    role = UserRole.MATE
                 )
             )
         )
-        every { authenticationRepository.createUser(any()) } returns Result.success(Unit)
+        every { authRepository.createUser(any()) } returns Result.success(Unit)
 
 
         // when&then
-        registerUserUseCase.invoke(user.username, user.hashedPassword, user.type)
+        registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
     }
 
 

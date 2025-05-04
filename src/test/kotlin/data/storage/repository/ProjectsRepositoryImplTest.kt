@@ -3,8 +3,8 @@ package data.storage.repository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.storage.ProjectCsvStorage
-import org.example.data.storage.repository.ProjectsRepositoryImpl
+import org.example.data.datasource.csv.ProjectsCsvStorage
+import org.example.data.repository.ProjectsRepositoryImpl
 import org.example.domain.NotFoundException
 
 import org.example.domain.entity.Project
@@ -17,7 +17,7 @@ import kotlin.test.Test
 
 class ProjectsRepositoryImplTest {
     private lateinit var repository: ProjectsRepositoryImpl
-    private lateinit var storage: ProjectCsvStorage
+    private lateinit var storage: ProjectsCsvStorage
 
     private val project1 = Project(
         id = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),

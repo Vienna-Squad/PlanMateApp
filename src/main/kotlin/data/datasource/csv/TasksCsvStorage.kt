@@ -1,12 +1,14 @@
-package org.example.data.storage
+package org.example.data.datasource.csv
 
-import org.example.data.storage.bases.EditableCsvStorage
+import org.example.data.bases.EditableCsvStorage
+import org.example.domain.NotFoundException
+import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import java.io.File
 import java.time.LocalDateTime
 import java.util.UUID
 
-class TaskCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
+class TasksCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
 
     init {
         writeHeader(getHeaderString())
@@ -35,6 +37,24 @@ class TaskCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
 
     override fun getHeaderString(): String {
         return CSV_HEADER
+    }
+
+    override fun updateItem(item: Task) {
+        if (!file.exists()) throw NotFoundException("file")
+        val list = read().toMutableList()
+        val itemIndex = list.indexOfFirst { it.id == item.id }
+        if (itemIndex == -1) throw NotFoundException("$item")
+        list[itemIndex] = item
+        write(list)
+    }
+
+    override fun deleteItem(item: Task) {
+        if (!file.exists()) throw NotFoundException("file")
+        val list = read().toMutableList()
+        val itemIndex = list.indexOfFirst { it.id == item.id }
+        if (itemIndex == -1) throw NotFoundException("$item")
+        list.removeAt(itemIndex)
+        write(list)
     }
 
     companion object {

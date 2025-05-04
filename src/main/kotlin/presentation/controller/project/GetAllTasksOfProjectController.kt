@@ -14,9 +14,9 @@ class GetAllTasksOfProjectController(
     private val getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase = getKoin().get(),
     private val stringViewer: ItemViewer<String> = StringViewer(),
     private val inputReader: InputReader<String> = StringInputReader(),
-): UiController {
+) : UiController {
     override fun execute() {
-        tryAndShowError{
+        tryAndShowError {
             println("enter project ID: ")
             val projectId = inputReader.getInput()
             if (projectId.isBlank()) {
@@ -24,9 +24,13 @@ class GetAllTasksOfProjectController(
                     "Project ID cannot be blank. Please provide a valid ID."
                 )
             }
-            val tasks = getAllTasksOfProjectUseCase(
-                UUID.fromString( projectId))
-            stringViewer.view(tasks.toString())
+            tryUseCase(useCaseCall = {
+                getAllTasksOfProjectUseCase(
+                    UUID.fromString(projectId)
+                )
+            }) { tasks ->
+                stringViewer.view(tasks.toString())
+            }
         }
 
     }

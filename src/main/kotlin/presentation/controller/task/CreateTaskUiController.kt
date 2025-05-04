@@ -2,7 +2,7 @@ package org.example.presentation.controller.task
 
 import org.example.domain.UnknownException
 import org.example.domain.entity.Task
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.AuthRepository
 import org.example.domain.usecase.task.CreateTaskUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
@@ -12,7 +12,7 @@ import java.util.*
 
 class CreateTaskUiController(
     private val createTaskUseCase: CreateTaskUseCase=getKoin().get(),
-    private val authenticationRepository: AuthenticationRepository=getKoin().get(),
+    private val authRepository: AuthRepository=getKoin().get(),
     private val inputReader: InputReader<String> = StringInputReader()
 
 ) : UiController {
@@ -29,12 +29,12 @@ class CreateTaskUiController(
             }
             println("Enter project id: ")
             val projectId = inputReader.getInput()
-            val createdBy = authenticationRepository.getCurrentUser().getOrElse {
+            val createdBy = authRepository.getCurrentUser().getOrElse {
                 throw UnknownException(
                     "User not authenticated. Please log in to create a task."
                 )
             }
-            createTaskUseCase(
+            tryUseCase(useCaseCall = {createTaskUseCase(
                 Task(
                     title = taskTitle,
                     state = taskState,
@@ -42,8 +42,10 @@ class CreateTaskUiController(
                     createdBy =  createdBy.id,
                     projectId = UUID.fromString( projectId)
                 )
-            )
-            println("Task created successfully")
+            )}){
+                println("Task created successfully")
+            }
+
         }
     }
 }

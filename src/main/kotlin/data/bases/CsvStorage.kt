@@ -1,4 +1,4 @@
-package org.example.data.storage.bases
+package org.example.data.bases
 
 import data.storage.bases.Storage
 import java.io.File

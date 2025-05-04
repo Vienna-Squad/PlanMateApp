@@ -1,12 +1,7 @@
 package org.example.domain.usecase.auth
 
-import org.example.domain.NotFoundException
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.AuthRepository
 
-class LogoutUseCase(
-    private val authenticationRepository: AuthenticationRepository,
-) {
-    operator fun invoke() {
-        authenticationRepository.logout().getOrElse { throw NotFoundException("User Not Found") }
-    }
+class LogoutUseCase(private val authRepository: AuthRepository) {
+    operator fun invoke() = authRepository.logout()
 }

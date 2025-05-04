@@ -55,7 +55,7 @@ class DeletedLog(
     val deletedFrom: String? = null,
 ) : Log(username, affectedId, affectedType, dateTime) {
     override fun toString() =
-        "user $username ${ActionType.DELETED.name.lowercase()} ${affectedType.name.lowercase()} $affectedId ${if (deletedFrom != null) "from $deletedFrom" else ""} at $dateTime"
+        "user $username ${ActionType.DELETED.name.lowercase()} ${affectedType.name.lowercase()} $affectedId ${if (!deletedFrom.isNullOrBlank()) "from $deletedFrom" else ""} at $dateTime"
 }
 
 class CreatedLog(

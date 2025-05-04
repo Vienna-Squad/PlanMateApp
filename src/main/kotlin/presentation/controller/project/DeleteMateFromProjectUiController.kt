@@ -18,16 +18,20 @@ class DeleteMateFromProjectUiController(
     private val exceptionViewer: ItemViewer<PlanMateAppException> = ExceptionViewer(),
 ) : UiController {
     override fun execute() {
-        try {
+        tryAndShowError {
             print("enter project ID: ")
             val projectId = inputReader.getInput()
             print("enter mate ID: ")
             val mateId = inputReader.getInput()
-            deleteMateFromProjectUseCase(
-                UUID.fromString( projectId),UUID.fromString(  mateId))
-            stringViewer.view("the mate $mateId has been deleted from project $projectId.")
-        } catch (exception: PlanMateAppException) {
-            exceptionViewer.view(exception)
+            tryUseCase(useCaseCall = {
+                deleteMateFromProjectUseCase(
+                    UUID.fromString(projectId),
+                    UUID.fromString(mateId)
+                )
+            }) {
+                stringViewer.view("the mate $mateId has been deleted from project $projectId.")
+
+            }
         }
     }
 }

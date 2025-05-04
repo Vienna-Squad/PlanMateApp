@@ -8,7 +8,7 @@ import org.example.domain.FailedToAddLogException
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
@@ -22,7 +22,7 @@ class DeleteMateFromTaskUseCaseTest {
     lateinit var tasksRepository: TasksRepository
     lateinit var deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase
     lateinit var logsRepository: LogsRepository
-    lateinit var authRepository: AuthenticationRepository
+    lateinit var authRepository: AuthRepository
     val task = Task(
         title = "machine learning task",
         state = "in-progress",
@@ -35,14 +35,14 @@ class DeleteMateFromTaskUseCaseTest {
         id = UUID.randomUUID(),
         username = "admin",
         hashedPassword = "123",
-        type = UserType.ADMIN
+        role = UserRole.ADMIN
     )
 
     val mateUser = User(
         id = UUID.randomUUID(),
         username = "mate",
         hashedPassword = "5466",
-        type = UserType.MATE
+        role = UserRole.MATE
     )
 
     @BeforeEach

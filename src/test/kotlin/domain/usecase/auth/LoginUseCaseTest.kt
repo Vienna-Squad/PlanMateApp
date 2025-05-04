@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import org.example.domain.LoginException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.usecase.auth.LoginUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -14,12 +14,12 @@ import kotlin.test.Test
 
 class LoginUseCaseTest {
     companion object{
-        private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+        private val authRepository: AuthRepository = mockk(relaxed = true)
         lateinit var loginUseCase: LoginUseCase
         @BeforeAll
         @JvmStatic
         fun setUp() {
-            loginUseCase = LoginUseCase(authenticationRepository)
+            loginUseCase = LoginUseCase(authRepository)
         }
     }
 
@@ -27,7 +27,7 @@ class LoginUseCaseTest {
     @Test
     fun `invoke should throw LoginException when the user is not found in data`() {
         // given
-        every { authenticationRepository.login(any(), any()) } returns Result.failure(LoginException(""))
+        every { authRepository.login(any(), any()) } returns Result.failure(LoginException(""))
 
         // when & then
         assertThrows<LoginException> {
@@ -42,9 +42,9 @@ class LoginUseCaseTest {
         val expectedUser = User(
             username = "ahmed",
             hashedPassword = "8345bfbdsui",
-            type = UserType.MATE,
+            role = UserRole.MATE,
         )
-        every { authenticationRepository.login(any(), any()) } returns Result.success(expectedUser)
+        every { authRepository.login(any(), any()) } returns Result.success(expectedUser)
 
         // when
         val result = loginUseCase.invoke("Medo", "235657333")

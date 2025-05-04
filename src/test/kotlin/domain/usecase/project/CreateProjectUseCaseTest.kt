@@ -9,8 +9,8 @@ import org.example.domain.FailedToCreateProject
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.CreatedLog
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.CreateProjectUseCase
@@ -24,7 +24,7 @@ class CreateProjectUseCaseTest {
 
     lateinit var projectRepository: ProjectsRepository
     lateinit var createProjectUseCase: CreateProjectUseCase
-    lateinit var authRepository: AuthenticationRepository
+    lateinit var authRepository: AuthRepository
     lateinit var logsRepository: LogsRepository
 
     val name = "graduation project"
@@ -33,8 +33,8 @@ class CreateProjectUseCaseTest {
     val matesIds = listOf("1", "2", "3", "4", "5")
 
 
-    val adminUser = User(username = "admin", hashedPassword = "123", type = UserType.ADMIN)
-    val mateUser = User(username = "mate", hashedPassword = "5466", type = UserType.MATE)
+    val adminUser = User(username = "admin", hashedPassword = "123", role = UserRole.ADMIN)
+    val mateUser = User(username = "mate", hashedPassword = "5466", role = UserRole.MATE)
 
     @BeforeEach
     fun setUp() {

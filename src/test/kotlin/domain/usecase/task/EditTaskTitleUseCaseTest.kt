@@ -7,8 +7,8 @@ import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.EditTaskTitleUseCase
@@ -19,21 +19,21 @@ import java.util.*
 
 class EditTaskTitleUseCaseTest {
 
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     lateinit var editTaskTitleUseCase: EditTaskTitleUseCase
 
     @BeforeEach
     fun setUp() {
-        editTaskTitleUseCase = EditTaskTitleUseCase(authenticationRepository, tasksRepository, logsRepository)
+        editTaskTitleUseCase = EditTaskTitleUseCase(authRepository, tasksRepository, logsRepository)
     }
 
     @Test
     fun `invoke should throw NoTaskFoundException when there is no current user return failure`() {
         // Given
         val randomTaskId = UUID.randomUUID()
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
         // When & Then
         assertThrows<UnauthorizedException> {
@@ -46,12 +46,12 @@ class EditTaskTitleUseCaseTest {
         val randomTaskId = UUID.randomUUID()
         val randomUserId = UUID.randomUUID()
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 id = randomUserId,
                 username = "ahmed",
                 hashedPassword = "902865934",
-                type = UserType.MATE,
+                role = UserRole.MATE,
             )
         )
         every { tasksRepository.getAllTasks() } returns Result.failure(NotFoundException(""))
@@ -87,12 +87,12 @@ class EditTaskTitleUseCaseTest {
             )
         )
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 id = randomUserId,
                 username = "ahmed",
                 hashedPassword = "902865934",
-                type = UserType.MATE,
+                role = UserRole.MATE,
             )
         )
         every { tasksRepository.getAllTasks() } returns Result.success(tasks)
@@ -130,12 +130,12 @@ class EditTaskTitleUseCaseTest {
             )
         )
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 id = randomUserId,
                 username = "ahmed",
                 hashedPassword = "902865934",
-                type = UserType.MATE,
+                role = UserRole.MATE,
             )
         )
         every { tasksRepository.getAllTasks() } returns Result.success(tasks)
@@ -173,12 +173,12 @@ class EditTaskTitleUseCaseTest {
             )
         )
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 id = UUID.randomUUID(),
                 username = "Ahmed",
                 hashedPassword = "2342143",
-                type = UserType.MATE,
+                role = UserRole.MATE,
             )
         )
         every { tasksRepository.getAllTasks() } returns Result.success(tasks)
@@ -213,12 +213,12 @@ class EditTaskTitleUseCaseTest {
             )
         )
 
-        every { authenticationRepository.getCurrentUser() } returns Result.success(
+        every { authRepository.getCurrentUser() } returns Result.success(
             User(
                 id = UUID.randomUUID(),
                 username = "Ahmed",
                 hashedPassword = "2342143",
-                type = UserType.MATE,
+                role = UserRole.MATE,
             )
         )
         every { tasksRepository.getAllTasks() } returns Result.success(tasks)

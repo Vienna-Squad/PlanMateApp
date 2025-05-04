@@ -1,13 +1,13 @@
 package data.storage.repository
 
-import data.storage.UserCsvStorage
+import data.datasource.csv.UsersCsvStorage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.storage.repository.AuthenticationRepositoryImpl
+import org.example.data.repository.AuthRepositoryImpl
 import org.example.domain.NotFoundException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
+import org.example.domain.entity.UserRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.security.MessageDigest
@@ -17,14 +17,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AuthenticationRepositoryImplTest {
-    private lateinit var repository: AuthenticationRepositoryImpl
-    private lateinit var storage: UserCsvStorage
+    private lateinit var repository: AuthRepositoryImpl
+    private lateinit var storage: UsersCsvStorage
 
     private val user = User(
         id = UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
         username = "user1",
         hashedPassword = "pass1",
-        type = UserType.ADMIN,
+        role = UserRole.ADMIN,
         cratedAt = LocalDateTime.now()
     )
 
@@ -32,7 +32,7 @@ class AuthenticationRepositoryImplTest {
         id = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
         username = "user2",
         hashedPassword = "pass2",
-        type = UserType.MATE,
+        role = UserRole.MATE,
         cratedAt = LocalDateTime.now()
     )
 
@@ -40,7 +40,7 @@ class AuthenticationRepositoryImplTest {
     @BeforeEach
     fun setup() {
         storage = mockk(relaxed = true)
-        repository = AuthenticationRepositoryImpl(storage)
+        repository = AuthRepositoryImpl(storage)
     }
 
     @Test

@@ -1,15 +1,11 @@
-
-
-
 package org.example.presentation
 
-import org.example.domain.entity.Project
-import org.example.domain.entity.Task
 import org.example.presentation.App.MenuItem
 import org.example.presentation.controller.*
+import org.example.presentation.controller.auth.LoginUiController
+import org.example.presentation.controller.auth.RegisterUiController
 import org.example.presentation.controller.project.*
 import org.example.presentation.controller.task.*
-import org.example.presentation.utils.viewer.printSwimlanes
 
 data class Category(val name: String, val menuItems: List<MenuItem>)
 

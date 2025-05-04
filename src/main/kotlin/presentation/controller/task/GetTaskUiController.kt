@@ -12,17 +12,22 @@ import java.util.*
 
 
 class GetTaskUiController(
-    private val getTaskUseCase: GetTaskUseCase= getKoin().get(),
+    private val getTaskUseCase: GetTaskUseCase = getKoin().get(),
     private val inputReader: InputReader<String> = StringInputReader(),
 ) : UiController {
     override fun execute() {
         tryAndShowError {
             print("enter task ID: ")
             val taskId = inputReader.getInput()
-            require(taskId.isNotBlank()) {throw InvalidIdException(
-                "Task ID cannot be blank"
-            )}
-            println("Task retrieved: ${getTaskUseCase(UUID.fromString(taskId))}")
+            require(taskId.isNotBlank()) {
+                throw InvalidIdException(
+                    "Task ID cannot be blank"
+                )
+            }
+            tryUseCase(useCaseCall = { getTaskUseCase(UUID.fromString(taskId)) }) { task ->
+                println("Task retrieved: $taskId")
+            }
+
         }
     }
 }

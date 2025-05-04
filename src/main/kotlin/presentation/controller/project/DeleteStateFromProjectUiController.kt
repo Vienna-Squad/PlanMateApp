@@ -18,11 +18,14 @@ class DeleteStateFromProjectUiController(
             val projectId = inputReader.getInput()
             print("Enter state you want to delete: ")
             val stateToDelete = inputReader.getInput()
-            deleteStateFromProjectUseCase.invoke(
-                projectId = UUID.fromString(projectId),
-                state = stateToDelete
-            )
-            println("State deleted successfully")
+            tryUseCase(useCaseCall = {
+                deleteStateFromProjectUseCase.invoke(
+                    projectId = UUID.fromString(projectId),
+                    state = stateToDelete
+                )
+            }) {
+                println("State deleted successfully")
+            }
         }
     }
 }

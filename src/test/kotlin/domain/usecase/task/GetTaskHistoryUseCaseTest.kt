@@ -6,7 +6,7 @@ import io.mockk.mockk
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.usecase.task.GetTaskHistoryUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -17,7 +17,7 @@ import java.util.*
 
 class GetTaskHistoryUseCaseTest {
     private lateinit var logsRepository: LogsRepository
-    private lateinit var authenticationRepository: AuthenticationRepository
+    private lateinit var authRepository: AuthRepository
 
     private lateinit var getTaskHistoryUseCase: GetTaskHistoryUseCase
 
@@ -25,14 +25,14 @@ class GetTaskHistoryUseCaseTest {
     @BeforeEach
     fun setup() {
         logsRepository = mockk()
-        authenticationRepository = mockk(relaxed = true)
-        getTaskHistoryUseCase = GetTaskHistoryUseCase(authenticationRepository, logsRepository)
+        authRepository = mockk(relaxed = true)
+        getTaskHistoryUseCase = GetTaskHistoryUseCase(authRepository, logsRepository)
     }
 
     @Test
     fun `should throw UnauthorizedException given no logged-in user is found`() {
         // Given
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(Exception())
+        every { authRepository.getCurrentUser() } returns Result.failure(Exception())
         // When & Then
         assertThrows<UnauthorizedException> {
             getTaskHistoryUseCase(dummyTask.id)

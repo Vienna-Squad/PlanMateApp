@@ -4,14 +4,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.AccessDeniedException
-import org.example.domain.InvalidIdException
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.ChangedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.EditProjectNameUseCase
@@ -24,7 +23,7 @@ class EditProjectNameUseCaseTest {
     private lateinit var editProjectNameUseCase: EditProjectNameUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
-    private val authenticationRepository: AuthenticationRepository = mockk(relaxed = true)
+    private val authRepository: AuthRepository = mockk(relaxed = true)
     private val dummyProjects = listOf(
         Project(
             name = "E-Commerce Platform",
@@ -91,12 +90,12 @@ class EditProjectNameUseCaseTest {
     private val dummyAdmin = User(
         username = "admin1",
         hashedPassword = "adminPass123",
-        type = UserType.ADMIN
+        role = UserRole.ADMIN
     )
     private val dummyMate = User(
         username = "mate1",
         hashedPassword = "matePass456",
-        type = UserType.MATE
+        role = UserRole.MATE
     )
 
 
@@ -105,7 +104,7 @@ class EditProjectNameUseCaseTest {
         editProjectNameUseCase = EditProjectNameUseCase(
             projectsRepository,
             logsRepository,
-            authenticationRepository
+            authRepository
         )
     }
 
@@ -113,7 +112,7 @@ class EditProjectNameUseCaseTest {
     fun `should edit project name and add log when project exists`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(project.id) } returns Result.success(project)
         //when
         editProjectNameUseCase(project.id, "new name")
@@ -125,7 +124,7 @@ class EditProjectNameUseCaseTest {
     @Test
     fun `should throw UnauthorizedException when no logged in user found`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<UnauthorizedException> {
@@ -136,7 +135,7 @@ class EditProjectNameUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user is mate`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyMate)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyMate)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
@@ -147,7 +146,7 @@ class EditProjectNameUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user has not this project`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
@@ -158,7 +157,7 @@ class EditProjectNameUseCaseTest {
     @Test
     fun `should throw ProjectNotFoundException when project does not exist`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.failure(NotFoundException(""))
         //when && then
         assertThrows<NotFoundException> {
@@ -171,7 +170,7 @@ class EditProjectNameUseCaseTest {
     @Test
     fun `should not update or log when new name is the same old name`() {
         //given
-        every { authenticationRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.success(randomProject.copy(createdBy = dummyAdmin.id))
         //when
         editProjectNameUseCase(randomProject.id, randomProject.name)

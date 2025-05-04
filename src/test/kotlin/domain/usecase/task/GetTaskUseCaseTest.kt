@@ -5,8 +5,8 @@ import io.mockk.mockk
 import org.example.domain.*
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.UserRole
+import org.example.domain.repository.AuthRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.GetTaskUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,20 +21,20 @@ class GetTaskUseCaseTest {
 
         // Mock repositories
         private lateinit var tasksRepository: TasksRepository
-        private lateinit var authenticationRepository: AuthenticationRepository
+        private lateinit var authRepository: AuthRepository
         private lateinit var getTaskUseCase: GetTaskUseCase
 
         @BeforeEach
         fun setup() {
             tasksRepository = mockk(relaxed = true)
-            authenticationRepository = mockk(relaxed = true)
-            getTaskUseCase = GetTaskUseCase(tasksRepository, authenticationRepository)
+            authRepository = mockk(relaxed = true)
+            getTaskUseCase = GetTaskUseCase(tasksRepository, authRepository)
         }
 
         @Test
         fun `getTask should return task when user is admin regardless of assignment`() {
             // Given: Admin user and any task (even unassigned)
-            every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
+            every { authRepository.getCurrentUser() } returns Result.success(adminUser)
             every { tasksRepository.getTaskById(taskId) } returns Result.success(baseTask)
 
             // When
@@ -48,7 +48,7 @@ class GetTaskUseCaseTest {
         fun `getTask should return task when mate user is assigned to the task`() {
             // Given: Task is assigned to mate user
             val assignedTask = baseTask.copy(assignedTo = listOf(mateUserId))
-            every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
+            every { authRepository.getCurrentUser() } returns Result.success(mateUser)
             every { tasksRepository.getTaskById(taskId) } returns Result.success(assignedTask)
 
             // When
@@ -62,7 +62,7 @@ class GetTaskUseCaseTest {
         fun `getTask should return task when user is the creator of the task`() {
             // Given: Task was created by mate user
             val creatorTask = baseTask.copy(createdBy = mateUserId)
-            every { authenticationRepository.getCurrentUser() } returns Result.success(mateUser)
+            every { authRepository.getCurrentUser() } returns Result.success(mateUser)
             every { tasksRepository.getTaskById(taskId) } returns Result.success(creatorTask)
 
             // When
@@ -79,7 +79,7 @@ class GetTaskUseCaseTest {
                 createdBy = otherUserId,
                 assignedTo = listOf(otherUserId)
             )
-            every { authenticationRepository.getCurrentUser() } returns Result.success(strangerUser)
+            every { authRepository.getCurrentUser() } returns Result.success(strangerUser)
             every { tasksRepository.getTaskById(taskId) } returns Result.success(otherUserTask)
 
             // When & Then: Regular user can't access unrelated tasks
@@ -91,7 +91,7 @@ class GetTaskUseCaseTest {
         @Test
         fun `getTask should throw UnauthorizedException when authentication fails`() {
             // Given: Authentication fails
-            every { authenticationRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+            every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
             // When & Then: Should propagate authentication failure
             assertThrows<UnauthorizedException> {
@@ -102,7 +102,7 @@ class GetTaskUseCaseTest {
         @Test
         fun `getTask should throw NotFoundException when task doesn't exist`() {
             // Given: Task doesn't exist (but user is valid)
-            every { authenticationRepository.getCurrentUser() } returns Result.success(adminUser)
+            every { authRepository.getCurrentUser() } returns Result.success(adminUser)
             every { tasksRepository.getTaskById(taskId) } returns Result.failure(NotFoundException(""))
 
             // When & Then: Should propagate not found error
@@ -124,7 +124,7 @@ class GetTaskUseCaseTest {
         id = adminUserId,
         username = "admin1",
         hashedPassword = "hashedPass1",
-        type = UserType.ADMIN,
+        role = UserRole.ADMIN,
 
         )
 
@@ -132,14 +132,14 @@ class GetTaskUseCaseTest {
         id = mateUserId,
         username = "mate",
         hashedPassword = "hashedPass2",
-        type = UserType.MATE,
+        role = UserRole.MATE,
     )
 
     private val strangerUser = User(
         id = strangerUserId,
         username = "stranger",
         hashedPassword = "hashedPass3",
-        type = UserType.MATE,
+        role = UserRole.MATE,
     )
 
     // Base task
