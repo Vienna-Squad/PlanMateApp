@@ -42,13 +42,13 @@ fun createAdminUser() {
         val adminDoc = Document()
             .append("_id", adminId.toString())
             .append("uuid", adminId.toString())
-            .append("username", "admin1")
+            .append("username", "admin2")
             .append("hashedPassword", AuthRepositoryImpl.encryptPassword("12345678"))
             .append("role", UserRole.ADMIN.name)
             .append("createdAt", LocalDateTime.now().toString())
 
         collection.insertOne(adminDoc)
-        println("Created admin user: admin1 / 12345678")
+        println("Created admin user: admin2 / 12345678")
 
     } catch (e: Exception) {
         println("Error creating admin: ${e.message}")

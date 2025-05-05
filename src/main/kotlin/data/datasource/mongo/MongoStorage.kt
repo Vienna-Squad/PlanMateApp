@@ -3,12 +3,12 @@ package org.example.data.datasource.mongo
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.Document
-import org.example.data.datasource.local.LocalDataSource
+import org.example.data.datasource.remote.RemoteDataSource
 import org.example.domain.NotFoundException
 
 abstract class MongoStorage<T>(
     protected val collection: MongoCollection<Document>
-) : LocalDataSource<T> {
+) : RemoteDataSource<T> {
 
     abstract fun toDocument(item: T): Document
     abstract fun fromDocument(document: Document): T

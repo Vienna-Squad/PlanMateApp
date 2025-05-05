@@ -15,17 +15,19 @@ class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(
             .append("_id", item.id)
             .append("title", item.title)
             .append("state", item.state)
-            .append("assignedTo", item.assignedTo)
+            .append("assignedTo", item.assignedTo.map { it.toString() })
             .append("createdBy", item.createdBy)
             .append("createdAt", item.createdAt.toString())
             .append("projectId", item.projectId)
     }
 
     override fun fromDocument(document: Document): Task {
-        val assignedTo = document.getList("assignedTo", UUID::class.java) ?: emptyList()
+        val assignedToStrings = document.getList("assignedTo", String::class.java) ?: emptyList()
+        val assignedTo = assignedToStrings.map { UUID.fromString(it) }
+        val uuidStr = document.getString("uuid") ?: document.getString("_id")
 
         return Task(
-            id = document.get("_id", UUID::class.java),
+            id = UUID.fromString(uuidStr),
             title = document.get("title", String::class.java),
             state = document.get("state", String::class.java),
             assignedTo = assignedTo,
@@ -53,11 +55,18 @@ class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(
     }
 
     fun findByAssignedTo(userId: UUID): List<Task> {
-        // Fix: Using the proper syntax for finding tasks where userId is in the assignedTo array
-        val tasks = ArrayList<Task>()
-        collection.find(Filters.all("assignedTo", listOf(userId))).forEach { document ->
-            tasks.add(fromDocument(document))
+        val result = mutableListOf<Task>()
+        collection.find().forEach { document ->
+            try {
+                val assignedToStrings = document.getList("assignedTo", String::class.java) ?: emptyList()
+                if (assignedToStrings.contains(userId.toString())) {
+                    result.add(fromDocument(document))
+                }
+            } catch (e: Exception) {
+                println("Error checking task assignment: ${e.message}")
+            }
         }
-        return tasks
+
+        return result
     }
 }

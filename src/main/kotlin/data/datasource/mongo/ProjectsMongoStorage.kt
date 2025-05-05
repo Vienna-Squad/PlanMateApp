@@ -10,7 +10,6 @@ import java.util.*
 class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getCollection("Project")) {
 
     override fun toDocument(item: Project): Document {
-        // Convert all UUIDs to strings
         return Document()
             .append("_id", item.id.toString())
             .append("uuid", item.id.toString())
