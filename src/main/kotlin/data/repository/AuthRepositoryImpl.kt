@@ -3,7 +3,9 @@ package org.example.data.repository
 import org.example.common.Constants.PreferenceKeys.CURRENT_USER_ID
 import org.example.common.Constants.PreferenceKeys.CURRENT_USER_NAME
 import org.example.common.Constants.PreferenceKeys.CURRENT_USER_ROLE
+import org.example.data.datasource.local.LocalDataSource
 import org.example.data.datasource.local.preferences.CsvPreferences
+import org.example.data.datasource.remote.RemoteDataSource
 import org.example.data.utils.authSafeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
@@ -15,30 +17,31 @@ import java.security.MessageDigest
 import java.util.*
 
 class AuthRepositoryImpl(
-    //private val usersCsvStorage: UsersCsvStorage,
+    private val usersRemoteStorage: RemoteDataSource<User>,
+    private val usersLocalStorage: LocalDataSource<User>,
     private val preferences: CsvPreferences
 ) : AuthRepository {
     override fun storeUserData(userId: UUID, username: String, role: UserRole) =
-        usersCsvStorage.read().find { it.id == userId }?.let {
+        usersLocalStorage.getAll().find { it.id == userId }?.let {
             preferences.put(CURRENT_USER_ID, it.id.toString())
             preferences.put(CURRENT_USER_NAME, it.username)
             preferences.put(CURRENT_USER_ROLE, it.role.toString())
         } ?: throw NotFoundException("user")
 
-    override fun getAllUsers() = usersCsvStorage.read()
+    override fun getAllUsers() = usersLocalStorage.getAll()
 
     override fun createUser(user: User) = authSafeCall { currentUser ->
         if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
-        if (usersCsvStorage.read()
+        if (usersLocalStorage.getAll()
                 .any { it.id == user.id || it.username == user.username }
         ) throw AlreadyExistException()
-        usersCsvStorage.append(user.copy(hashedPassword = encryptPassword(user.hashedPassword)))
+        usersLocalStorage.add(user.copy(hashedPassword = encryptPassword(user.hashedPassword)))
     }
 
     override fun getCurrentUser() = authSafeCall { it }
 
     override fun getUserByID(userId: UUID) =
-        usersCsvStorage.read().find { it.id == userId } ?: throw NotFoundException("user")
+        usersLocalStorage.getAll().find { it.id == userId } ?: throw NotFoundException("user")
 
     override fun clearUserData() = preferences.clear()
 

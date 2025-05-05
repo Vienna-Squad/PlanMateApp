@@ -1,15 +1,14 @@
-package data.datasource.csv
+package data.datasource.local.csv
 
-import org.example.data.bases.EditableCsvStorage
+import org.example.data.datasource.local.csv.CsvStorage
 import org.example.domain.NotFoundException
-import org.example.domain.entity.Task
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 
-class UsersCsvStorage(file: File) : EditableCsvStorage<User>(file) {
+class UsersCsvStorage(file: File) : CsvStorage<User>(file) {
 
     init {
         writeHeader(getHeaderString())
@@ -35,18 +34,18 @@ class UsersCsvStorage(file: File) : EditableCsvStorage<User>(file) {
         return CSV_HEADER
     }
 
-    override fun updateItem(item: User) {
+    override fun update(item: User) {
         if (!file.exists()) throw NotFoundException("file")
-        val list = read().toMutableList()
+        val list = getAll().toMutableList()
         val itemIndex = list.indexOfFirst { it.id == item.id }
         if (itemIndex == -1) throw NotFoundException("$item")
         list[itemIndex] = item
         write(list)
     }
 
-    override fun deleteItem(item: User) {
+    override fun delete(item: User) {
         if (!file.exists()) throw NotFoundException("file")
-        val list = read().toMutableList()
+        val list = getAll().toMutableList()
         val itemIndex = list.indexOfFirst { it.id == item.id }
         if (itemIndex == -1) throw NotFoundException("$item")
         list.removeAt(itemIndex)

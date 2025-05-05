@@ -1,13 +1,12 @@
 package org.example.data.datasource.local.csv
 
-import org.example.data.bases.EditableCsvStorage
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Task
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
 
-class TasksCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
+class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
 
     init {
         writeHeader(getHeaderString())
@@ -21,7 +20,8 @@ class TasksCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
     override fun fromCsvRow(fields: List<String>): Task {
         require(fields.size == EXPECTED_COLUMNS) { "Invalid task data format: " }
         val assignedTo =
-            if (fields[ASSIGNED_TO_INDEX].isNotEmpty()) fields[ASSIGNED_TO_INDEX].split(MULTI_VALUE_SEPARATOR).map { UUID.fromString(it) } else emptyList()
+            if (fields[ASSIGNED_TO_INDEX].isNotEmpty()) fields[ASSIGNED_TO_INDEX].split(MULTI_VALUE_SEPARATOR)
+                .map { UUID.fromString(it) } else emptyList()
         val task = Task(
             id = UUID.fromString(fields[ID_INDEX]),
             title = fields[TITLE_INDEX],
@@ -38,18 +38,18 @@ class TasksCsvStorage(file: File) : EditableCsvStorage<Task>(file) {
         return CSV_HEADER
     }
 
-    override fun updateItem(item: Task) {
+    override fun update(item: Task) {
         if (!file.exists()) throw NotFoundException("file")
-        val list = read().toMutableList()
+        val list = getAll().toMutableList()
         val itemIndex = list.indexOfFirst { it.id == item.id }
         if (itemIndex == -1) throw NotFoundException("$item")
         list[itemIndex] = item
         write(list)
     }
 
-    override fun deleteItem(item: Task) {
+    override fun delete(item: Task) {
         if (!file.exists()) throw NotFoundException("file")
-        val list = read().toMutableList()
+        val list = getAll().toMutableList()
         val itemIndex = list.indexOfFirst { it.id == item.id }
         if (itemIndex == -1) throw NotFoundException("$item")
         list.removeAt(itemIndex)

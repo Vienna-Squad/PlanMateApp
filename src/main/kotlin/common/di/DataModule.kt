@@ -1,6 +1,6 @@
 package org.example.common.di
 
-import data.datasource.csv.UsersCsvStorage
+import data.datasource.local.csv.UsersCsvStorage
 import org.example.common.Constants
 import org.example.data.datasource.local.csv.LogsCsvStorage
 import org.example.data.datasource.local.csv.ProjectsCsvStorage

@@ -1,6 +1,6 @@
 package data.storage.repository
 
-import data.datasource.csv.UsersCsvStorage
+import data.datasource.local.csv.UsersCsvStorage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

@@ -23,18 +23,30 @@ abstract class CsvStorage<T>(val file: File) : LocalDataSource<T> {
             emptyList()
         }
     }
-    override fun add(item: T) {
+
+    override fun add(newItem: T) {
         if (!file.exists()) {
             file.createNewFile()
             writeHeader(getHeaderString())
         }
-        file.appendText(toCsvRow(item))
+        file.appendText(toCsvRow(newItem))
     }
+
     fun writeHeader(header: String) {
         if (!file.exists()) file.createNewFile()
         if (file.length() == 0L) {
             file.writeText(header)
         }
     }
+
+    fun write(items: List<T>) {
+        if (!file.exists()) file.createNewFile()
+        val str = StringBuilder()
+        items.forEach {
+            str.append(toCsvRow(it))
+        }
+        file.writeText(str.toString())
+    }
+
     protected abstract fun getHeaderString(): String
 }

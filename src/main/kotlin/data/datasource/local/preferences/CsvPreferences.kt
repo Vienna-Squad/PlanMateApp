@@ -1,25 +1,41 @@
 package org.example.data.datasource.local.preferences
 
-import org.example.data.bases.EditableCsvStorage
+import org.example.data.datasource.local.csv.CsvStorage
 import java.io.File
+import java.io.FileNotFoundException
 
-class CsvPreferences(file: File) : EditableCsvStorage<Pair<String, String>>(file) {
+class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file) {
     private val map: MutableMap<String, String> = mutableMapOf()
-
-    fun put(key: String, value: String) {
-        updateItem(Pair(key, value))
-    }
-
     fun get(key: String): String? = map[key]
+    fun put(key: String, value: String) {
+        map[key] = value
+        add(Pair(key, value))
+    }
 
     fun remove(key: String) {
-        deleteItem(Pair(key, ""))
+        delete(Pair(key, ""))
     }
+
 
     fun clear() {
         map.clear()
-        write(emptyList())
+        if (!file.exists()) throw FileNotFoundException("file")
+        file.writeText("")
     }
+
+
+    override fun update(updatedItem: Pair<String, String>) {
+        map[updatedItem.first] = updatedItem.second
+        val listOfPairs = map.map { Pair(it.key, it.value) }.toList()
+        write(listOfPairs)
+    }
+
+    override fun delete(item: Pair<String, String>) {
+        map.remove(item.first)
+        val listOfPairs = map.map { Pair(it.key, it.value) }.toList()
+        write(listOfPairs)
+    }
+
 
     override fun toCsvRow(item: Pair<String, String>): String {
         return "${item.first},${item.second}\n"
@@ -32,15 +48,4 @@ class CsvPreferences(file: File) : EditableCsvStorage<Pair<String, String>>(file
     override fun getHeaderString(): String {
         return "key,value\n"
     }
-
-    override fun updateItem(item: Pair<String, String>) {
-        map[item.first] = item.second
-        write(map.map { Pair(it.key, it.value) })
-    }
-
-    override fun deleteItem(item: Pair<String, String>) {
-        map.remove(item.first)
-        write(map.map { Pair(it.key, it.value) })
-    }
-
 }

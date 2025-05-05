@@ -105,6 +105,10 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
         return CSV_HEADER
     }
 
+    override fun delete(item: Log) {}
+
+    override fun update(updatedItem: Log) {}
+
     companion object {
         private const val ACTION_TYPE_INDEX = 0
         private const val USERNAME_INDEX = 1
