@@ -1,8 +1,8 @@
 package org.example.data.utils
 
 import org.example.common.Constants
-import org.example.data.datasource.local.csv.CsvStorage
-import org.example.data.datasource.local.preferences.CsvPreferences
+import org.example.data.datasource.local.LocalDataSource
+import org.example.data.datasource.local.preferences.Preference
 import org.example.domain.PlanMateAppException
 import org.example.domain.UnauthorizedException
 import org.example.domain.UnknownException
@@ -11,8 +11,8 @@ import org.koin.mp.KoinPlatform
 import java.util.*
 
 fun <T> authSafeCall(
-    usersCsvStorage: CsvStorage<User> = KoinPlatform.getKoin().get(),
-    preferences: CsvPreferences = KoinPlatform.getKoin().get(),
+    usersCsvStorage: LocalDataSource<User> = KoinPlatform.getKoin().get(),
+    preferences: Preference = KoinPlatform.getKoin().get(),
     bloc: (user: User) -> T
 ): T {
     return try {

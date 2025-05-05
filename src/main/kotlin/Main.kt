@@ -4,6 +4,7 @@ import common.di.appModule
 import common.di.useCasesModule
 import org.example.common.di.dataModule
 import org.example.common.di.repositoryModule
+import org.example.domain.entity.User
 import org.example.presentation.AuthApp
 import org.koin.core.context.GlobalContext.startKoin
 

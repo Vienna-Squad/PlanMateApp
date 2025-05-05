@@ -1,8 +1,7 @@
 package org.example.data.repository
 
 import org.example.data.datasource.local.LocalDataSource
-import org.example.data.datasource.local.preferences.CsvPreferences
-import org.example.data.datasource.remote.RemoteDataSource
+import org.example.data.datasource.local.preferences.Preference
 import org.example.data.utils.authSafeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
@@ -12,9 +11,9 @@ import org.example.domain.repository.TasksRepository
 import java.util.*
 
 class TasksRepositoryImpl(
-    private val tasksRemoteStorage: RemoteDataSource<Task>,
+    //private val tasksRemoteStorage: RemoteDataSource<Task>,
     private val tasksLocalStorage: LocalDataSource<Task>,
-    private val preferences: CsvPreferences
+    private val preferences: Preference
 ) : TasksRepository {
     override fun getTaskById(taskId: UUID) = authSafeCall { currentUser ->
         tasksLocalStorage.getAll().find { it.id == taskId }?.let { task ->

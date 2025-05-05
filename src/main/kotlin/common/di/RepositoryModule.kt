@@ -10,10 +10,9 @@ import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.koin.dsl.module
 
-
 val repositoryModule = module {
-        single<LogsRepository> { LogsRepositoryImpl(get()) }
-        single<ProjectsRepository> { ProjectsRepositoryImpl(get()) }
-        single<TasksRepository> { TasksRepositoryImpl(get()) }
-        single<AuthRepository> { AuthRepositoryImpl(get(),get()) }
-    }
+    single<LogsRepository> { LogsRepositoryImpl(get(), get()) }
+    single<ProjectsRepository> { ProjectsRepositoryImpl(get(), get()) }
+    single<TasksRepository> { TasksRepositoryImpl(get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+}

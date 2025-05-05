@@ -4,20 +4,17 @@ import org.example.data.datasource.local.csv.CsvStorage
 import java.io.File
 import java.io.FileNotFoundException
 
-class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file) {
+class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file), Preference {
     private val map: MutableMap<String, String> = mutableMapOf()
-    fun get(key: String): String? = map[key]
-    fun put(key: String, value: String) {
+    override fun get(key: String): String? = map[key]
+    override fun put(key: String, value: String) {
         map[key] = value
         add(Pair(key, value))
     }
-
-    fun remove(key: String) {
+    override fun remove(key: String) {
         delete(Pair(key, ""))
     }
-
-
-    fun clear() {
+    override fun clear() {
         map.clear()
         if (!file.exists()) throw FileNotFoundException("file")
         file.writeText("")
@@ -35,7 +32,6 @@ class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file) {
         val listOfPairs = map.map { Pair(it.key, it.value) }.toList()
         write(listOfPairs)
     }
-
 
     override fun toCsvRow(item: Pair<String, String>): String {
         return "${item.first},${item.second}\n"

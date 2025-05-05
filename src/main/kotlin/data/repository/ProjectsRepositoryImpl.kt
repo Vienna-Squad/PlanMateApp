@@ -1,8 +1,7 @@
 package org.example.data.repository
 
 import org.example.data.datasource.local.LocalDataSource
-import org.example.data.datasource.local.preferences.CsvPreferences
-import org.example.data.datasource.remote.RemoteDataSource
+import org.example.data.datasource.local.preferences.Preference
 import org.example.data.utils.authSafeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
@@ -13,9 +12,9 @@ import org.example.domain.repository.ProjectsRepository
 import java.util.*
 
 class ProjectsRepositoryImpl(
-    private val projectsRemoteStorage: RemoteDataSource<Project>,
+    //private val projectsRemoteStorage: RemoteDataSource<Project>,
     private val projectsLocalStorage: LocalDataSource<Project>,
-    private val preferences: CsvPreferences
+    private val preferences: Preference
 ) : ProjectsRepository {
     override fun getProjectById(projectId: UUID) = authSafeCall { currentUser ->
         projectsLocalStorage.getAll().find { it.id == projectId }?.let { project ->

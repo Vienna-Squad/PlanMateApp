@@ -1,5 +1,6 @@
 package org.example.presentation
 
+import org.example.domain.usecase.auth.CreateUserUseCase
 import org.example.presentation.controller.ExitUiController
 import org.example.presentation.controller.SoonUiController
 import org.example.presentation.controller.UiController
@@ -28,6 +29,7 @@ abstract class App(val menuItems: List<MenuItem>) {
 class AuthApp : App(
     menuItems = listOf(
         MenuItem("Log In", LoginUiController()),
+        MenuItem("Register", RegisterUiController()),
         MenuItem("Exit Application", ExitUiController())
     )
 )
