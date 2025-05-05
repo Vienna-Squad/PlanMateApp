@@ -24,7 +24,6 @@ fun main() {
     AuthApp().run()
 }
 
-// Add this to your main.kt file
 fun createAdminUser() {
     println("Creating admin user...")
     try {
