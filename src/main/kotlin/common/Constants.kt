@@ -6,6 +6,7 @@ object Constants {
         const val ADMIN_APP = "ADMIN_APP"
         const val MATE_APP = "MATE_APP"
     }
+
     object Files {
         const val PREFERENCES_FILE_NAME = "preferences.csv"
         const val LOGS_FILE_NAME = "logs.csv"
