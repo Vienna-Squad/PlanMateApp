@@ -6,7 +6,7 @@ import org.example.domain.RegisterException
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import org.example.domain.repository.AuthRepository
-import org.example.domain.usecase.auth.RegisterUserUseCase
+import org.example.domain.usecase.auth.CreateUserUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
@@ -14,11 +14,11 @@ import kotlin.test.Test
 class RegisterUserUseCaseTest {
 
     private val authRepository: AuthRepository = mockk(relaxed = true)
-    lateinit var registerUserUseCase: RegisterUserUseCase
+    lateinit var createUserUseCase: CreateUserUseCase
 
     @BeforeEach
     fun setUp() {
-        registerUserUseCase = RegisterUserUseCase(authRepository)
+        createUserUseCase = CreateUserUseCase(authRepository)
     }
 
 
@@ -39,7 +39,7 @@ class RegisterUserUseCaseTest {
         )
         // when & then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
+            createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
 
@@ -62,7 +62,7 @@ class RegisterUserUseCaseTest {
         )
         // when & then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
+            createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
     @Test
@@ -76,7 +76,7 @@ class RegisterUserUseCaseTest {
 
         // when & then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
+            createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
 
@@ -116,7 +116,7 @@ class RegisterUserUseCaseTest {
 
         // when&then
         assertThrows<RegisterException> {
-            registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
+            createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }
 
@@ -153,7 +153,7 @@ class RegisterUserUseCaseTest {
 
 
         // when&then
-        registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
+        createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
     }
 
     @Test
@@ -189,7 +189,7 @@ class RegisterUserUseCaseTest {
 
 
         // when&then
-        registerUserUseCase.invoke(user.username, user.hashedPassword, user.role)
+        createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
     }
 
 

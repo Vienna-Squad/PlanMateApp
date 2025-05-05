@@ -4,7 +4,5 @@ import org.example.domain.repository.TasksRepository
 import java.util.*
 
 class GetAllTasksOfProjectUseCase(private val tasksRepository: TasksRepository) {
-    operator fun invoke(projectId: UUID) = tasksRepository.getAllTasks().onSuccess { tasks ->
-        tasks.filter { task -> task.projectId == projectId }
-    }
+    operator fun invoke(projectId: UUID) = tasksRepository.getAllTasks().filter { task -> task.projectId == projectId }
 }

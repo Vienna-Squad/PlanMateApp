@@ -19,7 +19,8 @@ class ProjectsRepositoryImpl(
         } ?: throw NotFoundException("project")
     }
 
-    override fun getAllProjects() = safeCall { projectsCsvStorage.read() }
+    override fun getAllProjects() =
+        safeCall { projectsCsvStorage.read().ifEmpty { throw NotFoundException("projects") } }
 
     override fun addMateToProject(projectId: UUID, mateId: UUID) = authSafeCall { currentUser ->
         projectsCsvStorage.read().find { it.id == projectId }?.let { project ->

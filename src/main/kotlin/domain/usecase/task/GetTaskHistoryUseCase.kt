@@ -8,7 +8,5 @@ import java.util.*
 class GetTaskHistoryUseCase(
     private val logsRepository: LogsRepository = getKoin().get()
 ) {
-    operator fun invoke(taskId: UUID): Result<List<Log>> {
-        return logsRepository.getAllLogs(taskId)
-    }
+    operator fun invoke(taskId: UUID) = logsRepository.getAllLogs(taskId)
 }

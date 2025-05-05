@@ -12,19 +12,29 @@ abstract class Repository(
     private val usersCsvStorage: UsersCsvStorage = KoinPlatform.getKoin().get(),
     private val preferences: CsvPreferences = KoinPlatform.getKoin().get()
 ) {
-    fun <T> authSafeCall(bloc: (user: User) -> T): Result<T> {
-        return runCatching {
+    fun <T> authSafeCall(bloc: (user: User) -> T): T {
+        return preferences.get(Constants.PreferenceKeys.CURRENT_USER_ID)?.let { userId ->
+            usersCsvStorage.read().find { it.id == UUID.fromString(userId) }?.let { user ->
+                bloc(user)
+            } ?: throw UnauthorizedException()
+        } ?: throw UnauthorizedException()
+        /*return try {
             preferences.get(Constants.PreferenceKeys.CURRENT_USER_ID)?.let { userId ->
                 usersCsvStorage.read().find { it.id == UUID.fromString(userId) }?.let { user ->
                     bloc(user)
                 } ?: throw UnauthorizedException()
             } ?: throw UnauthorizedException()
-        }
+        } catch (exception: Exception) {
+            throw exception
+        }*/
     }
 
-    fun <T> safeCall(bloc: () -> T): Result<T> {
-        return runCatching {
+    fun <T> safeCall(bloc: () -> T): T {
+        return bloc()
+        /*return try {
             bloc()
-        }
+        } catch (exception: Exception) {
+            throw exception
+        }*/
     }
 }

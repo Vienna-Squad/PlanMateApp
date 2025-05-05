@@ -117,6 +117,6 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
         private const val EXPECTED_COLUMNS = 7
 
         private const val CSV_HEADER =
-            "ActionType,username,affectedId,affectedType,dateTime,changedFrom,changedTo\n"
+            "ActionType,username,affectedId,affectedType,dateTime,from,to\n"
     }
 }

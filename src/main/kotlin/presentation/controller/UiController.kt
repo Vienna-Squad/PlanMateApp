@@ -1,12 +1,12 @@
 package org.example.presentation.controller
 
-import org.example.presentation.utils.viewer.ExceptionViewerDemo
+import org.example.presentation.utils.viewer.ExceptionViewer
 import org.example.presentation.utils.viewer.ItemViewer
 
 interface UiController {
     fun execute()
     fun tryAndShowError(
-        exceptionViewer: ItemViewer<Throwable> = ExceptionViewerDemo(),
+        exceptionViewer: ItemViewer<Throwable> = ExceptionViewer(),
         bloc: () -> Unit,
     ) {
         try {

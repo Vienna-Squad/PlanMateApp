@@ -11,4 +11,16 @@ data class Task(
     val createdBy: UUID,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val projectId: UUID,
-)
+){
+    override fun toString(): String {
+        return """
+            Task ID: $id
+            Title: $title
+            State: $state
+            Assigned To: ${assignedTo.joinToString(", ")}
+            Created By: $createdBy
+            Created At: $createdAt
+            Project ID: $projectId
+        """.trimIndent()
+    }
+}

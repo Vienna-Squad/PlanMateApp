@@ -101,11 +101,7 @@ class DeleteMateFromProjectUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        deleteMateFromProjectUseCase = DeleteMateFromProjectUseCase(
-            projectsRepository,
-            logsRepository,
-            authRepository
-        )
+        deleteMateFromProjectUseCase = DeleteMateFromProjectUseCase(projectsRepository)
     }
 
     @Test

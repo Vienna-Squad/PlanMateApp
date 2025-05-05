@@ -3,12 +3,17 @@ package org.example.domain.repository
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.util.UUID
+import javax.management.relation.Role
 
 interface AuthRepository {
-    fun login(username: String, password: String): Result<UserRole>
-    fun getAllUsers(): Result<List<User>>
-    fun createUser(user: User): Result<Unit>
-    fun getCurrentUser(): Result<User>
-    fun getUserByID(userId: UUID): Result<User>
-    fun logout(): Result<Unit>
+    fun storeUserData(
+        userId: UUID,
+        username: String,
+        role: UserRole
+    )
+    fun getAllUsers(): List<User>
+    fun createUser(user: User)
+    fun getCurrentUser(): User?
+    fun getUserByID(userId: UUID): User
+    fun clearUserData()
 }

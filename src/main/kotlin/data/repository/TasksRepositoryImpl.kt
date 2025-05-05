@@ -19,7 +19,7 @@ class TasksRepositoryImpl(
         } ?: throw NotFoundException("task")
     }
 
-    override fun getAllTasks() = safeCall { tasksCsvStorage.read() }
+    override fun getAllTasks() = safeCall { tasksCsvStorage.read().ifEmpty { throw NotFoundException("tasks") } }
 
     override fun addTask(title: String, state: String, projectId: UUID) = authSafeCall { currentUser ->
         tasksCsvStorage.append(
