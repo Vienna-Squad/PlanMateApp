@@ -9,21 +9,25 @@ import org.example.domain.UnknownException
 import org.example.domain.entity.User
 import org.koin.mp.KoinPlatform
 import java.util.*
+import org.example.data.datasource.mongo.MongoPreferences
+import org.example.data.datasource.mongo.UsersMongoStorage
+
 
 fun <T> authSafeCall(
-    usersCsvStorage: CsvStorage<User> = KoinPlatform.getKoin().get(),
-    preferences: CsvPreferences = KoinPlatform.getKoin().get(),
+    usersStorage: UsersMongoStorage = KoinPlatform.getKoin().get(),
+    preferences: MongoPreferences = KoinPlatform.getKoin().get(),
     bloc: (user: User) -> T
 ): T {
     return try {
         preferences.get(Constants.PreferenceKeys.CURRENT_USER_ID)?.let { userId ->
-            usersCsvStorage.getAll().find { it.id == UUID.fromString(userId) }?.let { user ->
+            usersStorage.getAll().find { it.id == UUID.fromString(userId) }?.let { user ->
                 bloc(user)
             } ?: throw UnauthorizedException()
         } ?: throw UnauthorizedException()
     } catch (planMateException: PlanMateAppException) {
         throw planMateException
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         throw UnknownException()
     }
 }
@@ -33,7 +37,8 @@ fun <T> safeCall(bloc: () -> T): T {
         bloc()
     } catch (planMateException: PlanMateAppException) {
         throw planMateException
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         throw UnknownException()
     }
 }

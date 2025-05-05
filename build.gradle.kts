@@ -103,6 +103,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("com.google.truth:truth:1.4.2")
+    // MongoDB driver
+    implementation("org.mongodb:mongodb-driver-sync:4.9.1")
+
+    // Kotlin serialization for MongoDB (optional but helpful)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }
 
 tasks.test {
