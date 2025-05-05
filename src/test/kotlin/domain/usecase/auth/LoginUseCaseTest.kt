@@ -1,7 +1,9 @@
 package domain.usecase.auth
 
+import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import org.example.data.repository.AuthRepositoryImpl.Companion.encryptPassword
 import org.example.domain.LoginException
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class LoginUseCaseTest {
     companion object{
@@ -25,33 +29,69 @@ class LoginUseCaseTest {
 
 
     @Test
-    fun `invoke should throw LoginException when the user is not found in data`() {
+    fun `invoke should return false when users storage is empty`() {
         // given
-        every { authRepository.login(any(), any()) } returns Result.failure(LoginException(""))
+        every { authRepository.getAllUsers() } returns emptyList()
 
         // when & then
-        assertThrows<LoginException> {
-            loginUseCase.invoke(username = "Medo", password = "235657333")
-        }
+        val result = loginUseCase.invoke(username = "Ahmed", password = "12345678")
+        assertFalse { result }
+    }
+
+    @Test
+    fun `invoke should return false when user not in users storage`() {
+        // given
+        every { authRepository.getAllUsers() } returns listOf(User(
+            username = "ahmed",
+            hashedPassword = encryptPassword("12345678"),
+            role = UserRole.MATE,
+        ))
+
+        // when & then
+        val result = loginUseCase.invoke(username = "Mohamed Magdy", password = "1345433")
+        assertFalse { result }
     }
 
 
     @Test
-    fun `invoke should return user model when the user is found in storage`() {
+    fun `invoke should return true when the user is found in storage`() {
         // given
-        val expectedUser = User(
+        every { authRepository.getAllUsers() } returns listOf(User(
             username = "ahmed",
-            hashedPassword = "8345bfbdsui",
+            hashedPassword = encryptPassword("12345678"),
             role = UserRole.MATE,
-        )
-        every { authRepository.login(any(), any()) } returns Result.success(expectedUser)
+        ))
 
         // when
-        val result = loginUseCase.invoke("Medo", "235657333")
+        val result = loginUseCase.invoke("ahmed", "12345678")
 
         // then
-        assertEquals(expectedUser, result)
+        assertTrue { result }
     }
+
+    @Test
+    fun `getCurrentUserIfLoggedIn invoke should return user when user is logged in`() {
+        // given
+        val loggedUser = User(
+            username = "ahmed",
+            hashedPassword = encryptPassword("12345678"),
+            role = UserRole.MATE,
+        )
+        every { authRepository.getCurrentUser() } returns User(
+            username = "ahmed",
+            hashedPassword = encryptPassword("12345678"),
+            role = UserRole.MATE,
+        )
+
+        // when
+        val currentUser = loginUseCase.getCurrentUserIfLoggedIn()
+
+        //then
+        assertEquals(loggedUser.username,currentUser?.username)
+        assertEquals(loggedUser.hashedPassword,currentUser?.hashedPassword)
+    }
+
+
 
 
 

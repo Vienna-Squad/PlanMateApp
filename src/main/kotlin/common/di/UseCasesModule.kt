@@ -30,5 +30,5 @@ val useCasesModule = module {
     single { AddMateToTaskUseCase(get()) }
     single { DeleteMateFromTaskUseCase(get()) }
     single { EditTaskStateUseCase(get()) }
-    single { EditTaskTitleUseCase(get()) }
+    single { EditTaskTitleUseCase(get(),get(),get()) }
 }

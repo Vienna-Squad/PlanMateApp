@@ -26,9 +26,13 @@ class LoginUiController(
             val username = input.getInput()
             print("Please enter the password: ")
             val password = input.getInput()
-            if (username.isBlank() || password.isBlank()) throw InvalidInputException("Username and password must not be empty.")
-            loginUseCase(username, password)
+
+            if (username.isBlank() || password.isBlank())
+                throw InvalidInputException("Username and password must not be empty.")
+
+            if (loginUseCase(username, password))
             viewer.view("You have successfully logged in.\n")
+
             loginUseCase.getCurrentUserIfLoggedIn()?.role.let { role ->
                 if (role == UserRole.ADMIN) {
                     adminApp.run()

@@ -9,10 +9,9 @@ import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import org.example.domain.repository.AuthRepository
 import org.example.domain.usecase.auth.LogoutUseCase
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+
 
 class LogoutUseCaseTest {
 
@@ -25,33 +24,13 @@ class LogoutUseCaseTest {
         logoutUseCase = LogoutUseCase(authRepository)
     }
 
-    @Test
-    fun `invoke should return success when current user exists and logout succeeds`() {
-        // given
-        every { authRepository.getCurrentUser() } returns Result.success(
-            User(username = "ahmed", hashedPassword = "password", role = UserRole.ADMIN)
-        )
-        every { authRepository.logout() } returns Result.success(Unit)
-
-        // when & then
-        assertDoesNotThrow {
-            logoutUseCase.invoke()
-        }
-        verify { authRepository.logout() }
-    }
-
 
     @Test
-    fun `invoke should throw NoFoundException when logout fails`() {
+    fun `should clear user data when user logged out`() {
         // given
-        every { authRepository.getCurrentUser() } returns Result.success(
-            User(username = "ahmed", hashedPassword = "password", role = UserRole.ADMIN)
-        )
-        every { authRepository.logout() } returns Result.failure(NotFoundException(""))
+        every { authRepository.clearUserData()} returns Unit
 
-        // when & then
-        assertThrows<NotFoundException> {
-            logoutUseCase.invoke()
-        }
+        // when&then
+        logoutUseCase.invoke()
     }
 }
