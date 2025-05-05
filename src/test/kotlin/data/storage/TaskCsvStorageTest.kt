@@ -2,7 +2,7 @@ package data.storage
 
 import org.junit.jupiter.api.assertThrows
 import com.google.common.truth.Truth.assertThat
-import org.example.data.datasource.csv.TasksCsvStorage
+import org.example.data.datasource.local.csv.TasksCsvStorage
 import org.example.domain.entity.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

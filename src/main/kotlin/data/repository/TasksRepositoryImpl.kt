@@ -1,17 +1,17 @@
 package org.example.data.repository
 
-import org.example.data.datasource.csv.TasksCsvStorage
+import org.example.data.datasource.local.csv.TasksCsvStorage
+import org.example.data.utils.authSafeCall
 import org.example.domain.AccessDeniedException
+import org.example.domain.AlreadyExistException
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Task
-import org.example.data.repository.Repository
-import org.example.domain.AlreadyExistException
 import org.example.domain.repository.TasksRepository
-import java.util.UUID
+import java.util.*
 
 class TasksRepositoryImpl(
     private val tasksCsvStorage: TasksCsvStorage
-) : Repository(), TasksRepository {
+) : TasksRepository {
     override fun getTaskById(taskId: UUID) = authSafeCall { currentUser ->
         tasksCsvStorage.read().find { it.id == taskId }?.let { task ->
             if (task.createdBy != currentUser.id && currentUser.id !in task.assignedTo) throw AccessDeniedException()
@@ -19,7 +19,7 @@ class TasksRepositoryImpl(
         } ?: throw NotFoundException("task")
     }
 
-    override fun getAllTasks() = safeCall { tasksCsvStorage.read().ifEmpty { throw NotFoundException("tasks") } }
+    override fun getAllTasks() = authSafeCall{ tasksCsvStorage.read().ifEmpty { throw NotFoundException("tasks") } }
 
     override fun addTask(title: String, state: String, projectId: UUID) = authSafeCall { currentUser ->
         tasksCsvStorage.append(

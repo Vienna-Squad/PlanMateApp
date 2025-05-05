@@ -3,7 +3,7 @@ package data.storage.repository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.datasource.csv.ProjectsCsvStorage
+import org.example.data.datasource.local.csv.ProjectsCsvStorage
 import org.example.data.repository.ProjectsRepositoryImpl
 import org.example.domain.NotFoundException
 

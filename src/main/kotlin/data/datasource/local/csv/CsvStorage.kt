@@ -1,13 +1,13 @@
-package org.example.data.bases
+package org.example.data.datasource.local.csv
 
-import data.storage.bases.Storage
+import org.example.data.datasource.local.LocalDataSource
 import java.io.File
 import java.io.FileNotFoundException
 
-abstract class CsvStorage<T>(val file: File) : Storage<T> {
+abstract class CsvStorage<T>(val file: File) : LocalDataSource<T> {
     abstract fun toCsvRow(item: T): String
     abstract fun fromCsvRow(fields: List<String>): T
-    override fun read(): List<T> {
+    override fun getAll(): List<T> {
         if (!file.exists()) throw FileNotFoundException()
         val lines = file.readLines()
 
@@ -23,21 +23,18 @@ abstract class CsvStorage<T>(val file: File) : Storage<T> {
             emptyList()
         }
     }
-
-    override fun append(item: T) {
+    override fun add(item: T) {
         if (!file.exists()) {
             file.createNewFile()
             writeHeader(getHeaderString())
         }
         file.appendText(toCsvRow(item))
     }
-
     fun writeHeader(header: String) {
         if (!file.exists()) file.createNewFile()
         if (file.length() == 0L) {
             file.writeText(header)
         }
     }
-
     protected abstract fun getHeaderString(): String
 }

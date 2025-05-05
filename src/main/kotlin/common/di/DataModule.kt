@@ -2,10 +2,10 @@ package org.example.common.di
 
 import data.datasource.csv.UsersCsvStorage
 import org.example.common.Constants
-import org.example.data.datasource.csv.LogsCsvStorage
-import org.example.data.datasource.csv.ProjectsCsvStorage
-import org.example.data.datasource.csv.TasksCsvStorage
-import org.example.data.datasource.preferences.CsvPreferences
+import org.example.data.datasource.local.csv.LogsCsvStorage
+import org.example.data.datasource.local.csv.ProjectsCsvStorage
+import org.example.data.datasource.local.csv.TasksCsvStorage
+import org.example.data.datasource.local.preferences.CsvPreferences
 import org.koin.dsl.module
 import java.io.File
 

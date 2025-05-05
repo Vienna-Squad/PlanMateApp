@@ -1,4 +1,4 @@
-package org.example.data.datasource.preferences
+package org.example.data.datasource.local.preferences
 
 import org.example.data.bases.EditableCsvStorage
 import java.io.File

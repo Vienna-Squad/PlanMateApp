@@ -9,6 +9,7 @@ interface ProjectsRepository {
     fun addMateToProject(projectId: UUID, mateId: UUID)
     fun addStateToProject(projectId: UUID, state: String)
     fun addProject(name: String)
+    fun updateProject(updatedProject: Project)
     fun editProjectName(projectId: UUID, name: String)
     fun deleteMateFromProject(projectId: UUID, mateId: UUID)
     fun deleteProjectById(projectId: UUID)

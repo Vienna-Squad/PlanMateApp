@@ -1,4 +1,4 @@
-package org.example.data.datasource.csv
+package org.example.data.datasource.local.csv
 
 import org.example.data.bases.EditableCsvStorage
 import org.example.domain.NotFoundException

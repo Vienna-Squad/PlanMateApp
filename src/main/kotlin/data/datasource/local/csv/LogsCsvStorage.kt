@@ -1,6 +1,6 @@
-package org.example.data.datasource.csv
+package org.example.data.datasource.local.csv
 
-import org.example.data.bases.CsvStorage
+import org.example.data.datasource.local.csv.CsvStorage
 import org.example.domain.entity.*
 import org.example.domain.entity.Log.ActionType
 import org.example.domain.entity.Log.AffectedType

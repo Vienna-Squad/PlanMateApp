@@ -1,6 +1,7 @@
 package org.example.data.repository
 
-import org.example.data.datasource.csv.ProjectsCsvStorage
+import org.example.data.datasource.local.csv.ProjectsCsvStorage
+import org.example.data.utils.authSafeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
@@ -11,7 +12,7 @@ import java.util.*
 
 class ProjectsRepositoryImpl(
     private val projectsCsvStorage: ProjectsCsvStorage,
-) : Repository(), ProjectsRepository {
+) : ProjectsRepository {
     override fun getProjectById(projectId: UUID) = authSafeCall { currentUser ->
         projectsCsvStorage.read().find { it.id == projectId }?.let { project ->
             if (project.createdBy != currentUser.id) throw AccessDeniedException()
@@ -19,8 +20,7 @@ class ProjectsRepositoryImpl(
         } ?: throw NotFoundException("project")
     }
 
-    override fun getAllProjects() =
-        safeCall { projectsCsvStorage.read().ifEmpty { throw NotFoundException("projects") } }
+    override fun getAllProjects() = projectsCsvStorage.read().ifEmpty { throw NotFoundException("projects") }
 
     override fun addMateToProject(projectId: UUID, mateId: UUID) = authSafeCall { currentUser ->
         projectsCsvStorage.read().find { it.id == projectId }?.let { project ->
@@ -28,6 +28,11 @@ class ProjectsRepositoryImpl(
             if (mateId in project.matesIds) throw AlreadyExistException()
             projectsCsvStorage.updateItem(project.copy(matesIds = project.matesIds + mateId))
         } ?: throw NotFoundException("project")
+    }
+
+    override fun updateProject(updatedProject: Project) = authSafeCall { currentUser ->
+        if (updatedProject.createdBy == currentUser.id) throw AccessDeniedException()
+        projectsCsvStorage.updateItem(updatedProject)
     }
 
     override fun addStateToProject(projectId: UUID, state: String) = authSafeCall { currentUser ->
@@ -47,6 +52,7 @@ class ProjectsRepositoryImpl(
             )
         )
     }
+
 
     override fun editProjectName(projectId: UUID, name: String) = authSafeCall { currentUser ->
         projectsCsvStorage.read().find { it.id == projectId }?.let { project ->

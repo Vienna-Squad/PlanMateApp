@@ -1,6 +1,7 @@
 .gradle
 build/
 .idea
+.csv
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/bauild/
 !**/src/test/**/build/

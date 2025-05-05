@@ -9,4 +9,4 @@ class AccessDeniedException(message: String = "Access denied!!") : PlanMateAppEx
 class NotFoundException(type: String = "NotFound!!") : PlanMateAppException("No $type found.")
 class InvalidInputException(message: String = "InvalidInput!!") : PlanMateAppException(message)
 class AlreadyExistException(message: String = "Already exist!!") : PlanMateAppException(message)
-class UnknownException(message: String = "UnknownException!!") : PlanMateAppException(message)
+class UnknownException() : PlanMateAppException("Something went wrong.")
