@@ -2,9 +2,9 @@ package org.example.domain.usecase.auth
 
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 
-class CreateUserUseCase(private val authRepository: AuthRepository) {
+class CreateUserUseCase(private val usersRepository: UsersRepository) {
     operator fun invoke(username: String, password: String, role: UserRole) =
-        authRepository.createUser(User(username = username, hashedPassword = password, role = role))
+        usersRepository.createUser(User(username = username, hashedPassword = password, role = role))
 }

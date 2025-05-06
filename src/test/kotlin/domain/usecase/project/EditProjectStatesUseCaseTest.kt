@@ -10,7 +10,7 @@ import org.example.domain.entity.ChangedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.ProjectsRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ class EditProjectStatesUseCaseTest {
     private lateinit var editProjectStatesUseCase: EditProjectStatesUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
-    private val authRepository: AuthRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
     private val dummyProjects = listOf(
         Project(
             name = "E-Commerce Platform",
@@ -103,7 +103,7 @@ class EditProjectStatesUseCaseTest {
         editProjectStatesUseCase = EditProjectStatesUseCase(
             projectsRepository,
             logsRepository,
-            authRepository
+            usersRepository
         )
     }
 
@@ -111,7 +111,7 @@ class EditProjectStatesUseCaseTest {
     fun `should add ChangedLog when project states are updated`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
-        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { usersRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(project.id) } returns Result.success(project)
         //when
         editProjectStatesUseCase(project.id, listOf("new state 1", "new state 2"))
@@ -123,7 +123,7 @@ class EditProjectStatesUseCaseTest {
     fun `should edit project states when project exists`() {
         //given
         val project = randomProject.copy(createdBy = dummyAdmin.id)
-        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { usersRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(project.id) } returns Result.success(project)
         //when
         editProjectStatesUseCase(project.id, listOf("new state 1", "new state 2"))
@@ -141,7 +141,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw UnauthorizedException when no logged in user found`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.failure(
+        every { usersRepository.getCurrentUser() } returns Result.failure(
             UnauthorizedException("")
         )
         //when && then
@@ -153,7 +153,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user is mate`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(dummyMate)
+        every { usersRepository.getCurrentUser() } returns Result.success(dummyMate)
         //when && then
         assertThrows<AccessDeniedException> {
             editProjectStatesUseCase(randomProject.id, listOf("new state 1", "new state 2"))
@@ -163,7 +163,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user has not this project`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { usersRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.success(randomProject)
         //when && then
         assertThrows<AccessDeniedException> {
@@ -174,7 +174,7 @@ class EditProjectStatesUseCaseTest {
     @Test
     fun `should throw ProjectNotFoundException when project does not exist`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(dummyAdmin)
+        every { usersRepository.getCurrentUser() } returns Result.success(dummyAdmin)
         every { projectsRepository.getProjectById(randomProject.id) } returns Result.failure(NotFoundException(""))
         //when && then
         assertThrows<NotFoundException> {

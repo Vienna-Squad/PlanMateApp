@@ -6,8 +6,8 @@ import common.di.useCasesModule
 import org.bson.Document
 import org.example.common.di.dataModule
 import org.example.common.di.repositoryModule
-import org.example.data.datasource.mongo.MongoConfig
-import org.example.data.repository.AuthRepositoryImpl
+import org.example.data.datasource.remote.mongo.MongoConfig
+import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.entity.UserRole
 import org.example.presentation.AuthApp
 import org.koin.core.context.GlobalContext.startKoin
@@ -17,10 +17,7 @@ import java.util.UUID
 fun main() {
     println("Hello, PlanMate!")
     startKoin { modules(appModule, useCasesModule, repositoryModule, dataModule) }
-
-    // Create admin user
     createAdminUser()
-
     AuthApp().run()
 }
 
@@ -42,7 +39,7 @@ fun createAdminUser() {
             .append("_id", adminId.toString())
             .append("uuid", adminId.toString())
             .append("username", "admin2")
-            .append("hashedPassword", AuthRepositoryImpl.encryptPassword("12345678"))
+            .append("hashedPassword", UsersRepositoryImpl.encryptPassword("12345678"))
             .append("role", UserRole.ADMIN.name)
             .append("createdAt", LocalDateTime.now().toString())
 

@@ -1,14 +1,13 @@
-package org.example.data.datasource.mongo
+package org.example.data.datasource.remote.mongo
 
 
-import com.mongodb.client.model.Filters
 import org.bson.Document
+import org.example.common.Constants.MongoCollections.PROJECTS_COLLECTION
 import org.example.domain.entity.Project
 import java.time.LocalDateTime
 import java.util.*
 
-class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getCollection("Project")) {
-
+class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getCollection(PROJECTS_COLLECTION)) {
     override fun toDocument(item: Project): Document {
         return Document()
             .append("_id", item.id.toString())
@@ -19,7 +18,6 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
             .append("createdAt", item.cratedAt.toString())
             .append("matesIds", item.matesIds.map { it.toString() })
     }
-
     override fun fromDocument(document: Document): Project {
         val states = document.getList("states", String::class.java) ?: emptyList()
         val matesIdsStrings = document.getList("matesIds", String::class.java) ?: emptyList()
@@ -36,16 +34,5 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
             cratedAt = LocalDateTime.parse(document.getString("createdAt")),
             matesIds = matesIds
         )
-    }
-
-    fun findByCreatedBy(userId: UUID): List<Project> {
-        return collection.find(Filters.eq("createdBy", userId))
-            .map { fromDocument(it) }
-            .toList()
-    }
-
-    fun findByProjectId(projectId: UUID): Project? {
-        val document = collection.find(Filters.eq("_id", projectId)).first()
-        return document?.let { fromDocument(it) }
     }
 }

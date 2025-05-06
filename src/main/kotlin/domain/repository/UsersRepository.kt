@@ -3,9 +3,8 @@ package org.example.domain.repository
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.util.UUID
-import javax.management.relation.Role
 
-interface AuthRepository {
+interface UsersRepository {
     fun storeUserData(
         userId: UUID,
         username: String,

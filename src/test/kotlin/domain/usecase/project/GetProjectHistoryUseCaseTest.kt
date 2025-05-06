@@ -7,7 +7,7 @@ import org.example.domain.FailedToCallLogException
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.GetProjectHistoryUseCase
@@ -21,7 +21,7 @@ class GetProjectHistoryUseCaseTest {
 
     lateinit var projectsRepository: ProjectsRepository
     lateinit var getProjectHistoryUseCase: GetProjectHistoryUseCase
-    lateinit var authRepository: AuthRepository
+    lateinit var usersRepository: UsersRepository
     lateinit var logsRepository: LogsRepository
 
     val adminUser = User(username = "admin", hashedPassword = "123", role = UserRole.ADMIN)
@@ -116,15 +116,15 @@ class GetProjectHistoryUseCaseTest {
     @BeforeEach
     fun setUp() {
         projectsRepository = mockk()
-        authRepository = mockk()
+        usersRepository = mockk()
         logsRepository = mockk()
-        getProjectHistoryUseCase = GetProjectHistoryUseCase(projectsRepository, authRepository, logsRepository)
+        getProjectHistoryUseCase = GetProjectHistoryUseCase(projectsRepository, usersRepository, logsRepository)
     }
 
     @Test
     fun `should throw UnauthorizedException when user is not logged in`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { usersRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
         //when & then
         assertThrows<UnauthorizedException> {
@@ -136,7 +136,7 @@ class GetProjectHistoryUseCaseTest {
     fun `should throw AccessDeniedException when current user is admin but not owner of the project`() {
         //given
         val newAdmin = adminUser.copy(id = UUID.randomUUID())
-        every { authRepository.getCurrentUser() } returns Result.success(newAdmin)
+        every { usersRepository.getCurrentUser() } returns Result.success(newAdmin)
         every { projectsRepository.getProjectById(dummyProjects[2].id) } returns Result.success(dummyProjects[2])
 
         //when & then
@@ -148,7 +148,7 @@ class GetProjectHistoryUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when current user is mate but not belong to project`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(mateUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(mateUser)
         every { projectsRepository.getProjectById(dummyProjects[1].id) } returns Result.success(dummyProjects[1])
 
         //when & then
@@ -160,7 +160,7 @@ class GetProjectHistoryUseCaseTest {
     @Test
     fun `should throw NoProjectFoundException when project not found`() {
         // given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(UUID.fromString("not-found-id")) } returns Result.failure(NotFoundException(""))
 
         //when &then
@@ -173,7 +173,7 @@ class GetProjectHistoryUseCaseTest {
     @Test
     fun `should return list of logs when project history exists `() {
         // given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
         every { logsRepository.getAllLogs() } returns Result.success(dummyLogs)
 
@@ -188,7 +188,7 @@ class GetProjectHistoryUseCaseTest {
     @Test
     fun `should throw FailedToAddLogException when loading project history fails`() {
         // given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(dummyProjects[0].id) } returns Result.success(dummyProjects[0])
         every { logsRepository.getAllLogs() } returns Result.failure(FailedToCallLogException(""))
 

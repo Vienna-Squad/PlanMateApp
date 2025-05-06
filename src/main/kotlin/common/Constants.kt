@@ -20,4 +20,18 @@ object Constants {
         const val CURRENT_USER_NAME = "CURRENT_USER_NAME"
         const val CURRENT_USER_ROLE = "CURRENT_USER_ROLE"
     }
+
+    object MongoCollections {
+        const val LOGS_COLLECTION = "LOGS_COLLECTION"
+        const val TASKS_COLLECTION = "TASKS_COLLECTION"
+        const val PROJECTS_COLLECTION = "PROJECTS_COLLECTION"
+        const val USERS_COLLECTION = "USERS_COLLECTION"
+    }
+
+    object NamedDataSources {
+        const val LOGS_DATA_SOURCE = "LOGS_DATA_SOURCE"
+        const val TASKS_DATA_SOURCE = "TASKS_DATA_SOURCE"
+        const val PROJECTS_DATA_SOURCE = "PROJECTS_DATA_SOURCE"
+        const val USERS_DATA_SOURCE = "USERS_DATA_SOURCE"
+    }
 }

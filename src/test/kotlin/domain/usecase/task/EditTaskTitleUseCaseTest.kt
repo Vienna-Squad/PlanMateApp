@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.entity.Task
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.EditTaskTitleUseCase
@@ -15,14 +15,14 @@ import java.util.UUID
 
 class EditTaskTitleUseCaseTest {
 
-    private val authRepository: AuthRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     lateinit var editTaskTitleUseCase: EditTaskTitleUseCase
 
     @BeforeEach
     fun setUp() {
-        editTaskTitleUseCase = EditTaskTitleUseCase(authRepository, tasksRepository, logsRepository)
+        editTaskTitleUseCase = EditTaskTitleUseCase(usersRepository, tasksRepository, logsRepository)
     }
 
     @Test
@@ -59,7 +59,7 @@ class EditTaskTitleUseCaseTest {
 
         editTaskTitleUseCase.invoke(taskId = task.id , title = "School Library" )
 
-        verify { authRepository.getCurrentUser() }
+        verify { usersRepository.getCurrentUser() }
 
     }
     @Test

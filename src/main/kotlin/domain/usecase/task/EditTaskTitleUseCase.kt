@@ -2,15 +2,14 @@ package org.example.domain.usecase.task
 
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.ChangedLog
-import org.example.domain.entity.Log
 import org.example.domain.entity.Log.AffectedType
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
 import java.util.*
 
 class EditTaskTitleUseCase(
-    private val authRepository: AuthRepository,
+    private val usersRepository: UsersRepository,
     private val tasksRepository: TasksRepository,
     private val logsRepository: LogsRepository
 ) {
@@ -22,7 +21,7 @@ class EditTaskTitleUseCase(
             )
             task.title
         }.let { taskTitle ->
-            val user = authRepository.getCurrentUser() ?: throw UnauthorizedException()
+            val user = usersRepository.getCurrentUser() ?: throw UnauthorizedException()
             logsRepository.addLog(
                 ChangedLog(
                     username = user.username,

@@ -10,7 +10,7 @@ import org.example.domain.UnauthorizedException
 import org.example.domain.entity.CreatedLog
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.CreateProjectUseCase
@@ -24,7 +24,7 @@ class CreateProjectUseCaseTest {
 
     lateinit var projectRepository: ProjectsRepository
     lateinit var createProjectUseCase: CreateProjectUseCase
-    lateinit var authRepository: AuthRepository
+    lateinit var usersRepository: UsersRepository
     lateinit var logsRepository: LogsRepository
 
     val name = "graduation project"
@@ -40,16 +40,16 @@ class CreateProjectUseCaseTest {
     fun setUp() {
 
         projectRepository = mockk(relaxed = true)
-        authRepository = mockk(relaxed = true)
+        usersRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
-        createProjectUseCase = CreateProjectUseCase(projectRepository, authRepository, logsRepository)
+        createProjectUseCase = CreateProjectUseCase(projectRepository, usersRepository, logsRepository)
 
     }
 
     @Test
     fun `should throw UnauthorizedException when user is not logged in`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { usersRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
         //when & then
         assertThrows<UnauthorizedException> {
@@ -60,7 +60,7 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when current user is not admin`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(mateUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(mateUser)
 
         //when & then
         assertThrows<AccessDeniedException> {
@@ -71,7 +71,7 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should add project when current user is admin and data is valid`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
 
         // when
         createProjectUseCase(name)
@@ -90,7 +90,7 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should throw FailedToCreateProject when project addition fails`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectRepository.addProject(any()) } returns Result.failure(FailedToCreateProject(""))
 
         //when & then
@@ -102,7 +102,7 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should log project creation when user is admin and added project successfully`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
 
         // when
         createProjectUseCase(name)
@@ -120,7 +120,7 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should throw FailedToAddLogException when logging the project creation fails`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { logsRepository.addLog(any()) } returns Result.failure(FailedToAddLogException(""))
 
         //when & then

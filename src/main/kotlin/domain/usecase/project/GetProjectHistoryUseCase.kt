@@ -6,5 +6,5 @@ import java.util.*
 class GetProjectHistoryUseCase(
     private val logsRepository: LogsRepository
 ) {
-    operator fun invoke(projectId: UUID) = logsRepository.getAllLogs(projectId)
+    operator fun invoke(projectId: UUID) = logsRepository.getAllLogs().filter { it.affectedId == projectId }
 }

@@ -10,7 +10,7 @@ import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.project.GetAllTasksOfProjectUseCase
@@ -25,12 +25,12 @@ class GetAllTasksOfProjectUseCaseTest {
     private lateinit var getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
-    private val authRepository: AuthRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         getAllTasksOfProjectUseCase =
-            GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository, authRepository)
+            GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository, usersRepository)
     }
 
     @Test
@@ -44,7 +44,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val task3 = createTestTask(title = "Task 3", projectId = UUID.randomUUID())
         val allTasks = listOf(task1, task2, task3)
 
-        every { authRepository.getCurrentUser() } returns Result.success(user)
+        every { usersRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.success(allTasks)
 
@@ -66,7 +66,7 @@ class GetAllTasksOfProjectUseCaseTest {
             createTestTask(title = "Task 2", projectId = projectId)
         )
 
-        every { authRepository.getCurrentUser() } returns Result.success(user)
+        every { usersRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.success(allTasks)
 
@@ -82,7 +82,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val nonExistentProjectId = UUID.randomUUID()
         val user = createTestUser(id = UUID.randomUUID())
 
-        every { authRepository.getCurrentUser() } returns Result.success(user)
+        every { usersRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(nonExistentProjectId) } returns Result.failure(InvalidIdException(""))
 
         // When & Then
@@ -98,7 +98,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val user = createTestUser(id = UUID.randomUUID())
         val project = createTestProject(id = projectId, createdBy = user.id)
 
-        every { authRepository.getCurrentUser() } returns Result.success(user)
+        every { usersRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.failure(NotFoundException(""))
 
@@ -113,7 +113,7 @@ class GetAllTasksOfProjectUseCaseTest {
         // Given
         val projectId = UUID.randomUUID()
 
-        every { authRepository.getCurrentUser() } returns Result.failure(NotFoundException(""))
+        every { usersRepository.getCurrentUser() } returns Result.failure(NotFoundException(""))
 
         // When & Then
         assertThrows<UnauthorizedException> {
@@ -128,7 +128,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val user = createTestUser(id = UUID.randomUUID())
         val project = createTestProject(id = projectId, createdBy = UUID.randomUUID(), matesIds = listOf("user-456").map { UUID.fromString(it) })
 
-        every { authRepository.getCurrentUser() } returns Result.success(user)
+        every { usersRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
         // When & Then
@@ -146,7 +146,7 @@ class GetAllTasksOfProjectUseCaseTest {
         val task1 = createTestTask(title = "Task 1", projectId = projectId)
         val task2 = createTestTask(title = "Task 2", projectId = projectId)
 
-        every { authRepository.getCurrentUser() } returns Result.success(user)
+        every { usersRepository.getCurrentUser() } returns Result.success(user)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { tasksRepository.getAllTasks() } returns Result.success(listOf(task1, task2))
 

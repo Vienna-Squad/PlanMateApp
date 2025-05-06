@@ -1,4 +1,4 @@
-package org.example.data.datasource.mongo
+package org.example.data.datasource.remote.mongo
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
@@ -13,7 +13,6 @@ import org.bson.codecs.pojo.PojoCodecProvider
 object MongoConfig {
     private const val CONNECTION_STRING = "mongodb+srv://mohamedessampd:mFacTfNc0ggBD7Rr@cluster0.qycv0.mongodb.net/sample_mflix?retryWrites=true&w=majority"
     private const val DATABASE_NAME = "mates_hq_db"
-
     val client: MongoClient by lazy {
         val pojoCodecRegistry = CodecRegistries.fromProviders(
             PojoCodecProvider.builder().automatic(true).build()
@@ -32,7 +31,6 @@ object MongoConfig {
 
         MongoClients.create(settings)
     }
-
     val database: MongoDatabase by lazy {
         client.getDatabase(DATABASE_NAME)
     }
