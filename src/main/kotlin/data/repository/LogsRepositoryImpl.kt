@@ -6,8 +6,6 @@ import org.example.data.datasource.remote.RemoteDataSource
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Log
 import org.example.domain.repository.LogsRepository
-import org.koin.core.qualifier.named
-import org.koin.mp.KoinPlatform.getKoin
 
 class LogsRepositoryImpl(
     private val logsRemoteDataSource: RemoteDataSource<Log>,

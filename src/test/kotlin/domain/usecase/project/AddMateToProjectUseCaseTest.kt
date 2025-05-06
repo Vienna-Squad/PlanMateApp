@@ -48,7 +48,7 @@ class AddMateToProjectUseCaseTest {
         states = listOf("ToDo", "InProgress"),
         createdBy =adminUser.id,
         matesIds = emptyList(),
-        cratedAt = LocalDateTime.now()
+        createdAt = LocalDateTime.now()
     )
 
     @BeforeEach

@@ -25,7 +25,7 @@ class ProjectsRepositoryImplTest {
         states = listOf("ToDo", "InProgress"),
         createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440002"),
         matesIds = emptyList(),
-        cratedAt = LocalDateTime.now()
+        createdAt = LocalDateTime.now()
     )
 
     private val project2 = Project(
@@ -34,7 +34,7 @@ class ProjectsRepositoryImplTest {
         states = listOf("Done"),
         createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440003"),
         matesIds = emptyList(),
-        cratedAt = LocalDateTime.now()
+        createdAt = LocalDateTime.now()
     )
 
     @BeforeEach

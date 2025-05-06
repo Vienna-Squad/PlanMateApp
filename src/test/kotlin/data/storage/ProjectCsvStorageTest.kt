@@ -43,7 +43,7 @@ class ProjectCsvStorageTest {
             name = "Test Project",
             states = listOf("TODO", "In Progress", "Done"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
-            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-01T10:00:00"),
             matesIds = listOf(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"), UUID.fromString("550e8400-e29b-41d4-a716-446655440003"))
         )
 
@@ -70,7 +70,7 @@ class ProjectCsvStorageTest {
             name = "Empty Project",
             states = emptyList(),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
-            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-01T10:00:00"),
             matesIds = emptyList()
         )
 
@@ -94,7 +94,7 @@ class ProjectCsvStorageTest {
             name = "Project 1",
             states = listOf("TODO", "Done"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440005"),
-            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-01T10:00:00"),
             matesIds = listOf(UUID.fromString("550e8400-e29b-41d4-a716-446655440006"))
         )
 
@@ -103,7 +103,7 @@ class ProjectCsvStorageTest {
             name = "Project 2",
             states = listOf("Backlog", "In Progress", "Testing", "Released"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440008"),
-            cratedAt = LocalDateTime.parse("2023-01-02T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-02T10:00:00"),
             matesIds = listOf(UUID.fromString("550e8400-e29b-41d4-a716-446655440009"), UUID.fromString("550e8400-e29b-41d4-a716-446655440010"))
         )
 
@@ -125,7 +125,7 @@ class ProjectCsvStorageTest {
             name = "Project 1",
             states = listOf("TODO", "Done"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440005"),
-            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-01T10:00:00"),
             matesIds = listOf(UUID.fromString("550e8400-e29b-41d4-a716-446655440006"))
         )
 
@@ -134,7 +134,7 @@ class ProjectCsvStorageTest {
             name = "Project 2",
             states = listOf("Backlog", "Released"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440008"),
-            cratedAt = LocalDateTime.parse("2023-01-02T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-02T10:00:00"),
             matesIds = listOf(UUID.fromString("550e8400-e29b-41d4-a716-446655440009"), UUID.fromString("550e8400-e29b-41d4-a716-446655440010"))
         )
         // When
@@ -154,7 +154,7 @@ class ProjectCsvStorageTest {
             name = "Original Project",
             states = listOf("TODO"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440005"),
-            cratedAt = LocalDateTime.parse("2023-01-01T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-01T10:00:00"),
             matesIds = emptyList()
         )
 
@@ -163,7 +163,7 @@ class ProjectCsvStorageTest {
             name = "New Project",
             states = listOf("Backlog"),
             createdBy = UUID.fromString("550e8400-e29b-41d4-a716-446655440008"),
-            cratedAt = LocalDateTime.parse("2023-01-02T10:00:00"),
+            createdAt = LocalDateTime.parse("2023-01-02T10:00:00"),
             matesIds = emptyList()
         )
         // First add project1

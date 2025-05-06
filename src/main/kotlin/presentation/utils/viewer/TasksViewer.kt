@@ -7,7 +7,6 @@ class TasksViewer : ItemsViewer<Task> {
         items.forEach { task ->
             println("$task")
             println("------------------------------------------------------")
-            //println(" • $task")
         }
     }
 }
