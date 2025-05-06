@@ -8,7 +8,7 @@ import org.example.domain.FailedToAddLogException
 import org.example.domain.NotFoundException
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.*
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
@@ -22,7 +22,7 @@ class DeleteMateFromTaskUseCaseTest {
     lateinit var tasksRepository: TasksRepository
     lateinit var deleteMateFromTaskUseCase: DeleteMateFromTaskUseCase
     lateinit var logsRepository: LogsRepository
-    lateinit var authRepository: AuthRepository
+    lateinit var usersRepository: UsersRepository
     val task = Task(
         title = "machine learning task",
         state = "in-progress",
@@ -49,8 +49,8 @@ class DeleteMateFromTaskUseCaseTest {
     fun setUp() {
         tasksRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
-        authRepository = mockk()
-        deleteMateFromTaskUseCase = DeleteMateFromTaskUseCase(tasksRepository, authRepository, logsRepository)
+        usersRepository = mockk()
+        deleteMateFromTaskUseCase = DeleteMateFromTaskUseCase(tasksRepository, usersRepository, logsRepository)
     }
     @Test
     fun `should throw UnauthorizedException when user is not logged in`() {
@@ -64,7 +64,7 @@ class DeleteMateFromTaskUseCaseTest {
             projectId = UUID.randomUUID() // Project ID with UUID
         )
 
-        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { usersRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
         // When & Then
         assertThrows<UnauthorizedException> {
@@ -75,7 +75,7 @@ class DeleteMateFromTaskUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when current user is not admin`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(mateUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(mateUser)
 
         //when & then
         assertThrows<AccessDeniedException> {
@@ -86,7 +86,7 @@ class DeleteMateFromTaskUseCaseTest {
     @Test
     fun `should throw NoFoundException when task id does not exist`() {
         //given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.getTaskById(task.id) } returns Result.failure(NotFoundException(""))
 
         //when & then
@@ -99,7 +99,7 @@ class DeleteMateFromTaskUseCaseTest {
     @Test
     fun `should throw NoFoundException when mate is not assigned to the task`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.getTaskById(task.id) } returns Result.success(task)
 
         // When & Then
@@ -112,7 +112,7 @@ class DeleteMateFromTaskUseCaseTest {
     @Test
     fun `should throw FailedToAddLogException when logging mate deletion fails`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.getTaskById(task.id) } returns Result.success(task)
         every { logsRepository.addLog(any()) } returns Result.failure(FailedToAddLogException(""))
 
@@ -124,7 +124,7 @@ class DeleteMateFromTaskUseCaseTest {
     @Test
     fun `should log mate deletion when admin successfully removes mate from task`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { tasksRepository.getTaskById(task.id) } returns Result.success(task)
 
         // When

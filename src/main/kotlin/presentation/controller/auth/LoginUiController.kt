@@ -30,7 +30,7 @@ class LoginUiController(
             if (username.isBlank() || password.isBlank())
                 throw InvalidInputException("Username and password must not be empty.")
 
-            if (loginUseCase(username, password))
+            loginUseCase(username, password)
             viewer.view("You have successfully logged in.\n")
 
             loginUseCase.getCurrentUserIfLoggedIn()?.role.let { role ->

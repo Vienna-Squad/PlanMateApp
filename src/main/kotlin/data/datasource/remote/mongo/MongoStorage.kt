@@ -1,4 +1,4 @@
-package org.example.data.datasource.mongo
+package org.example.data.datasource.remote.mongo
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters

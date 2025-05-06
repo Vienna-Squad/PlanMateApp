@@ -1,25 +1,28 @@
 package org.example.data.repository
 
+
+import org.example.data.datasource.local.LocalDataSource
+import org.example.data.datasource.local.preferences.Preference
+import org.example.data.datasource.remote.RemoteDataSource
 import org.example.data.utils.authSafeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Task
 import org.example.domain.repository.TasksRepository
+import org.koin.core.qualifier.named
+import org.koin.mp.KoinPlatform.getKoin
 import java.util.*
 
 
-import org.example.data.datasource.mongo.MongoPreferences
-import org.example.data.datasource.mongo.TasksMongoStorage
-
-
 class TasksRepositoryImpl(
-    private val tasksStorage: TasksMongoStorage,
-    private val preferences: MongoPreferences
+    private val tasksRemoteDataSource: RemoteDataSource<Task>,
+    private val tasksLocalDataSource: LocalDataSource<Task>,
+    private val preferences: Preference
 ) : TasksRepository {
 
     override fun getTaskById(taskId: UUID) = authSafeCall { currentUser ->
-        tasksStorage.findByTaskId(taskId)?.let { task ->
+        tasksRemoteDataSource.getAll().find { it.id == taskId }?.let { task ->
             if (task.createdBy != currentUser.id && currentUser.id !in task.assignedTo)
                 throw AccessDeniedException()
             task
@@ -27,10 +30,10 @@ class TasksRepositoryImpl(
     }
 
     override fun getAllTasks() =
-        authSafeCall { tasksStorage.getAll().ifEmpty { throw NotFoundException("tasks") } }
+        authSafeCall { tasksRemoteDataSource.getAll().ifEmpty { throw NotFoundException("tasks") } }
 
     override fun addTask(title: String, state: String, projectId: UUID) = authSafeCall { currentUser ->
-        tasksStorage.add(
+        tasksRemoteDataSource.add(
             Task(
                 title = title,
                 state = state,
@@ -42,44 +45,44 @@ class TasksRepositoryImpl(
     }
 
     override fun updateTask(task: Task) = authSafeCall { currentUser ->
-        tasksStorage.findByTaskId(task.id)?.let { existingTask ->
+        tasksRemoteDataSource.getAll().find { it.id == task.id }?.let { existingTask ->
             if (existingTask.createdBy != currentUser.id && currentUser.id !in existingTask.assignedTo)
                 throw AccessDeniedException()
-            tasksStorage.update(task)
+            tasksRemoteDataSource.update(task)
         } ?: throw NotFoundException("task")
     }
 
     override fun deleteTaskById(taskId: UUID) = authSafeCall { currentUser ->
-        tasksStorage.findByTaskId(taskId)?.let { task ->
+        tasksRemoteDataSource.getAll().find { it.id == taskId }?.let { task ->
             if (task.createdBy != currentUser.id && currentUser.id !in task.assignedTo)
                 throw AccessDeniedException()
-            tasksStorage.delete(task)
+            tasksRemoteDataSource.delete(task)
         } ?: throw NotFoundException("task")
     }
 
     override fun addMateToTask(taskId: UUID, mateId: UUID) = authSafeCall { currentUser ->
-        tasksStorage.findByTaskId(taskId)?.let { task ->
+        tasksRemoteDataSource.getAll().find { it.id == taskId }?.let { task ->
             if (task.createdBy != currentUser.id) throw AccessDeniedException()
             if (mateId in task.assignedTo) throw AlreadyExistException()
-            tasksStorage.update(task.copy(assignedTo = task.assignedTo + mateId))
+            tasksRemoteDataSource.update(task.copy(assignedTo = task.assignedTo + mateId))
         } ?: throw NotFoundException("task")
     }
 
     override fun deleteMateFromTask(taskId: UUID, mateId: UUID) = authSafeCall { currentUser ->
-        tasksStorage.findByTaskId(taskId)?.let { task ->
+        tasksRemoteDataSource.getAll().find { it.id == taskId }?.let { task ->
             if (task.createdBy != currentUser.id) throw AccessDeniedException()
             val assignedTo = task.assignedTo.toMutableList()
             val removed = assignedTo.remove(mateId)
             if (!removed) throw NotFoundException("mate")
-            tasksStorage.update(task.copy(assignedTo = assignedTo))
+            tasksRemoteDataSource.update(task.copy(assignedTo = assignedTo))
         } ?: throw NotFoundException("task")
     }
 
     override fun editTask(taskId: UUID, updatedTask: Task) = authSafeCall { currentUser ->
-        tasksStorage.findByTaskId(taskId)?.let { task ->
+        tasksRemoteDataSource.getAll().find { it.id == taskId }?.let { task ->
             if (task.createdBy != currentUser.id && currentUser.id !in task.assignedTo)
                 throw AccessDeniedException()
-            tasksStorage.update(updatedTask)
+            tasksRemoteDataSource.update(updatedTask)
         } ?: throw NotFoundException("task")
     }
 }

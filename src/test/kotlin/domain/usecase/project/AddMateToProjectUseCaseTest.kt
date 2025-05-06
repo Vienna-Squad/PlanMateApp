@@ -7,7 +7,7 @@ import org.example.domain.*
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.AddMateToProjectUseCase
@@ -20,7 +20,7 @@ import java.util.*
 class AddMateToProjectUseCaseTest {
     private lateinit var projectsRepository: ProjectsRepository
     private lateinit var logsRepository: LogsRepository
-    private lateinit var authRepository: AuthRepository
+    private lateinit var usersRepository: UsersRepository
     private lateinit var addMateToProjectUseCase: AddMateToProjectUseCase
 
     private val projectId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
@@ -55,15 +55,15 @@ class AddMateToProjectUseCaseTest {
     fun setup() {
         projectsRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
-        authRepository= mockk(relaxed = true)
-        addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository,authRepository)
+        usersRepository= mockk(relaxed = true)
+        addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository,usersRepository)
     }
 
 
     @Test
     fun `should throw UnauthorizedException when getCurrentUser fails`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
+        every { usersRepository.getCurrentUser() } returns Result.failure(UnauthorizedException(""))
 
         // When && Then
         assertThrows<UnauthorizedException> {
@@ -74,7 +74,7 @@ class AddMateToProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when user is not authorized`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(mateUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(mateUser)
 
         // When && Then
         assertThrows<AccessDeniedException> {
@@ -85,7 +85,7 @@ class AddMateToProjectUseCaseTest {
     @Test
     fun `should throw NoFoundException when project does not exist`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(projectId) } returns Result.failure(NotFoundException(""))
 
         // When && Then
@@ -98,7 +98,7 @@ class AddMateToProjectUseCaseTest {
     fun `should throw AlreadyExistException when mate is already in project`() {
         // Given
         val projectWithMate = project.copy(matesIds = listOf(mateId))
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(projectWithMate)
 
         // When && Then
@@ -114,7 +114,7 @@ class AddMateToProjectUseCaseTest {
         // Given
         val updatedProject = project.copy(matesIds = listOf(mateId))
 
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
         every { projectsRepository.updateProject(updatedProject) } returns Result.success(Unit)
         every { logsRepository.addLog(any()) } returns Result.failure(Exception("Log failed"))
@@ -131,7 +131,7 @@ class AddMateToProjectUseCaseTest {
         val notOwnerAdmin = adminUser.copy(id = UUID.randomUUID())
         val projectCreatedByAnotherUser = project.copy(createdBy = UUID.randomUUID())
 
-        every { authRepository.getCurrentUser() } returns Result.success(notOwnerAdmin)
+        every { usersRepository.getCurrentUser() } returns Result.success(notOwnerAdmin)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(projectCreatedByAnotherUser)
 
         // When & Then
@@ -149,7 +149,7 @@ class AddMateToProjectUseCaseTest {
         // Given
         val updatedProject = project.copy(matesIds = project.matesIds + mateId)
 
-        every { authRepository.getCurrentUser() } returns Result.success(adminUser)
+        every { usersRepository.getCurrentUser() } returns Result.success(adminUser)
         every { projectsRepository.getProjectById(projectId) } returns Result.success(project)
 
 

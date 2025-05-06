@@ -9,7 +9,7 @@ import org.example.domain.entity.AddedLog
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.AddStateToProjectUseCase
@@ -19,25 +19,25 @@ import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class AddStateToProjectUseCaseTest {
-    private lateinit var authRepository: AuthRepository
+    private lateinit var usersRepository: UsersRepository
     private lateinit var projectsRepository: ProjectsRepository
     private lateinit var logsRepository: LogsRepository
     private lateinit var addStateToProjectUseCase: AddStateToProjectUseCase
 
     @BeforeEach
     fun setup() {
-        authRepository = mockk(relaxed = true)
+        usersRepository = mockk(relaxed = true)
         projectsRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
         addStateToProjectUseCase =
-            AddStateToProjectUseCase(authRepository, projectsRepository, logsRepository)
+            AddStateToProjectUseCase(usersRepository, projectsRepository, logsRepository)
 
     }
 
     @Test
     fun `should throw UnauthorizedException when no logged-in user is found`() {
         //Given
-        every { authRepository.getCurrentUser() } returns Result.failure(Exception())
+        every { usersRepository.getCurrentUser() } returns Result.failure(Exception())
         // Then&&When
         assertThrows<UnauthorizedException> {
             addStateToProjectUseCase.invoke(
@@ -50,7 +50,7 @@ class AddStateToProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when attempting to add a state to project given current user is not admin`() {
         //Given
-        every { authRepository.getCurrentUser() } returns Result.success(mate)
+        every { usersRepository.getCurrentUser() } returns Result.success(mate)
         // Then&&When
         assertThrows<AccessDeniedException> {
             addStateToProjectUseCase.invoke(
@@ -63,7 +63,7 @@ class AddStateToProjectUseCaseTest {
     @Test
     fun `should throw AccessDeniedException when attempting to add a state to project given current user non-related to project`() {
         //Given
-        every { authRepository.getCurrentUser() } returns Result.success(mate)
+        every { usersRepository.getCurrentUser() } returns Result.success(mate)
         // Then&&When
         assertThrows<AccessDeniedException> {
             addStateToProjectUseCase.invoke(
@@ -76,7 +76,7 @@ class AddStateToProjectUseCaseTest {
     @Test
     fun `should throw NoFoundException when attempting to add a state to a non-existent project`() {
         //Given
-        every { authRepository.getCurrentUser() } returns Result.success(admin)
+        every { usersRepository.getCurrentUser() } returns Result.success(admin)
         every { projectsRepository.getAllProjects() } returns Result.failure(NotFoundException("No project found"))
         // When & Then
         assertThrows< NotFoundException> {
@@ -92,7 +92,7 @@ class AddStateToProjectUseCaseTest {
 
     fun `should throw DuplicateStateException state add log to logs given project id`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(admin)
+        every { usersRepository.getCurrentUser() } returns Result.success(admin)
         every { projectsRepository.getProjectById(any()) } returns Result.success(projects[0])
         // When
         //Then
@@ -108,7 +108,7 @@ class AddStateToProjectUseCaseTest {
 
     fun `should throw FailedToLogException when fail to log `() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(admin)
+        every { usersRepository.getCurrentUser() } returns Result.success(admin)
         every { projectsRepository.getProjectById(any()) } returns Result.success(projects[0])
         every { logsRepository.addLog(any()) } returns Result.failure(FailedToLogException(""))
         // When
@@ -126,7 +126,7 @@ class AddStateToProjectUseCaseTest {
 
     fun `should add state to project and add log to logs given project id`() {
         // Given
-        every { authRepository.getCurrentUser() } returns Result.success(admin)
+        every { usersRepository.getCurrentUser() } returns Result.success(admin)
         every { projectsRepository.getProjectById(any()) } returns Result.success(projects[0])
         // When
         addStateToProjectUseCase(

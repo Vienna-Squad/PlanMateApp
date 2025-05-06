@@ -1,25 +1,28 @@
 package org.example.data.repository
 
-import org.example.data.datasource.mongo.LogsMongoStorage
+import org.example.data.datasource.local.LocalDataSource
+import org.example.data.datasource.local.preferences.Preference
+import org.example.data.datasource.remote.RemoteDataSource
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Log
 import org.example.domain.repository.LogsRepository
-import java.util.*
+import org.koin.core.qualifier.named
+import org.koin.mp.KoinPlatform.getKoin
 
 class LogsRepositoryImpl(
-    private val logsStorage: LogsMongoStorage
+    private val logsRemoteDataSource: RemoteDataSource<Log>,
+    private val logsLocalDataSource: LocalDataSource<Log>,
+    private val preferences: Preference
 ) : LogsRepository {
 
-    override fun getAllLogs(id: UUID): List<Log> {
-        val logs = logsStorage.getLogsByAffectedId(id)
+    override fun getAllLogs(): List<Log> {
+        val logs = logsRemoteDataSource.getAll()
         if (logs.isEmpty()) {
             throw NotFoundException("logs")
         }
         return logs
     }
 
-    override fun addLog(log: Log) {
-        logsStorage.add(log)
-    }
+    override fun addLog(log: Log) = logsRemoteDataSource.add(log)
 }
 

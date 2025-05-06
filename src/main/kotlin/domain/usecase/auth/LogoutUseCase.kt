@@ -1,7 +1,7 @@
 package org.example.domain.usecase.auth
 
-import org.example.domain.repository.AuthRepository
+import org.example.domain.repository.UsersRepository
 
-class LogoutUseCase(private val authRepository: AuthRepository) {
-    operator fun invoke() = authRepository.clearUserData()
+class LogoutUseCase(private val usersRepository: UsersRepository) {
+    operator fun invoke() = usersRepository.clearUserData()
 }

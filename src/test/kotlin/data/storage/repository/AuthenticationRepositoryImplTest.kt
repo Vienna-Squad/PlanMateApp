@@ -4,7 +4,7 @@ import data.datasource.local.csv.UsersCsvStorage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.repository.AuthRepositoryImpl
+import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.NotFoundException
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AuthenticationRepositoryImplTest {
-    private lateinit var repository: AuthRepositoryImpl
+    private lateinit var repository: UsersRepositoryImpl
     private lateinit var storage: UsersCsvStorage
 
     private val user = User(
@@ -40,7 +40,7 @@ class AuthenticationRepositoryImplTest {
     @BeforeEach
     fun setup() {
         storage = mockk(relaxed = true)
-        repository = AuthRepositoryImpl(storage)
+        repository = UsersRepositoryImpl(storage)
     }
 
     @Test
