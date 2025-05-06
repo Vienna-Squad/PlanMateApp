@@ -53,12 +53,39 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw NotFoundException when project has no mates match passed id`() {
+    fun `should throw NotFoundException when project has no mate match passed id`() {
         //given
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
         assertThrows<NotFoundException> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
+    }
+
+    @Test
+    fun `should not log or update if project retrieval fails`() {
+        //given
+        every { projectsRepository.getProjectById(dummyProject.id) } throws Exception()
+        //when && then
+        assertThrows<Exception> {
+            deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
+        }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
+        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
+    }
+
+    @Test
+    fun `should not log if mate deletion fails`() {
+        //given
+        val randomProject = dummyProject.copy(
+            matesIds = dummyProject.matesIds + dummyMate.id,
+        )
+        every { projectsRepository.getProjectById(randomProject.id) } returns randomProject
+        every { projectsRepository.updateProject(match { it.id == randomProject.id }) } throws Exception()
+        //when && then
+        assertThrows<Exception> {
+            deleteMateFromProjectUseCase(randomProject.id, dummyMate.id)
+        }
+        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 }
