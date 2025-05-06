@@ -33,6 +33,7 @@ class ProjectsRepositoryImpl(
             if (project.createdBy != currentUser.id) throw AccessDeniedException()
             if (mateId in project.matesIds) throw AlreadyExistException()
             projectsStorage.update(project.copy(matesIds = project.matesIds + mateId))
+
         } ?: throw NotFoundException("project")
     }
 
@@ -82,7 +83,7 @@ class ProjectsRepositoryImpl(
         } ?: throw NotFoundException("project")
     }
 
-    override fun deleteStateFromProject(projectId: UUID, state: String) = authSafeCall { currentUser ->
+    override  fun deleteStateFromProject(projectId: UUID, state: String) = authSafeCall { currentUser ->
         projectsStorage.findByProjectId(projectId)?.let { project ->
             if (project.createdBy != currentUser.id) throw AccessDeniedException()
             val states = project.states.toMutableList()

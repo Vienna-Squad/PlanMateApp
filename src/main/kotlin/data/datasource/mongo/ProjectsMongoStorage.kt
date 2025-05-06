@@ -12,7 +12,7 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
     override fun toDocument(item: Project): Document {
         return Document()
             .append("_id", item.id.toString())
-            .append("uuid", item.id.toString())
+
             .append("name", item.name)
             .append("states", item.states)
             .append("createdBy", item.createdBy.toString())
@@ -25,7 +25,7 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
         val matesIdsStrings = document.getList("matesIds", String::class.java) ?: emptyList()
         val matesIds = matesIdsStrings.map { UUID.fromString(it) }
 
-        val uuidStr = document.getString("uuid") ?: document.getString("_id")
+        val uuidStr = document.getString("_id")
         val createdByStr = document.getString("createdBy")
 
         return Project(
@@ -45,7 +45,7 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
     }
 
     fun findByProjectId(projectId: UUID): Project? {
-        val document = collection.find(Filters.eq("_id", projectId)).first()
+        val document = collection.find(Filters.eq("_id", projectId.toString())).first()
         return document?.let { fromDocument(it) }
     }
 }

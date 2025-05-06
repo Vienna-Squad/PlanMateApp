@@ -9,10 +9,12 @@ import org.bson.UuidRepresentation
 
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.pojo.PojoCodecProvider
+import org.example.BuildConfig
 
 object MongoConfig {
-    private const val CONNECTION_STRING = "mongodb+srv://mohamedessampd:mFacTfNc0ggBD7Rr@cluster0.qycv0.mongodb.net/sample_mflix?retryWrites=true&w=majority"
-    private const val DATABASE_NAME = "mates_hq_db"
+//    private const val CONNECTION_STRING = "mongodb+srv://vienna-squad:JEQiuCYidCfcijZU@cluster0.qycv0.mongodb.net/sample_mflix?retryWrites=true&w=majority"
+    private const val DATABASE_NAME = BuildConfig.DATABASE_NAME
+    private const val CONNECTION_STRING = BuildConfig.MONGO_URI
 
     val client: MongoClient by lazy {
         val pojoCodecRegistry = CodecRegistries.fromProviders(

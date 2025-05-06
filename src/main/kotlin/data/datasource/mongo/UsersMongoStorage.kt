@@ -15,7 +15,6 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
         // Use string representation of UUID for _id field to avoid ObjectId conversion issues
         return Document()
             .append("_id", item.id.toString())
-            .append("uuid", item.id.toString())  // Store UUID as string
             .append("username", item.username)
             .append("hashedPassword", item.hashedPassword)
             .append("role", item.role.name)
@@ -24,7 +23,7 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
 
     override fun fromDocument(document: Document): User {
         // Use the "uuid" field to get the UUID string, then convert to UUID
-        val uuidStr = document.getString("uuid") ?: document.getString("_id")
+        val uuidStr = document.getString("_id")
 
         return User(
             id = UUID.fromString(uuidStr),

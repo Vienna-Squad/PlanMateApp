@@ -30,7 +30,7 @@ fun createAdminUser() {
         val collection = MongoConfig.database.getCollection("User")
 
         // Check if admin1 already exists
-        val existingAdmin = collection.find(Filters.eq("username", "admin1")).first()
+        val existingAdmin = collection.find(Filters.eq("username", "admin")).first()
         if (existingAdmin != null) {
             println("Admin user already exists")
             return
@@ -40,14 +40,13 @@ fun createAdminUser() {
         val adminId = UUID.randomUUID()
         val adminDoc = Document()
             .append("_id", adminId.toString())
-            .append("uuid", adminId.toString())
-            .append("username", "admin2")
+            .append("username", "admin")
             .append("hashedPassword", AuthRepositoryImpl.encryptPassword("12345678"))
             .append("role", UserRole.ADMIN.name)
             .append("createdAt", LocalDateTime.now().toString())
 
         collection.insertOne(adminDoc)
-        println("Created admin user: admin2 / 12345678")
+        println("Created admin user: admin / 12345678")
 
     } catch (e: Exception) {
         println("Error creating admin: ${e.message}")

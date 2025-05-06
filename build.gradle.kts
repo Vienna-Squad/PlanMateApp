@@ -1,6 +1,26 @@
+import org.gradle.declarative.dsl.schema.FqName.Empty.packageName
+import java.io.FileInputStream
+import java.util.*
+
 plugins {
     kotlin("jvm") version "2.1.0"
+    id("com.github.gmazzo.buildconfig") version "4.1.2"
     jacoco
+}
+val localProperties = Properties().apply {
+    val localFile = rootProject.file("Keys.properties")
+    if (localFile.exists()) {
+        FileInputStream(localFile).use { load(it) }
+    }
+}
+val mongoUri = localProperties.getProperty("MONGO.URI")
+val databaseName = localProperties.getProperty("DATABASE.NAME")
+
+buildConfig {
+    packageName("org.example")
+    buildConfigField("String", "MONGO_URI", "\"${mongoUri}\"")
+    buildConfigField("String", "DATABASE_NAME", "\"${databaseName}\"")
+    buildConfigField("String", "APP_VERSION", "\"${project.version}\"")
 }
 jacoco {
     toolVersion = "0.8.7"

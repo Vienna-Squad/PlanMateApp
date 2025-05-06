@@ -18,7 +18,7 @@ import org.example.data.datasource.mongo.UsersMongoStorage
 
 class AuthRepositoryImpl(
     private val usersStorage: UsersMongoStorage,
-    private val preferences: MongoPreferences
+    private val preferences: MongoPreferences,
 ) : AuthRepository {
     override fun storeUserData(userId: UUID, username: String, role: UserRole) =
         usersStorage.getAll().find { it.id == userId }?.let {
