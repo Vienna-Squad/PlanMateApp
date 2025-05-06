@@ -1,18 +1,14 @@
 package org.example.data.datasource.local.csv
 
-import org.example.data.datasource.local.csv.CsvStorage
+import org.example.domain.NotFoundException
 import org.example.domain.entity.*
 import org.example.domain.entity.Log.ActionType
 import org.example.domain.entity.Log.AffectedType
 import java.io.File
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
-    init {
-        writeHeader(getHeaderString())
-    }
-
     override fun toCsvRow(item: Log): String {
         return when (item) {
             is AddedLog -> listOf(
@@ -103,6 +99,10 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
 
     override fun getHeaderString(): String {
         return CSV_HEADER
+    }
+
+    override fun getById(id: UUID): Log {
+        return getAll().find { it.affectedId == id } ?: throw NotFoundException()
     }
 
     override fun delete(item: Log) {}

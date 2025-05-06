@@ -13,7 +13,7 @@ val useCasesModule = module {
     single { LogoutUseCase(get()) }
     single { LoginUseCase(get()) }
     single { CreateUserUseCase(get()) }
-    single { AddMateToProjectUseCase(get(),get(),get()) }
+    single { AddMateToProjectUseCase(get()) }
     single { AddStateToProjectUseCase(get()) }
     single { CreateProjectUseCase(get()) }
     single { DeleteMateFromProjectUseCase(get()) }
@@ -30,5 +30,6 @@ val useCasesModule = module {
     single { AddMateToTaskUseCase(get()) }
     single { DeleteMateFromTaskUseCase(get()) }
     single { EditTaskStateUseCase(get()) }
-    single { EditTaskTitleUseCase(get(),get(),get()) }
+    single { EditTaskTitleUseCase(get()) }
+    single { GetAllProjectsUseCase(get(), get()) }
 }

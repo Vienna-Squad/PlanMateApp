@@ -17,11 +17,11 @@ class EditTaskTitleUiController(
 ) : UiController {
     override fun execute() {
         tryAndShowError {
-            viewer.view("Please enter the Task ID: ")
+            print("Please enter the Task ID: ")
             val taskId = input.getInput().also {
                 if (it.isBlank()) throw InvalidInputException("Task ID cannot be empty. Please provide a valid ID.")
             }
-            viewer.view("Please enter the new title: ")
+            print("Please enter the new title: ")
             val title = input.getInput().also {
                 if (it.isBlank()) throw InvalidInputException("Title cannot be empty. Please provide a valid title.")
             }

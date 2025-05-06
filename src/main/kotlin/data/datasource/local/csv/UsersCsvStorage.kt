@@ -9,11 +9,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class UsersCsvStorage(file: File) : CsvStorage<User>(file) {
-
-    init {
-        writeHeader(getHeaderString())
-    }
-
     override fun toCsvRow(item: User): String {
         return "${item.id},${item.username},${item.hashedPassword},${item.role},${item.cratedAt}\n"
     }
@@ -34,13 +29,17 @@ class UsersCsvStorage(file: File) : CsvStorage<User>(file) {
         return CSV_HEADER
     }
 
-    override fun update(item: User) {
+    override fun update(updatedItem: User) {
         if (!file.exists()) throw NotFoundException("file")
         val list = getAll().toMutableList()
-        val itemIndex = list.indexOfFirst { it.id == item.id }
-        if (itemIndex == -1) throw NotFoundException("$item")
-        list[itemIndex] = item
+        val itemIndex = list.indexOfFirst { it.id == updatedItem.id }
+        if (itemIndex == -1) throw NotFoundException("$updatedItem")
+        list[itemIndex] = updatedItem
         write(list)
+    }
+
+    override fun getById(id: UUID): User {
+        return getAll().find { it.id == id } ?: throw NotFoundException()
     }
 
     override fun delete(item: User) {

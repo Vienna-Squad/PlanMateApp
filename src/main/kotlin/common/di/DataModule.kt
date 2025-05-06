@@ -1,8 +1,6 @@
 package org.example.common.di
 
-import com.mongodb.client.MongoCollection
 import data.datasource.local.csv.UsersCsvStorage
-import org.bson.Document
 import org.example.common.Constants
 import org.example.common.Constants.NamedDataSources.LOGS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.PROJECTS_DATA_SOURCE
@@ -16,8 +14,6 @@ import org.example.data.datasource.local.preferences.CsvPreferences
 import org.example.data.datasource.local.preferences.Preference
 import org.example.data.datasource.remote.RemoteDataSource
 import org.example.data.datasource.remote.mongo.LogsMongoStorage
-import org.example.data.datasource.remote.mongo.MongoConfig
-import org.example.data.datasource.remote.mongo.MongoStorage
 import org.example.data.datasource.remote.mongo.ProjectsMongoStorage
 import org.example.data.datasource.remote.mongo.TasksMongoStorage
 import org.example.data.datasource.remote.mongo.UsersMongoStorage
@@ -25,9 +21,7 @@ import org.example.domain.entity.Log
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
-import org.koin.dsl.bind
 import org.koin.dsl.module
 import java.io.File
 

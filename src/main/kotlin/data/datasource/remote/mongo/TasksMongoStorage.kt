@@ -3,6 +3,7 @@ package org.example.data.datasource.remote.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.TASKS_COLLECTION
+import data.datasource.remote.mongo.MongoConfig
 import org.example.domain.entity.Task
 import java.time.LocalDateTime
 import java.util.*
@@ -11,7 +12,7 @@ import java.util.*
 class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(TASKS_COLLECTION)) {
     override fun toDocument(item: Task): Document {
         return Document()
-            .append("_id", item.id)
+            .append("_id", item.id.toString())
             .append("title", item.title)
             .append("state", item.state)
             .append("assignedTo", item.assignedTo.map { it.toString() })
@@ -19,10 +20,11 @@ class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(
             .append("createdAt", item.createdAt.toString())
             .append("projectId", item.projectId)
     }
+
     override fun fromDocument(document: Document): Task {
         val assignedToStrings = document.getList("assignedTo", String::class.java) ?: emptyList()
         val assignedTo = assignedToStrings.map { UUID.fromString(it) }
-        val uuidStr = document.getString("uuid") ?: document.getString("_id")
+        val uuidStr = document.getString("_id")
 
         return Task(
             id = UUID.fromString(uuidStr),

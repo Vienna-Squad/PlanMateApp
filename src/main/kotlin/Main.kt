@@ -6,8 +6,9 @@ import common.di.useCasesModule
 import org.bson.Document
 import org.example.common.di.dataModule
 import org.example.common.di.repositoryModule
-import org.example.data.datasource.mongo.MongoConfig
-import org.example.data.repository.AuthRepositoryImpl
+import data.datasource.remote.mongo.MongoConfig
+import org.example.common.Constants.MongoCollections.USERS_COLLECTION
+import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.entity.UserRole
 import org.example.presentation.AuthApp
 import org.koin.core.context.GlobalContext.startKoin
@@ -17,17 +18,14 @@ import java.util.UUID
 fun main() {
     println("Hello, PlanMate!")
     startKoin { modules(appModule, useCasesModule, repositoryModule, dataModule) }
-
-    // Create admin user
     createAdminUser()
-
     AuthApp().run()
 }
 
 fun createAdminUser() {
     println("Creating admin user...")
     try {
-        val collection = MongoConfig.database.getCollection("User")
+        val collection = MongoConfig.database.getCollection(USERS_COLLECTION)
 
         // Check if admin1 already exists
         val existingAdmin = collection.find(Filters.eq("username", "admin")).first()
@@ -41,7 +39,7 @@ fun createAdminUser() {
         val adminDoc = Document()
             .append("_id", adminId.toString())
             .append("username", "admin")
-            .append("hashedPassword", AuthRepositoryImpl.encryptPassword("12345678"))
+            .append("hashedPassword", UsersRepositoryImpl.encryptPassword("12345678"))
             .append("role", UserRole.ADMIN.name)
             .append("createdAt", LocalDateTime.now().toString())
 

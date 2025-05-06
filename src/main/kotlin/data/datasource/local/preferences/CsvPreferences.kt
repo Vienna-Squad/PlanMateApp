@@ -3,6 +3,7 @@ package org.example.data.datasource.local.preferences
 import org.example.data.datasource.local.csv.CsvStorage
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.UUID
 
 class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file), Preference {
     private val map: MutableMap<String, String> = mutableMapOf()
@@ -11,9 +12,11 @@ class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file), Prefe
         map[key] = value
         add(Pair(key, value))
     }
+
     override fun remove(key: String) {
         delete(Pair(key, ""))
     }
+
     override fun clear() {
         map.clear()
         if (!file.exists()) throw FileNotFoundException("file")
@@ -26,6 +29,8 @@ class CsvPreferences(file: File) : CsvStorage<Pair<String, String>>(file), Prefe
         val listOfPairs = map.map { Pair(it.key, it.value) }.toList()
         write(listOfPairs)
     }
+
+    override fun getById(id: UUID) = Pair("", "")
 
     override fun delete(item: Pair<String, String>) {
         map.remove(item.first)

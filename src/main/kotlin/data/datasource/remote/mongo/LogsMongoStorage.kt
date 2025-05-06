@@ -3,6 +3,7 @@ package org.example.data.datasource.remote.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.LOGS_COLLECTION
+import data.datasource.remote.mongo.MongoConfig
 import org.example.domain.entity.*
 import org.example.domain.entity.Log.ActionType
 import org.example.domain.entity.Log.AffectedType
@@ -41,6 +42,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
 
         return doc
     }
+
     override fun fromDocument(document: Document): Log {
         val actionType = ActionType.valueOf(document.get("actionType", String::class.java))
         val username = document.get("username", String::class.java)

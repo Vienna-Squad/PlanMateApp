@@ -5,6 +5,7 @@ import com.mongodb.client.model.Filters
 import org.bson.Document
 import org.example.data.datasource.remote.RemoteDataSource
 import org.example.domain.NotFoundException
+import java.util.UUID
 
 abstract class MongoStorage<T>(
     protected val collection: MongoCollection<Document>
@@ -15,6 +16,12 @@ abstract class MongoStorage<T>(
 
     override fun getAll(): List<T> {
         return collection.find().map { fromDocument(it) }.toList()
+    }
+
+    override fun getById(id: UUID): T {
+        return collection.find(Filters.eq("_id", id.toString())).firstOrNull()?.let {
+            fromDocument(it)
+        } ?: throw NotFoundException()
     }
 
     override fun add(newItem: T) {

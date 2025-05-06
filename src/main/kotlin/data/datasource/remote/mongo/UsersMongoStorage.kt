@@ -2,6 +2,7 @@ package org.example.data.datasource.remote.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
+import data.datasource.remote.mongo.MongoConfig
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.time.LocalDateTime
@@ -18,8 +19,9 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
             .append("role", item.role.name)
             .append("createdAt", item.cratedAt.toString())
     }
+
     override fun fromDocument(document: Document): User {
-        val uuidStr = document.getString("uuid") ?: document.getString("_id")
+        val uuidStr = document.getString("_id")
         return User(
             id = UUID.fromString(uuidStr),
             username = document.getString("username"),

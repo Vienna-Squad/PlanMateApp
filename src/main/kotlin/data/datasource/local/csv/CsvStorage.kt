@@ -7,6 +7,8 @@ import java.io.FileNotFoundException
 abstract class CsvStorage<T>(val file: File) : LocalDataSource<T> {
     abstract fun toCsvRow(item: T): String
     abstract fun fromCsvRow(fields: List<String>): T
+
+
     override fun getAll(): List<T> {
         if (!file.exists()) throw FileNotFoundException()
         val lines = file.readLines()
@@ -27,20 +29,16 @@ abstract class CsvStorage<T>(val file: File) : LocalDataSource<T> {
     override fun add(newItem: T) {
         if (!file.exists()) {
             file.createNewFile()
-            writeHeader(getHeaderString())
+            file.writeText(getHeaderString())
         }
         file.appendText(toCsvRow(newItem))
     }
 
-    fun writeHeader(header: String) {
-        if (!file.exists()) file.createNewFile()
-        if (file.length() == 0L) {
-            file.writeText(header)
-        }
-    }
-
     fun write(items: List<T>) {
-        if (!file.exists()) file.createNewFile()
+        if (!file.exists()) {
+            file.createNewFile()
+            file.writeText(getHeaderString())
+        }
         val str = StringBuilder()
         items.forEach {
             str.append(toCsvRow(it))

@@ -7,8 +7,9 @@ import java.util.*
 
 
 class AddStateToProjectUseCase(private val projectsRepository: ProjectsRepository = getKoin().get()) {
-    operator fun invoke(projectId: UUID, state: String) =
-        projectsRepository.addStateToProject(projectId = projectId, state = state)
+    operator fun invoke(projectId: UUID, state: String) = projectsRepository.getProjectById(projectId).let { project ->
+        projectsRepository.updateProject(project.copy(states = project.states + state))
+    }
 }
 
 

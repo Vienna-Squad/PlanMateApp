@@ -8,10 +8,6 @@ import java.util.*
 
 class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
 
-    init {
-        writeHeader(getHeaderString())
-    }
-
     override fun toCsvRow(item: Task): String {
         val assignedTo = item.assignedTo.joinToString("|")
         return "${item.id},${item.title},${item.state},${assignedTo},${item.createdBy},${item.projectId},${item.createdAt}\n"
@@ -45,6 +41,10 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
         if (itemIndex == -1) throw NotFoundException("$item")
         list[itemIndex] = item
         write(list)
+    }
+
+    override fun getById(id: UUID): Task {
+        return getAll().find { it.id == id } ?: throw NotFoundException()
     }
 
     override fun delete(item: Task) {

@@ -6,14 +6,10 @@ import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.UnauthorizedException
 
 class LoginUseCase(private val usersRepository: UsersRepository) {
-
-    // Returns boolean to indicate successful login
     operator fun invoke(username: String, password: String) =
         usersRepository.getAllUsers()
             .find { it.username == username && it.hashedPassword == UsersRepositoryImpl.encryptPassword(password) }
-            ?.let { user->
-                print(user)
-                print("helooooooooooooooooooo  ===> $user")
+            ?.let { user ->
                 usersRepository.storeUserData(
                     userId = user.id,
                     username = user.username,

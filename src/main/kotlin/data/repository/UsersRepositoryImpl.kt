@@ -7,9 +7,9 @@ import org.example.data.datasource.local.LocalDataSource
 import org.example.data.datasource.local.preferences.Preference
 import org.example.data.datasource.remote.RemoteDataSource
 import org.example.data.utils.authSafeCall
+import org.example.data.utils.safeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
-import org.example.domain.NotFoundException
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import org.example.domain.repository.UsersRepository
@@ -22,14 +22,15 @@ class UsersRepositoryImpl(
     private val usersLocalDataSource: LocalDataSource<User>,
     private val preferences: Preference
 ) : UsersRepository {
-    override fun storeUserData(userId: UUID, username: String, role: UserRole) =
-        usersRemoteDataSource.getAll().find { it.id == userId }?.let {
+    override fun storeUserData(userId: UUID, username: String, role: UserRole) = safeCall {
+        usersRemoteDataSource.getById(userId).let {
             preferences.put(CURRENT_USER_ID, it.id.toString())
             preferences.put(CURRENT_USER_NAME, it.username)
             preferences.put(CURRENT_USER_ROLE, it.role.toString())
-        } ?: throw NotFoundException("user")
+        }
+    }
 
-    override fun getAllUsers() = usersRemoteDataSource.getAll()
+    override fun getAllUsers() = safeCall { usersRemoteDataSource.getAll() }
 
     override fun createUser(user: User) = authSafeCall { currentUser ->
         if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
@@ -39,10 +40,9 @@ class UsersRepositoryImpl(
 
     override fun getCurrentUser() = authSafeCall { it }
 
-    override fun getUserByID(userId: UUID) =
-        usersRemoteDataSource.getAll().find { it.id == userId } ?: throw NotFoundException("user")
+    override fun getUserByID(userId: UUID) = safeCall { usersRemoteDataSource.getById(userId) }
 
-    override fun clearUserData() = preferences.clear()
+    override fun clearUserData() = safeCall { preferences.clear() }
 
     companion object {
         fun encryptPassword(password: String) =

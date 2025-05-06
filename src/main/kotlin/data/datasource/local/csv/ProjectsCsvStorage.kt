@@ -7,14 +7,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
-    init {
-        writeHeader(getHeaderString())
-    }
 
     override fun toCsvRow(item: Project): String {
         val states = item.states.joinToString("|")
         val matesIds = item.matesIds.joinToString("|")
-        return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.cratedAt}\n"
+        return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.createdAt}\n"
     }
 
     override fun fromCsvRow(fields: List<String>): Project {
@@ -30,7 +27,7 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
             states = states,
             createdBy = UUID.fromString(fields[CREATED_BY_INDEX]),
             matesIds = matesIds.map(UUID::fromString),
-            cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
+            createdAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
 
         return project
@@ -47,6 +44,10 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
         if (itemIndex == -1) throw NotFoundException("$updatedItem")
         list[itemIndex] = updatedItem
         write(list)
+    }
+
+    override fun getById(id: UUID): Project {
+        return getAll().find { it.id == id } ?: throw NotFoundException()
     }
 
     override fun delete(item: Project) {
