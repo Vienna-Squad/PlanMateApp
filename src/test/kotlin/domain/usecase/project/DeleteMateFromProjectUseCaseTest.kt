@@ -20,7 +20,6 @@ class DeleteMateFromProjectUseCaseTest {
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
 
-
     @BeforeEach
     fun setup() {
         deleteMateFromProjectUseCase = DeleteMateFromProjectUseCase(projectsRepository, logsRepository)
@@ -29,13 +28,12 @@ class DeleteMateFromProjectUseCaseTest {
     @Test
     fun `should delete mate from project and log when project has this mate`() {
         //given
-        val randomProject = dummyProject.copy(
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(
             matesIds = dummyProject.matesIds + dummyMate.id,
             createdBy = dummyAdmin.id
         )
-        every { projectsRepository.getProjectById(randomProject.id) } returns randomProject
         //when
-        deleteMateFromProjectUseCase(randomProject.id, dummyMate.id)
+        deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         //then
         verify { projectsRepository.updateProject(match { !it.matesIds.contains(dummyMate.id) }) }
         verify { logsRepository.addLog(match { it is DeletedLog }) }
@@ -44,12 +42,13 @@ class DeleteMateFromProjectUseCaseTest {
     @Test
     fun `should throw NotFoundException when project has no mates`() {
         //given
-        val project = dummyProject.copy(matesIds = emptyList())
-        every { projectsRepository.getProjectById(dummyProject.id) } returns project
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(matesIds = emptyList())
         //when && then
         assertThrows<NotFoundException> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
+        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
     @Test
@@ -60,6 +59,8 @@ class DeleteMateFromProjectUseCaseTest {
         assertThrows<NotFoundException> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
+        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
     @Test
@@ -77,14 +78,13 @@ class DeleteMateFromProjectUseCaseTest {
     @Test
     fun `should not log if mate deletion fails`() {
         //given
-        val randomProject = dummyProject.copy(
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(
             matesIds = dummyProject.matesIds + dummyMate.id,
         )
-        every { projectsRepository.getProjectById(randomProject.id) } returns randomProject
-        every { projectsRepository.updateProject(match { it.id == randomProject.id }) } throws Exception()
+        every { projectsRepository.updateProject(match { it.id == dummyProject.id }) } throws Exception()
         //when && then
         assertThrows<Exception> {
-            deleteMateFromProjectUseCase(randomProject.id, dummyMate.id)
+            deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
         }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }

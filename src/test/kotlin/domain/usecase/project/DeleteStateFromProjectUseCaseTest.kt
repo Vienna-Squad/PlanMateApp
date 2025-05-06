@@ -26,10 +26,9 @@ class DeleteStateFromProjectUseCaseTest {
     @Test
     fun `should delete state when project has it`() {
         //given
-        val project = dummyProject.copy(states = listOf("test", "done"))
-        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = listOf("test", "done"))
         //when
-        deleteStateFromProjectUseCase.invoke(project.id, "test")
+        deleteStateFromProjectUseCase.invoke(dummyProject.id, "test")
         //then
         verify { projectsRepository.updateProject(match { !it.states.contains("test") }) }
         verify { logsRepository.addLog(match { it is DeletedLog }) }
@@ -39,22 +38,20 @@ class DeleteStateFromProjectUseCaseTest {
     @Test
     fun `should throw NotFoundException state when project has no this state`() {
         //given
-        val project = dummyProject.copy(states = listOf("done"))
-        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = listOf("done"))
         //when && then
-        assertThrows<NotFoundException> { deleteStateFromProjectUseCase.invoke(project.id, "test") }
-        verify(exactly = 0) { projectsRepository.updateProject(match { !it.states.contains("test") }) }
+        assertThrows<NotFoundException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
     @Test
     fun `should throw NotFoundException state when project has no any states`() {
         //given
-        val project = dummyProject.copy(states = emptyList())
-        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = emptyList())
         //when && then
-        assertThrows<NotFoundException> { deleteStateFromProjectUseCase.invoke(project.id, "test") }
-        verify(exactly = 0) { projectsRepository.updateProject(match { !it.states.contains("test") }) }
+        assertThrows<NotFoundException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
@@ -64,20 +61,17 @@ class DeleteStateFromProjectUseCaseTest {
         every { projectsRepository.getProjectById(dummyProject.id) } throws Exception()
         //when && then
         assertThrows<Exception> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
-        verify(exactly = 0) { projectsRepository.updateProject(match { !it.states.contains("test") }) }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
     @Test
     fun `should not log when project update fails`() {
         //given
-        val project = dummyProject.copy(states = listOf("test", "done"))
-        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = listOf("test", "done"))
         every { projectsRepository.updateProject(match { !it.states.contains("test") }) } throws Exception()
         //when && then
-        assertThrows<Exception> { deleteStateFromProjectUseCase.invoke(project.id, "test") }
+        assertThrows<Exception> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
-
-
 }
