@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 sealed class Log(
-    val username: String,
-    val affectedId: UUID,
+    var username: String = "",
+    val affectedId: String,
     val affectedType: AffectedType,
     val dateTime: LocalDateTime = LocalDateTime.now()
 ) {
@@ -25,8 +25,8 @@ sealed class Log(
 }
 
 class ChangedLog(
-    username: String,
-    affectedId: UUID,
+    username: String = "",
+    affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
     val changedFrom: String,
@@ -37,19 +37,19 @@ class ChangedLog(
 }
 
 class AddedLog(
-    username: String,
-    affectedId: UUID,
+    username: String = "",
+    affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
-    val addedTo: UUID,
+    val addedTo: String,
 ) : Log(username, affectedId, affectedType, dateTime) {
     override fun toString() =
         "user $username ${ActionType.ADDED.name.lowercase()} ${affectedType.name.lowercase()} $affectedId to $addedTo at $dateTime"
 }
 
 class DeletedLog(
-    username: String,
-    affectedId: UUID,
+    username: String = "",
+    affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
     val deletedFrom: String? = null,
@@ -59,8 +59,8 @@ class DeletedLog(
 }
 
 class CreatedLog(
-    username: String,
-    affectedId: UUID,
+    username: String = "",
+    affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
 ) : Log(username, affectedId, affectedType, dateTime) {

@@ -65,7 +65,7 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
         return when (actionType) {
             ActionType.CHANGED -> ChangedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
+                affectedId = fields[AFFECTED_ID_INDEX],
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
                 changedFrom = fields[FROM_INDEX],
@@ -74,15 +74,15 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
 
             ActionType.ADDED -> AddedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
+                affectedId = fields[AFFECTED_ID_INDEX],
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
-                addedTo = UUID.fromString(fields[TO_INDEX])
+                addedTo = fields[TO_INDEX]
             )
 
             ActionType.DELETED -> DeletedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
+                affectedId = fields[AFFECTED_ID_INDEX],
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
                 deletedFrom = fields[FROM_INDEX],
@@ -90,7 +90,7 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
 
             ActionType.CREATED -> CreatedLog(
                 username = fields[USERNAME_INDEX],
-                affectedId = UUID.fromString(fields[AFFECTED_ID_INDEX]),
+                affectedId = fields[AFFECTED_ID_INDEX],
                 affectedType = AffectedType.valueOf(fields[AFFECTED_TYPE_INDEX]),
                 dateTime = LocalDateTime.parse(fields[DATE_TIME_INDEX]),
             )
@@ -102,7 +102,7 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
     }
 
     override fun getById(id: UUID): Log {
-        return getAll().find { it.affectedId == id } ?: throw NotFoundException()
+        return getAll().find { it.affectedId == id.toString() } ?: throw NotFoundException()
     }
 
     override fun delete(item: Log) {}

@@ -28,16 +28,8 @@ class TasksRepositoryImpl(
     override fun getAllTasks() =
         authSafeCall { tasksRemoteDataSource.getAll().ifEmpty { throw NotFoundException("tasks") } }
 
-    override fun addTask(title: String, state: String, projectId: UUID) = authSafeCall { currentUser ->
-        tasksRemoteDataSource.add(
-            Task(
-                title = title,
-                state = state,
-                assignedTo = emptyList(),
-                createdBy = currentUser.id,
-                projectId = projectId
-            )
-        )
+    override fun addTask(newTask: Task) = authSafeCall { currentUser ->
+        tasksRemoteDataSource.add(newTask)
     }
 
     override fun updateTask(updatedTask: Task) = authSafeCall { currentUser ->

@@ -6,7 +6,7 @@ class LoginException(message: String = "LoginException!!") : PlanMateAppExceptio
 class RegisterException(message: String = "RegisterException!!") : PlanMateAppException(message)
 class UnauthorizedException(message: String = "Unauthorized!!") : PlanMateAppException(message)
 class AccessDeniedException(message: String = "Access denied!!") : PlanMateAppException(message)
-class NotFoundException(type: String = "NotFound!!") : PlanMateAppException("No $type found.")
+class NotFoundException(type: String = "") : PlanMateAppException("Not $type found.")
 class InvalidInputException(message: String = "InvalidInput!!") : PlanMateAppException(message)
 class AlreadyExistException(message: String = "Already exist!!") : PlanMateAppException(message)
 class UnknownException() : PlanMateAppException("Something went wrong.")

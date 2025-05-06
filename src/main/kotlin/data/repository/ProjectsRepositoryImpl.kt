@@ -35,13 +35,10 @@ class ProjectsRepositoryImpl(
         projectsRemoteDataSource.update(updatedProject)
     }
 
-    override fun addProject(name: String) = authSafeCall { currentUser ->
+    override fun addProject(project: Project) = authSafeCall { currentUser ->
         if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
         projectsRemoteDataSource.add(
-            Project(
-                name = name,
-                createdBy = currentUser.id,
-            )
+            project
         )
     }
 

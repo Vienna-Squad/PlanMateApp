@@ -6,7 +6,7 @@ import java.util.*
 interface ProjectsRepository {
     fun getProjectById(projectId: UUID): Project
     fun getAllProjects(): List<Project>
-    fun addProject(name: String)
+    fun addProject(project: Project)
     fun updateProject(updatedProject: Project)
     fun deleteProjectById(projectId: UUID)
 }

@@ -1,14 +1,13 @@
 package org.example.data.datasource.remote.mongo
 
 
+import data.datasource.remote.mongo.MongoConfig
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.LOGS_COLLECTION
-import data.datasource.remote.mongo.MongoConfig
 import org.example.domain.entity.*
 import org.example.domain.entity.Log.ActionType
 import org.example.domain.entity.Log.AffectedType
 import java.time.LocalDateTime
-import java.util.*
 
 class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LOGS_COLLECTION)) {
     override fun toDocument(item: Log): Document {
@@ -46,7 +45,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
     override fun fromDocument(document: Document): Log {
         val actionType = ActionType.valueOf(document.get("actionType", String::class.java))
         val username = document.get("username", String::class.java)
-        val affectedId = document.get("affectedId", UUID::class.java)
+        val affectedId = document.get("affectedId", String::class.java)
         val affectedType = AffectedType.valueOf(document.get("affectedType", String::class.java))
         val dateTime = LocalDateTime.parse(document.get("dateTime", String::class.java))
 
@@ -56,7 +55,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
                 affectedId = affectedId,
                 affectedType = affectedType,
                 dateTime = dateTime,
-                addedTo = document.get("addedTo", UUID::class.java)
+                addedTo = document.get("addedTo", String::class.java)
             )
 
             ActionType.CHANGED -> ChangedLog(

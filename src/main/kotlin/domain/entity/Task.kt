@@ -7,7 +7,7 @@ data class Task(
     val id: UUID = UUID.randomUUID(),
     val title: String,
     val state: String,
-    val assignedTo: List<UUID>,
+    val assignedTo: List<UUID> = emptyList(),
     val createdBy: UUID,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val projectId: UUID,
