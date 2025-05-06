@@ -10,3 +10,4 @@ class NotFoundException(type: String = "") : PlanMateAppException("Not $type fou
 class InvalidInputException(message: String = "InvalidInput!!") : PlanMateAppException(message)
 class AlreadyExistException(message: String = "Already exist!!") : PlanMateAppException(message)
 class UnknownException() : PlanMateAppException("Something went wrong.")
+class NoChangeException() : PlanMateAppException("There is no modification.")
