@@ -3,7 +3,7 @@ import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.util.UUID
 
-private val dummyProjects = listOf(
+val dummyProjects = listOf(
     Project(
         name = "E-Commerce Platform",
         states = listOf("Backlog", "In Progress", "Testing", "Completed"),
@@ -65,13 +65,13 @@ private val dummyProjects = listOf(
         matesIds = listOf("mate6", "mate10").map { UUID.fromString(it) }
     )
 )
-private val dummyProject = dummyProjects[5]
-private val dummyAdmin = User(
+val dummyProject = dummyProjects[5]
+val dummyAdmin = User(
     username = "admin1",
     hashedPassword = "adminPass123",
     role = UserRole.ADMIN
 )
-private val dummyMate = User(
+val dummyMate = User(
     username = "mate1",
     hashedPassword = "matePass456",
     role = UserRole.MATE
