@@ -9,7 +9,7 @@ interface UsersRepository {
     fun createUser(user: User)
     fun getUserByID(userId: UUID): User
     fun clearUserData()
-    fun getCurrentUser(): User?
+    fun getCurrentUser(): User
     fun storeUserData(
         userId: UUID,
         username: String,
