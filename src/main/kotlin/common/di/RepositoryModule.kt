@@ -22,9 +22,8 @@ val repositoryModule = module {
         ProjectsRepositoryImpl(
             get(named(PROJECTS_DATA_SOURCE)),
             get(named(PROJECTS_DATA_SOURCE)),
-            get()
         )
     }
-    single<TasksRepository> { TasksRepositoryImpl(get(named(TASKS_DATA_SOURCE)), get(named(TASKS_DATA_SOURCE)), get()) }
+    single<TasksRepository> { TasksRepositoryImpl(get(named(TASKS_DATA_SOURCE)), get(named(TASKS_DATA_SOURCE))) }
     single<UsersRepository> { UsersRepositoryImpl(get(named(USERS_DATA_SOURCE)), get(named(USERS_DATA_SOURCE)), get()) }
 }
