@@ -10,7 +10,8 @@ class DeleteTaskUseCase(
     private val tasksRepository: TasksRepository,
     private val logsRepository: LogsRepository,
 ) {
-    operator fun invoke(taskId: UUID) = tasksRepository.deleteTaskById(taskId).let {
+    operator fun invoke(taskId: UUID) =
+        tasksRepository.deleteTaskById(taskId).let {
         logsRepository.addLog(
             DeletedLog(
                 affectedId = taskId.toString(),

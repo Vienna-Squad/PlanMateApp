@@ -10,7 +10,8 @@ class EditTaskStateUseCase(
     private val tasksRepository: TasksRepository,
     private val logsRepository: LogsRepository,
 ) {
-    operator fun invoke(taskId: UUID, newState: String) = tasksRepository.getTaskById(taskId).let { task ->
+    operator fun invoke(taskId: UUID, newState: String) =
+        tasksRepository.getTaskById(taskId).let { task ->
         tasksRepository.updateTask(task.copy(state = newState))
         logsRepository.addLog(
             ChangedLog(

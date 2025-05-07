@@ -96,56 +96,9 @@ val dummyTasks = listOf(
         title = "Create API endpoints",
         state = "To Do",
         assignedTo = emptyList(),
-        createdBy = UUID.randomUUID(),
+        createdBy = dummyAdmin.id,
         projectId = UUID.randomUUID()
     ),
-    Task(
-        title = "Write unit tests",
-        state = "In Progress",
-        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Fix login bug",
-        state = "Done",
-        assignedTo = listOf(UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Optimize database queries",
-        state = "To Do",
-        assignedTo = emptyList(),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Deploy to staging",
-        state = "In Progress",
-        assignedTo = listOf(UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Update documentation",
-        state = "To Do",
-        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Refactor legacy code",
-        state = "In Progress",
-        assignedTo = listOf(UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Add error logging",
-        state = "Done",
-        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    )
+
+
 )
