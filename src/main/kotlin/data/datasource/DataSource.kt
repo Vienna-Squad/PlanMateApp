@@ -1,8 +1,8 @@
-package org.example.data.datasource.local
+package data.datasource
 
 import java.util.UUID
 
-interface LocalDataSource<T> {
+interface DataSource<T> {
     fun getAll(): List<T>
     fun getById(id: UUID): T
     fun add(newItem: T)

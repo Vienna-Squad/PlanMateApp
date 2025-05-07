@@ -6,7 +6,7 @@ import common.di.useCasesModule
 import org.bson.Document
 import org.example.common.di.dataModule
 import org.example.common.di.repositoryModule
-import data.datasource.remote.mongo.MongoConfig
+import data.datasource.mongo.MongoConfig
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
 import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.entity.UserRole

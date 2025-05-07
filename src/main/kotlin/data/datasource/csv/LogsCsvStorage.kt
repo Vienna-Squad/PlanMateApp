@@ -1,4 +1,4 @@
-package org.example.data.datasource.local.csv
+package data.datasource.csv
 
 import org.example.domain.NotFoundException
 import org.example.domain.entity.*

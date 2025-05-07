@@ -1,8 +1,7 @@
-package org.example.data.datasource.remote.mongo
+package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
-import data.datasource.remote.mongo.MongoConfig
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.time.LocalDateTime

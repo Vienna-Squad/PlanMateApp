@@ -1,9 +1,9 @@
 package org.example.data.utils
 
+import data.datasource.DataSource
 import org.example.common.Constants
 import org.example.common.Constants.NamedDataSources.USERS_DATA_SOURCE
-import org.example.data.datasource.local.preferences.Preference
-import org.example.data.datasource.remote.RemoteDataSource
+import data.datasource.preferences.Preference
 import org.example.domain.NotFoundException
 import org.example.domain.PlanMateAppException
 import org.example.domain.UnauthorizedException
@@ -15,7 +15,7 @@ import java.util.*
 
 
 fun <T> authSafeCall(
-    usersRemoteDataSource: RemoteDataSource<User> = getKoin().get(named(USERS_DATA_SOURCE)),
+    usersRemoteDataSource: DataSource<User> = getKoin().get(named(USERS_DATA_SOURCE)),
     preferences: Preference = getKoin().get(),
     bloc: (user: User) -> T
 ): T {
