@@ -1,4 +1,4 @@
-package org.example.data.datasource.local.preferences
+package data.datasource.preferences
 
 interface Preference {
     fun put(key: String, value: String)

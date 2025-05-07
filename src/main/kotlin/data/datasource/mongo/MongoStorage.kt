@@ -1,16 +1,16 @@
-package org.example.data.datasource.remote.mongo
+package data.datasource.mongo
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.Document
-import org.example.data.datasource.remote.RemoteDataSource
+import data.datasource.DataSource
 import org.example.domain.NotFoundException
 import org.example.domain.UnknownException
 import java.util.UUID
 
 abstract class MongoStorage<T>(
     protected val collection: MongoCollection<Document>
-) : RemoteDataSource<T> {
+) : DataSource<T> {
 
     abstract fun toDocument(item: T): Document
     abstract fun fromDocument(document: Document): T

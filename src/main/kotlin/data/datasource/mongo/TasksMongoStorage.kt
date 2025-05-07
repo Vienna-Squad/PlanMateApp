@@ -1,9 +1,8 @@
-package org.example.data.datasource.remote.mongo
+package data.datasource.mongo
 
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.TASKS_COLLECTION
-import data.datasource.remote.mongo.MongoConfig
 import org.example.domain.entity.Task
 import java.time.LocalDateTime
 import java.util.*

@@ -1,13 +1,12 @@
-package org.example.data.datasource.local.csv
+package data.datasource.csv
 
-import org.example.data.datasource.local.LocalDataSource
+import data.datasource.DataSource
 import java.io.File
 import java.io.FileNotFoundException
 
-abstract class CsvStorage<T>(val file: File) : LocalDataSource<T> {
+abstract class CsvStorage<T>(val file: File) : DataSource<T> {
     abstract fun toCsvRow(item: T): String
     abstract fun fromCsvRow(fields: List<String>): T
-
 
     override fun getAll(): List<T> {
         if (!file.exists()) throw FileNotFoundException()

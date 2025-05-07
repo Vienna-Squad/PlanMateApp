@@ -1,6 +1,6 @@
-package org.example.data.datasource.local.preferences
+package data.datasource.preferences
 
-import org.example.data.datasource.local.csv.CsvStorage
+import data.datasource.csv.CsvStorage
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.UUID
