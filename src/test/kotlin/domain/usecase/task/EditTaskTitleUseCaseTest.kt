@@ -15,18 +15,17 @@ import java.util.UUID
 
 class EditTaskTitleUseCaseTest {
 
-    private val usersRepository: UsersRepository = mockk(relaxed = true)
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     lateinit var editTaskTitleUseCase: EditTaskTitleUseCase
 
     @BeforeEach
     fun setUp() {
-        editTaskTitleUseCase = EditTaskTitleUseCase(usersRepository, tasksRepository, logsRepository)
+        editTaskTitleUseCase = EditTaskTitleUseCase( tasksRepository, logsRepository)
     }
 
     @Test
-    fun `invoke should edit task when the task id and title is valid`() {
+    fun `invoke should edit task when the task id is valid`() {
         // given
         val task = Task(
             id = UUID.randomUUID(),
@@ -37,14 +36,14 @@ class EditTaskTitleUseCaseTest {
             projectId = UUID.randomUUID()
         )
 
-        every { tasksRepository.editTask(any(),any()) } returns Unit
+        every { tasksRepository.updateTask(any()) } returns Unit
 
-        editTaskTitleUseCase.invoke(taskId = task.id , title = "School Library" )
+        editTaskTitleUseCase.invoke(taskId = task.id , newTitle = "School Library" )
 
     }
 
     @Test
-    fun `invoke should call getCurrent function `() {
+    fun `invoke should add changed log for new title of task`() {
         // given
         val task = Task(
             id = UUID.randomUUID(),
@@ -55,34 +54,12 @@ class EditTaskTitleUseCaseTest {
             projectId = UUID.randomUUID()
         )
 
-        every { tasksRepository.editTask(any(),any()) } returns Unit
+        every { tasksRepository.updateTask(any()) } returns Unit
 
-        editTaskTitleUseCase.invoke(taskId = task.id , title = "School Library" )
-
-        verify { usersRepository.getCurrentUser() }
-
-    }
-    @Test
-    fun `invoke should call log function `() {
-        // given
-        val task = Task(
-            id = UUID.randomUUID(),
-            title = "Auth Feature",
-            state = "in progress",
-            assignedTo = listOf(UUID.randomUUID()),
-            createdBy = UUID.randomUUID(),
-            projectId = UUID.randomUUID()
-        )
-
-        every { tasksRepository.editTask(any(),any()) } returns Unit
-
-        editTaskTitleUseCase.invoke(taskId = task.id , title = "School Library" )
+        editTaskTitleUseCase.invoke(taskId = task.id , newTitle = "School Library" )
 
         verify { logsRepository.addLog(any()) }
 
     }
-
-
-
 
 }

@@ -11,14 +11,8 @@ import org.junit.jupiter.api.Test
 
 class LogoutUseCaseTest {
 
-    private lateinit var usersRepository: UsersRepository
-    private lateinit var logoutUseCase: LogoutUseCase
-
-    @BeforeEach
-    fun setUp() {
-        usersRepository = mockk(relaxed = true)
-        logoutUseCase = LogoutUseCase(usersRepository)
-    }
+    private val  usersRepository: UsersRepository = mockk(relaxed = true)
+    val logoutUseCase = LogoutUseCase(usersRepository)
 
 
     @Test

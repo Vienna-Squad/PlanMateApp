@@ -10,7 +10,8 @@ class AddMateToProjectUseCase(
     private val projectsRepository: ProjectsRepository,
     private val logsRepository: LogsRepository,
 ) {
-    operator fun invoke(projectId: UUID, mateId: UUID) = projectsRepository.getProjectById(projectId).let { project ->
+    operator fun invoke(projectId: UUID, mateId: UUID) =
+        projectsRepository.getProjectById(projectId).let { project ->
         projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mateId))
         logsRepository.addLog(
             AddedLog(
