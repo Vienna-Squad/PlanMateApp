@@ -3,7 +3,6 @@ package org.example.data.repository
 import org.example.data.datasource.local.LocalDataSource
 import org.example.data.datasource.remote.RemoteDataSource
 import org.example.data.utils.authSafeCall
-import org.example.data.utils.safeCall
 import org.example.domain.AccessDeniedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.UserRole
@@ -18,25 +17,21 @@ class ProjectsRepositoryImpl(
 
     override fun getProjectById(projectId: UUID) = authSafeCall { currentUser ->
         projectsRemoteDataSource.getById(projectId).let { project ->
-            if (project.createdBy != currentUser.id || currentUser.id !in  project.matesIds) throw AccessDeniedException()
+            if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException()
             project
         }
     }
 
-    override fun getAllProjects() = safeCall {
-        projectsRemoteDataSource.getAll()
+    override fun getAllProjects() = authSafeCall { projectsRemoteDataSource.getAll() }
+
+    override fun addProject(project: Project) = authSafeCall { currentUser ->
+        if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
+        projectsRemoteDataSource.add(project)
     }
 
     override fun updateProject(updatedProject: Project) = authSafeCall { currentUser ->
         if (updatedProject.createdBy != currentUser.id) throw AccessDeniedException()
         projectsRemoteDataSource.update(updatedProject)
-    }
-
-    override fun addProject(project: Project) = authSafeCall { currentUser ->
-        if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
-        projectsRemoteDataSource.add(
-            project
-        )
     }
 
     override fun deleteProjectById(projectId: UUID) = authSafeCall { currentUser ->
