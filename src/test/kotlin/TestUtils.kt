@@ -1,4 +1,5 @@
 import org.example.domain.entity.Project
+import org.example.domain.entity.Task
 import org.example.domain.entity.User
 import org.example.domain.entity.UserRole
 import java.util.UUID
@@ -75,4 +76,76 @@ val dummyMate = User(
     username = "mate1",
     hashedPassword = "matePass456",
     role = UserRole.MATE
+)
+val dummyTasks = listOf(
+    Task(
+        title = "Implement user authentication",
+        state = "In Progress",
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Design database schema",
+        state = "Done",
+        assignedTo = listOf(UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Create API endpoints",
+        state = "To Do",
+        assignedTo = emptyList(),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Write unit tests",
+        state = "In Progress",
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Fix login bug",
+        state = "Done",
+        assignedTo = listOf(UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Optimize database queries",
+        state = "To Do",
+        assignedTo = emptyList(),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Deploy to staging",
+        state = "In Progress",
+        assignedTo = listOf(UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Update documentation",
+        state = "To Do",
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Refactor legacy code",
+        state = "In Progress",
+        assignedTo = listOf(UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    ),
+    Task(
+        title = "Add error logging",
+        state = "Done",
+        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+        createdBy = UUID.randomUUID(),
+        projectId = UUID.randomUUID()
+    )
 )
