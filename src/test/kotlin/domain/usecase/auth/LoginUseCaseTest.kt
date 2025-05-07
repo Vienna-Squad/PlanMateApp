@@ -1,6 +1,5 @@
 package domain.usecase.auth
 
-import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -33,25 +32,42 @@ class LoginUseCaseTest {
         every { usersRepository.getAllUsers() } returns emptyList()
 
         // when & then
-        assertThrows <UnauthorizedException>{
+        assertThrows<UnauthorizedException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
 
 
     @Test
-    fun `invoke should throw UnauthorizedException when user not found`() {
+    fun `invoke should throw UnauthorizedException when user not correct`() {
         // given
         every { usersRepository.getAllUsers() } returns listOf(
             User(
                 username = "harry kane",
+                hashedPassword = encryptPassword("12345678"),
+                role = UserRole.MATE,
+            )
+        )
+
+        // when & then
+        assertThrows<UnauthorizedException> {
+            loginUseCase.invoke(username = "Ahmed", password = "12345678")
+        }
+    }
+
+    @Test
+    fun `invoke should throw UnauthorizedException when password not correct`() {
+        // given
+        every { usersRepository.getAllUsers() } returns listOf(
+            User(
+                username = "Ahmed",
                 hashedPassword = "uofah83r",
                 role = UserRole.MATE,
             )
         )
 
         // when & then
-        assertThrows <UnauthorizedException>{
+        assertThrows<UnauthorizedException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
@@ -71,6 +87,7 @@ class LoginUseCaseTest {
 
     }
 
+
     @Test
     fun `invoke should store user data for authorization `() {
         // given
@@ -84,7 +101,7 @@ class LoginUseCaseTest {
 
         loginUseCase.invoke(username = "Ahmed", password = "12345678")
 
-        verify { usersRepository.storeUserData(any(),any(),any()) }
+        verify { usersRepository.storeUserData(any(), any(), any()) }
 
     }
 
@@ -101,7 +118,7 @@ class LoginUseCaseTest {
 
         loginUseCase.getCurrentUserIfLoggedIn()
 
-        verify { usersRepository.getCurrentUser()}
+        verify { usersRepository.getCurrentUser() }
 
     }
 
@@ -120,7 +137,7 @@ class LoginUseCaseTest {
         val result = loginUseCase.getCurrentUserIfLoggedIn()
 
         //then
-        assertEquals(user,result)
+        assertEquals(user, result)
 
     }
 

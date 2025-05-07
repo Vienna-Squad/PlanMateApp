@@ -7,7 +7,6 @@ import org.example.domain.*
 import org.example.domain.entity.*
 import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
-import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.usecase.task.CreateTaskUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -18,164 +17,51 @@ import java.util.*
 class CreateTaskUseCaseTest {
     private lateinit var tasksRepository: TasksRepository
     private lateinit var logsRepository: LogsRepository
-    private lateinit var projectsRepository: ProjectsRepository
     private lateinit var usersRepository: UsersRepository
     private lateinit var createTaskUseCase: CreateTaskUseCase
 
+    private val title = "A Task"
+    private val state = "in progress"
+    private val projectId  = UUID.randomUUID()
     @BeforeEach
     fun setup() {
         tasksRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
-        projectsRepository = mockk(relaxed = true)
         usersRepository = mockk(relaxed = true)
         createTaskUseCase = CreateTaskUseCase(
-            tasksRepository,
-            logsRepository,
-            projectsRepository,
-            usersRepository
+            tasksRepository = tasksRepository,
+            logsRepository = logsRepository,
+            usersRepository = usersRepository
         )
     }
 
     @Test
-    fun `should throw UnauthorizedException when no logged-in user is found`() {
+    fun `should not complete creation of task when get current user is null`() {
         // Given
-        every { usersRepository.getCurrentUser() } returns Result.failure(Exception())
-
-        // When & Then
-        assertThrows<UnauthorizedException> {
-            createTaskUseCase(createTask())
-        }
-    }
-
-    @Test
-    fun `should throw NoFoundException when project is not found`() {
-        // Given
-        val task = createTask()
-        val user = createUser()
-        every { usersRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.getProjectById(task.projectId) } returns Result.failure(Exception())
-
-        // When & Then
-        assertThrows<NotFoundException> {
-            createTaskUseCase(task)
-        }
-    }
-    @Test
-    fun `should throw AccessDeniedException when user is not in matesIds`() {
-        // Given
-        val user = createUser().copy(id = UUID.randomUUID())
-        val project = createProject(createdBy = UUID.randomUUID()).copy(matesIds = listOf(UUID.randomUUID(), UUID.randomUUID()))
-        val task = createTask()
-
-        every { usersRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
-
-        // When & Then
-        assertThrows<AccessDeniedException> {
-            createTaskUseCase(task)
-        }
-    }
-    @Test
-    fun `should throw AccessDeniedException when project createdBy is not current user`() {
-        // Given
-        val user = createUser().copy(id = UUID.randomUUID())
-        val project = createProject(createdBy = UUID.randomUUID())
-        val task = createTask()
-
-        every { usersRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
-
-        // When & Then
-        assertThrows<AccessDeniedException> {
-            createTaskUseCase(task)
-        }
-    }
-
-    @Test
-    fun `should throw FailedToAddException when task addition fails`() {
-        // Given
-        val user = createUser().copy(id = UUID.randomUUID())
-        val project = createProject(createdBy = UUID.randomUUID()).copy(matesIds = listOf(user.id))
-        val task = createTask().copy(createdBy = user.id)
-
-        every { usersRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
-        every { tasksRepository.addTask(task) } returns Result.failure(Exception())
-
-        // When & Then
-        assertThrows<FailedToAddException> {
-            createTaskUseCase(task)
-        }
-    }
-    @Test
-    fun `should throw FailedToLogException when logging creation fails`() {
-        // Given
-        val user = createUser().copy(id = UUID.randomUUID())
-        val project = createProject(createdBy = UUID.randomUUID()).copy(matesIds = listOf(user.id))
-        val task = createTask().copy(createdBy = user.id)
-
-        every { usersRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
-        every { tasksRepository.addTask(task) } returns Result.success(Unit)
-        every { logsRepository.addLog(any()) } returns Result.failure(Exception("Log error"))
-
-        // When & Then
-        assertThrows<FailedToLogException> {
-            createTaskUseCase(task)
-        }
-    }
-    @Test
-    fun `should add task and log creation in logs repository`() {
-        // Given
-        val user = createUser()
-        val project = createProject(user.id)
-        val task = createTask()
-
-        every { usersRepository.getCurrentUser() } returns Result.success(user)
-        every { projectsRepository.getProjectById(task.projectId) } returns Result.success(project)
-        every { tasksRepository.addTask(task) } returns Result.success(Unit)
-        every { logsRepository.addLog(any()) } returns Result.success(Unit)
+        every { usersRepository.getCurrentUser() } returns null
 
         // When
-        createTaskUseCase(task)
+        createTaskUseCase.invoke(title = title , state = state , projectId = projectId)
 
-        // Then
-        verify { tasksRepository.addTask(task) }
-        verify {
-            logsRepository.addLog(match {
-                it.username == user.username &&
-                        it.affectedId == task.id &&
-                        it.affectedType == Log.AffectedType.TASK
-            })
-        }
+        // then
+        verify (exactly = 0){ tasksRepository.addTask(any()) }
     }
 
 
-    private fun createTask(): Task {
-        return Task(
-            title = "A Task",
-            state = "in progress",
-            assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
-            createdBy = UUID.randomUUID(),
-            projectId = UUID.randomUUID()
-        )
+    @Test
+    fun `should update task`() {
+        // when
+        createTaskUseCase.invoke(title = title , state = state , projectId = projectId)
+        // then
+        verify { tasksRepository.addTask(any()) }
     }
 
-    private fun createProject(createdBy: UUID): Project {
-        return Project(
-            id = UUID.randomUUID(),
-            name = "Test Project",
-            createdBy = createdBy,
-            states = emptyList(),
-            matesIds = emptyList()
-        )
+    @Test
+    fun `should add log for addition of  task`() {
+        // when
+        createTaskUseCase.invoke(title = title , state = state , projectId = projectId)
+        // then
+        verify { logsRepository.addLog(any()) }
     }
 
-    private fun createUser(): User {
-        return User(
-            username = "firstuser",
-            hashedPassword = "1234",
-            role = UserRole.MATE
-        )
-    }
 }
