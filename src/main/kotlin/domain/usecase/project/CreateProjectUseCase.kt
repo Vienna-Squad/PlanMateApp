@@ -14,11 +14,12 @@ class CreateProjectUseCase(
     private val logsRepository: LogsRepository,
 ) {
     operator fun invoke(name: String) =
-        usersRepository.getCurrentUser()?.let { currentUser ->
+        usersRepository.getCurrentUser().let { currentUser ->
             Project(name = name, createdBy = currentUser.id).let { newProject ->
                 projectsRepository.addProject(newProject)
                 logsRepository.addLog(
                     CreatedLog(
+                        username = usersRepository.getCurrentUser().username,
                         affectedId = newProject.id.toString(),
                         affectedType = Log.AffectedType.PROJECT
                     )

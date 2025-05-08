@@ -4,16 +4,19 @@ import org.example.domain.entity.DeletedLog
 import org.example.domain.entity.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
 import java.util.*
 
 class DeleteTaskUseCase(
     private val tasksRepository: TasksRepository,
     private val logsRepository: LogsRepository,
+    private val usersRepository: UsersRepository,
 ) {
     operator fun invoke(taskId: UUID) =
         tasksRepository.deleteTaskById(taskId).let {
         logsRepository.addLog(
             DeletedLog(
+                username = usersRepository.getCurrentUser().username,
                 affectedId = taskId.toString(),
                 affectedType = Log.AffectedType.TASK,
             )
