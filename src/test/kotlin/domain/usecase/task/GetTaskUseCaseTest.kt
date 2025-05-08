@@ -13,34 +13,33 @@ import kotlin.test.assertTrue
 
 class GetTaskUseCaseTest {
 
-    private lateinit var tasksRepository: TasksRepository
+    private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private lateinit var getTaskUseCase: GetTaskUseCase
-
+    private val dummyTask=dummyTasks[0]
     @BeforeEach
     fun setup() {
-        tasksRepository = mockk(relaxed = true)
         getTaskUseCase = GetTaskUseCase(tasksRepository)
     }
 
     @Test
     fun `should return task given task id`() {
         //Given
-        every { tasksRepository.getTaskById(dummyTasks[0].id) } returns dummyTasks[0]
+        every { tasksRepository.getTaskById(dummyTask.id) } returns dummyTask
 
         //when
-        val result = getTaskUseCase(dummyTasks[0].id)
+        val result = getTaskUseCase(dummyTask.id)
 
         //then
-        assertTrue { result == dummyTasks[0] }
+        assertTrue { result.id == dummyTask.id }
     }
 
     @Test
     fun `should throw Exception  when repo fails to fetch data task given task id`() {
         //Given
-        every { tasksRepository.getTaskById(dummyTasks[0].id) } throws Exception()
+        every { tasksRepository.getTaskById(dummyTask.id) } throws Exception()
 
         //when & then
-        assertThrows<Exception> { getTaskUseCase(dummyTasks[0].id) }
+        assertThrows<Exception> { getTaskUseCase(dummyTask.id) }
     }
 
 
