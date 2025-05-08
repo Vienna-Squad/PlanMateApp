@@ -20,7 +20,7 @@ class DeleteStateFromProjectUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        deleteStateFromProjectUseCase = DeleteStateFromProjectUseCase(projectsRepository, logsRepository)
+        deleteStateFromProjectUseCase = DeleteStateFromProjectUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
     }
 
     @Test
