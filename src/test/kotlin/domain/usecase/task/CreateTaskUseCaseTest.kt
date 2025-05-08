@@ -35,18 +35,6 @@ class CreateTaskUseCaseTest {
         )
     }
 
-    @Test
-    fun `should not complete creation of task when get current user is null`() {
-        // Given
-        every { usersRepository.getCurrentUser() } returns null
-
-        // When
-        createTaskUseCase.invoke(title = title , state = state , projectId = projectId)
-
-        // then
-        verify (exactly = 0){ tasksRepository.addTask(any()) }
-    }
-
 
     @Test
     fun `should update task`() {

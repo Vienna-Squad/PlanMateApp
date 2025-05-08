@@ -30,7 +30,7 @@ class GetAllTasksOfProjectUseCaseTest {
     @BeforeEach
     fun setup() {
         getAllTasksOfProjectUseCase =
-            GetAllTasksOfProjectUseCase(tasksRepository, projectsRepository, usersRepository)
+            GetAllTasksOfProjectUseCase(tasksRepository)
     }
 
     @Test

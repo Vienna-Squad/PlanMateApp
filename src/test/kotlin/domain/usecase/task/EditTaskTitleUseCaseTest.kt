@@ -21,7 +21,7 @@ class EditTaskTitleUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        editTaskTitleUseCase = EditTaskTitleUseCase( tasksRepository, logsRepository)
+        editTaskTitleUseCase = EditTaskTitleUseCase( tasksRepository, logsRepository,mockk(relaxed = true))
     }
 
     @Test

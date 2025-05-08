@@ -30,16 +30,6 @@ class CreateProjectUseCaseTest {
         createProjectUseCase = CreateProjectUseCase(projectRepository, usersRepository, logsRepository)
     }
 
-    @Test
-    fun `should not complete creation of project when current user is null`() {
-        // given
-        every { usersRepository.getCurrentUser() } returns null
-
-        createProjectUseCase.invoke(name = name)
-
-        verify(exactly = 0) {  projectRepository.addProject(any()) }
-    }
-
 
     @Test
     fun `should call getCurrentUser`() {

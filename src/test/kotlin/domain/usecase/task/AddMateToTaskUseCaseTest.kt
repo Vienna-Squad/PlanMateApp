@@ -26,6 +26,7 @@ class AddMateToTaskUseCaseTest {
         addMateToTaskUseCase = AddMateToTaskUseCase(
             tasksRepository,
             logsRepository,
+            mockk(relaxed = true)
         )
     }
     @Test

@@ -32,7 +32,7 @@ class AddStateToProjectUseCaseTest {
         projectsRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
         addStateToProjectUseCase =
-            AddStateToProjectUseCase(projectsRepository, logsRepository)
+            AddStateToProjectUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
 
     }
 

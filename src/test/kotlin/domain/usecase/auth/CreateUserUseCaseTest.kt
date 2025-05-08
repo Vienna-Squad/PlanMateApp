@@ -8,8 +8,6 @@ import org.example.domain.entity.UserRole
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.auth.CreateUserUseCase
-import org.junit.jupiter.api.BeforeEach
-import kotlin.math.log
 import kotlin.test.Test
 
 class CreateUserUseCaseTest {
