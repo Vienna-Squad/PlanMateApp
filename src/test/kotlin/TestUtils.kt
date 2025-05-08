@@ -101,14 +101,7 @@ val dummyTasks = listOf(
         title = "Create API endpoints",
         state = "To Do",
         assignedTo = emptyList(),
-        createdBy = UUID.randomUUID(),
-        projectId = UUID.randomUUID()
-    ),
-    Task(
-        title = "Write unit tests",
-        state = "In Progress",
-        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
+        createdBy = dummyAdmin.id,
         projectId = UUID.randomUUID()
     ),
     Task(

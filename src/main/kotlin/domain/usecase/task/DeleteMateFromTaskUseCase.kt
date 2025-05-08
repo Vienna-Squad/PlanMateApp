@@ -12,7 +12,8 @@ class DeleteMateFromTaskUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(taskId: UUID, mateId: UUID) = tasksRepository.getTaskById(taskId).let { task ->
+    operator fun invoke(taskId: UUID, mateId: UUID) =
+        tasksRepository.getTaskById(taskId).let { task ->
         task.assignedTo.toMutableList().let { mates ->
             mates.remove(mateId)
             tasksRepository.updateTask(task.copy(assignedTo = mates))
