@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 sealed class Log(
-    var username: String = "",
+    val username: String,
     val affectedId: String,
     val affectedType: AffectedType,
     val dateTime: LocalDateTime = LocalDateTime.now()
@@ -25,7 +25,7 @@ sealed class Log(
 }
 
 class ChangedLog(
-    username: String = "",
+    username: String,
     affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
@@ -37,7 +37,7 @@ class ChangedLog(
 }
 
 class AddedLog(
-    username: String = "",
+    username: String,
     affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
@@ -48,7 +48,7 @@ class AddedLog(
 }
 
 class DeletedLog(
-    username: String = "",
+    username: String,
     affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),
@@ -59,7 +59,7 @@ class DeletedLog(
 }
 
 class CreatedLog(
-    username: String = "",
+    username: String,
     affectedId: String,
     affectedType: AffectedType,
     dateTime: LocalDateTime = LocalDateTime.now(),

@@ -14,7 +14,7 @@ class CreateTaskUseCase(
     private val logsRepository: LogsRepository,
 ) {
     operator fun invoke(title: String, state: String, projectId: UUID) =
-        usersRepository.getCurrentUser()?.let { currentUser ->
+        usersRepository.getCurrentUser().let { currentUser ->
             Task(
                 title = title,
                 state = state,
@@ -24,6 +24,7 @@ class CreateTaskUseCase(
                 tasksRepository.addTask(newTask)
                 logsRepository.addLog(
                     CreatedLog(
+                        username = currentUser.username,
                         affectedId = newTask.id.toString(),
                         affectedType = Log.AffectedType.TASK,
                     )

@@ -1,6 +1,7 @@
 package data.datasource.csv
 
 import data.datasource.DataSource
+import org.example.domain.NotFoundException
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -21,7 +22,7 @@ abstract class CsvStorage<T>(val file: File) : DataSource<T> {
                 .filter { it.isNotEmpty() }
                 .map { row -> fromCsvRow(row.split(",")) }
         } else {
-            emptyList()
+            throw NotFoundException()
         }
     }
 
