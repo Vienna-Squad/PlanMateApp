@@ -16,6 +16,7 @@ class CreateUserUseCase(
             usersRepository.createUser(newUser)
             logsRepository.addLog(
                 CreatedLog(
+                    username = usersRepository.getCurrentUser().username,
                     affectedId = newUser.id.toString(),
                     affectedType = Log.AffectedType.MATE
                 )
