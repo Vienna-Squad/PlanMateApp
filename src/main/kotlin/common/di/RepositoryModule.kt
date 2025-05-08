@@ -18,11 +18,11 @@ import org.koin.dsl.module
 
 
 val repositoryModule = module {
-    single { SafeExecutor(get(), get(named(USERS_DATA_SOURCE))) }
+    single { SafeExecutor(get(named(USERS_DATA_SOURCE)), get()) }
 
 
-    single<LogsRepository> { LogsRepositoryImpl(get(named(LOGS_DATA_SOURCE)),get()) }
-    single<ProjectsRepository> { ProjectsRepositoryImpl(get(named(PROJECTS_DATA_SOURCE)),get()) }
-    single<TasksRepository> { TasksRepositoryImpl(get(named(TASKS_DATA_SOURCE)),get()) }
-    single<UsersRepository> { UsersRepositoryImpl(get(named(USERS_DATA_SOURCE)), get(),get()) }
+    single<LogsRepository> { LogsRepositoryImpl(get(named(LOGS_DATA_SOURCE)), get()) }
+    single<ProjectsRepository> { ProjectsRepositoryImpl(get(named(PROJECTS_DATA_SOURCE)), get()) }
+    single<TasksRepository> { TasksRepositoryImpl(get(named(TASKS_DATA_SOURCE)), get()) }
+    single<UsersRepository> { UsersRepositoryImpl(get(named(USERS_DATA_SOURCE)), get(), get()) }
 }
