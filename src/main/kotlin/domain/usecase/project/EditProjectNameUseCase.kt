@@ -5,11 +5,13 @@ import org.example.domain.entity.ChangedLog
 import org.example.domain.entity.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import org.example.domain.repository.UsersRepository
 import java.util.*
 
 class EditProjectNameUseCase(
     private val projectsRepository: ProjectsRepository,
     private val logsRepository: LogsRepository,
+    private val usersRepository: UsersRepository,
 ) {
     operator fun invoke(projectId: UUID, newName: String) =
         projectsRepository.getProjectById(projectId).let { project ->
@@ -17,6 +19,7 @@ class EditProjectNameUseCase(
             projectsRepository.updateProject(project.copy(name = newName))
             logsRepository.addLog(
                 ChangedLog(
+                    username = usersRepository.getCurrentUser().username,
                     affectedId = projectId.toString(),
                     affectedType = Log.AffectedType.PROJECT,
                     changedFrom = project.name,
