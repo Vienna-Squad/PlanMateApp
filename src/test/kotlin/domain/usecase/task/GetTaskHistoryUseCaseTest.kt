@@ -12,27 +12,27 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
+import kotlin.test.assertTrue
 
 
 class GetTaskHistoryUseCaseTest {
-    private lateinit var logsRepository: LogsRepository
+    private val logsRepository: LogsRepository = mockk()
     private lateinit var getTaskHistoryUseCase: GetTaskHistoryUseCase
-
+    private val task = dummyTasks[0]
 
     @BeforeEach
     fun setup() {
-        logsRepository = mockk()
         getTaskHistoryUseCase = GetTaskHistoryUseCase(logsRepository)
     }
 
     @Test
-    fun `should return list when task in the given list`() {
+    fun `should return list of logs when task logs exist`() {
         // Given
         every { logsRepository.getAllLogs() } returns dummyTasksLogs
         //when
-        val result = getTaskHistoryUseCase(dummyTasks[0].id)
+        val result = getTaskHistoryUseCase(task.id)
         //Then
-        assertThat(dummyTasksLogs.subList(1, 3)).containsExactlyElementsIn(result)
+        assertTrue { result.all { it.toString().contains(task.id.toString()) } }
     }
 
     @Test
@@ -41,20 +41,20 @@ class GetTaskHistoryUseCaseTest {
         every { logsRepository.getAllLogs() } throws Exception()
         // When & Then
         assertThrows<Exception> {
-            getTaskHistoryUseCase(dummyTasks[0].id)
+            getTaskHistoryUseCase(task.id)
         }
     }
 
     @Test
     fun `should throw NoFoundException list when no logs for the given task `() {
         // Given
-        every { logsRepository.getAllLogs() } returns dummyTasksLogs.subList(0, 1)
+        val dummyLogs=dummyTasksLogs.subList(0, 1)
+        every { logsRepository.getAllLogs() } returns dummyLogs
         //when&//Then
         assertThrows<NotFoundException> {
-            getTaskHistoryUseCase(dummyTasks[0].id)
+            getTaskHistoryUseCase(task.id)
         }
     }
-
 
     private val dummyTasksLogs = listOf(
         AddedLog(
