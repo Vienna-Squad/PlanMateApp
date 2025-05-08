@@ -21,7 +21,7 @@ class AddMateToProjectUseCaseTest {
     fun setup() {
         projectsRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
-        addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository)
+        addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
     }
 
 

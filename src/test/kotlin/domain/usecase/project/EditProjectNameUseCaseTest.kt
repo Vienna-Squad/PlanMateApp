@@ -20,7 +20,7 @@ class EditProjectNameUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        editProjectNameUseCase = EditProjectNameUseCase(projectsRepository, logsRepository)
+        editProjectNameUseCase = EditProjectNameUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
     }
 
     @Test

@@ -22,6 +22,7 @@ class DeleteProjectUseCaseTest {
         deleteProjectUseCase = DeleteProjectUseCase(
             projectsRepository,
             logsRepository,
+            mockk(relaxed = true)
         )
     }
 

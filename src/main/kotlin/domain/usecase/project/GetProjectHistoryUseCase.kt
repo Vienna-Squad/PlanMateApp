@@ -1,5 +1,6 @@
 package org.example.domain.usecase.project
 
+import org.example.domain.NotFoundException
 import org.example.domain.repository.LogsRepository
 import java.util.*
 
@@ -8,4 +9,5 @@ class GetProjectHistoryUseCase(
 ) {
     operator fun invoke(projectId: UUID) = logsRepository.getAllLogs()
         .filter { it.affectedId == projectId.toString() || it.toString().contains(projectId.toString()) }
+        .ifEmpty { throw NotFoundException("logs") }
 }
