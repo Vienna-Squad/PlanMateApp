@@ -22,7 +22,7 @@ class DeleteMateFromProjectUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        deleteMateFromProjectUseCase = DeleteMateFromProjectUseCase(projectsRepository, logsRepository)
+        deleteMateFromProjectUseCase = DeleteMateFromProjectUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
     }
 
     @Test
