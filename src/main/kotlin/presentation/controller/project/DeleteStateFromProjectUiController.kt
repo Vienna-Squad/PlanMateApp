@@ -2,27 +2,36 @@ package org.example.presentation.controller.project
 
 
 import domain.usecase.project.DeleteStateFromProjectUseCase
+import org.example.domain.InvalidInputException
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
+import org.example.presentation.utils.viewer.ItemViewer
+import org.example.presentation.utils.viewer.TextViewer
 import org.koin.mp.KoinPlatform.getKoin
 import java.util.*
 
 class DeleteStateFromProjectUiController(
     private val deleteStateFromProjectUseCase: DeleteStateFromProjectUseCase = getKoin().get(),
-    private val inputReader: InputReader<String> = StringInputReader(),
+    private val viewer: ItemViewer<String> = TextViewer(),
+    private val input: InputReader<String> = StringInputReader(),
 ) : UiController {
     override fun execute() {
         tryAndShowError {
-            print("Enter project id: ")
-            val projectId = inputReader.getInput()
-            print("Enter state you want to delete: ")
-            val stateToDelete = inputReader.getInput()
-            deleteStateFromProjectUseCase.invoke(
+            print("Please enter the project ID: ")
+            val projectId = input.getInput().also {
+                if (it.isBlank()) throw InvalidInputException("Project ID cannot be empty. Please enter a valid ID.")
+            }
+            print("Enter the state you want to delete: ")
+            val stateToDelete = input.getInput().also {
+                if (it.isBlank()) throw InvalidInputException("State name cannot be empty. Please enter a valid state.")
+            }
+            deleteStateFromProjectUseCase(
                 projectId = UUID.fromString(projectId),
-                state = stateToDelete
+                stateName = stateToDelete
             )
-            println("State deleted successfully")
+            viewer.view("State \"$stateToDelete\" has been successfully removed from the project.\n")
         }
+
     }
 }

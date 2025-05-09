@@ -1,48 +1,33 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
-import org.example.domain.FailedToAddLogException
-import org.example.domain.FailedToCreateProject
-import org.example.domain.UnauthorizedException
-import org.example.domain.entity.*
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.Project
+import org.example.domain.entity.User
+import org.example.domain.entity.log.CreatedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
-import java.util.*
+import org.example.domain.repository.UsersRepository
 
 
 class CreateProjectUseCase(
     private val projectsRepository: ProjectsRepository,
-    private val authenticationRepository: AuthenticationRepository,
-    private val logsRepository: LogsRepository
+    private val usersRepository: UsersRepository,
+    private val logsRepository: LogsRepository,
 ) {
-    operator fun invoke(name: String) {
-
-        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException(
-            "User not found"
-        ) }.let { currentUser ->
-
-            if (currentUser.type != UserType.ADMIN) {
-                throw AccessDeniedException(
-                    "Only admins can create projects"
+    operator fun invoke(name: String) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            if (currentUser.role != User.UserRole.ADMIN) throw AccessDeniedException("feature")
+            Project(name = name, createdBy = currentUser.id).let { newProject ->
+                projectsRepository.addProject(newProject)
+                logsRepository.addLog(
+                    CreatedLog(
+                        username = currentUser.username,
+                        affectedId = newProject.id,
+                        affectedName = name,
+                        affectedType = Log.AffectedType.PROJECT
+                    )
                 )
             }
-
-            val newProject = Project(name = name ,createdBy = currentUser.id)
-            projectsRepository.addProject(newProject).getOrElse { throw FailedToCreateProject(
-                "Failed to create project"
-            ) }
-
-            logsRepository.addLog(
-                log = CreatedLog(
-                    username = currentUser.username,
-                    affectedType = Log.AffectedType.PROJECT,
-                    affectedId = newProject.id
-                )
-            ).getOrElse { throw FailedToAddLogException(
-                "Failed to add log"
-            ) }
         }
-
-    }
 }

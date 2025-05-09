@@ -1,51 +1,39 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.NotFoundException
-import org.example.domain.UnauthorizedException
-import org.example.domain.entity.ChangedLog
-import org.example.domain.entity.Log
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.AccessDeniedException
+import org.example.domain.NoChangeException
+import org.example.domain.entity.log.ChangedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
 import java.util.*
 
 class EditTaskTitleUseCase(
-    private val authenticationRepository: AuthenticationRepository,
     private val tasksRepository: TasksRepository,
-    private val logsRepository: LogsRepository
+    private val logsRepository: LogsRepository,
+    private val usersRepository: UsersRepository,
+    private val projectsRepository: ProjectsRepository,
 ) {
-    operator fun invoke(taskId: UUID, title: String) {
-        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException(
-            "You are not authorized to perform this action. Please log in again."
-        ) }.let { user ->
-            tasksRepository.getAllTasks().getOrElse {  throw NotFoundException(
-                "No tasks found. Please check the task ID and try again."
-            ) }
-                .filter { task -> task.id == taskId }
-                .also { tasks -> if (tasks.isEmpty())  throw NotFoundException(
-                    "The task with ID $taskId was not found. Please check the ID and try again."
-                ) }
-                .first()
-                .also { task ->
+    operator fun invoke(taskId: UUID, newTitle: String) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            tasksRepository.getTaskById(taskId).let { task ->
+                projectsRepository.getProjectById(task.projectId).let { project ->
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
+                    if (task.title == newTitle) throw NoChangeException()
+                    tasksRepository.updateTask(task.copy(title = newTitle))
                     logsRepository.addLog(
                         ChangedLog(
-                            username = user.username,
-                            affectedId = taskId,
+                            username = currentUser.username,
+                            affectedId = task.id,
+                            affectedName = task.title,
                             affectedType = Log.AffectedType.TASK,
                             changedFrom = task.title,
-                            changedTo = title,
+                            changedTo = newTitle
                         )
-                    ).getOrElse { throw NotFoundException(
-                        "Failed to log the change. Please try again later."
-                    ) }
+                    )
                 }
-                .copy(title = title)
-                .let { task ->
-                    tasksRepository.updateTask(task).getOrElse { throw NotFoundException(
-                        "Failed to update the task. Please try again later."
-                    ) }
-                }
+            }
         }
-    }
-
 }

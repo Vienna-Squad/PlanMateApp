@@ -1,60 +1,31 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
-import org.example.domain.InvalidIdException
-import org.example.domain.NotFoundException
-import org.example.domain.UnauthorizedException
-import org.example.domain.entity.DeletedLog
-import org.example.domain.entity.Log
-import org.example.domain.entity.Project
-import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
-import java.util.UUID
+import org.example.domain.repository.UsersRepository
+import java.util.*
 
 class DeleteProjectUseCase(
     private val projectsRepository: ProjectsRepository,
     private val logsRepository: LogsRepository,
-    private val authenticationRepository: AuthenticationRepository
+    private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID) {
-        doIfAuthorized(authenticationRepository::getCurrentUser) { user ->
-            if (user.type == UserType.MATE) throw AccessDeniedException(
-                "Mates are not allowed to delete projects"
-            )
-            doIfExistedProject(projectId, projectsRepository::getProjectById) { project ->
-                if (project.createdBy != user.id) throw AccessDeniedException(
-                    "Only the creator of the project can delete it"
-                )
-                projectsRepository.deleteProjectById(project.id)
+    operator fun invoke(projectId: UUID) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+                projectsRepository.deleteProjectById(projectId)
                 logsRepository.addLog(
                     DeletedLog(
-                        username = user.username,
+                        username = currentUser.username,
                         affectedId = projectId,
+                        affectedName = project.name,
                         affectedType = Log.AffectedType.PROJECT,
                     )
                 )
             }
         }
-    }
-
-    private fun doIfAuthorized(getCurrentUser: () -> Result<User>, block: (User) -> Unit) {
-        block(getCurrentUser().getOrElse { throw UnauthorizedException(
-            "User not found"
-        ) })
-    }
-
-    private fun doIfExistedProject(
-        projectId: UUID,
-        getProject: (UUID) -> Result<Project>,
-        block: (Project) -> Unit
-    ) {
-        block(getProject(projectId).getOrElse { throw if (projectId.toString().isBlank()) InvalidIdException(
-            "Project ID is invalid"
-        ) else NotFoundException(
-            "Project with id $projectId not found"
-        ) })
-    }
 }

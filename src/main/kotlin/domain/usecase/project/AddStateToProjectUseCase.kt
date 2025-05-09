@@ -1,72 +1,35 @@
 package org.example.domain.usecase.project
 
-
-import org.example.domain.*
-import org.example.domain.entity.AddedLog
-import org.example.domain.entity.Log
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.AccessDeniedException
+import org.example.domain.AlreadyExistException
+import org.example.domain.entity.State
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
-import org.koin.mp.KoinPlatform.getKoin
-import java.time.LocalDateTime
-import java.util.UUID
-
+import org.example.domain.repository.UsersRepository
+import java.util.*
 
 class AddStateToProjectUseCase(
-    private val authenticationRepository: AuthenticationRepository = getKoin().get(),
-    private val projectsRepository: ProjectsRepository = getKoin().get(),
-    private val logsRepository: LogsRepository = getKoin().get()
+    private val projectsRepository: ProjectsRepository,
+    private val logsRepository: LogsRepository,
+    private val usersRepository: UsersRepository,
 ) {
-
-
-    operator fun invoke(projectId: UUID, state: String) {
-        authenticationRepository
-            .getCurrentUser()
-            .getOrElse {
-                throw UnauthorizedException(
-                    "User not found"
-                )
-            }.also { currentUser ->
-                if (currentUser.type != UserType.ADMIN) {
-                    throw AccessDeniedException(
-                        "Only admins can add states to projects"
-                    )
+    operator fun invoke(projectId: UUID, stateName: String) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+                if (project.states.any { it.name == stateName }) throw AlreadyExistException("state")
+                State(name = stateName).let { stateObj ->
+                    projectsRepository.updateProject(project.copy(states = project.states + stateObj))
+                    logsRepository.addLog(AddedLog(
+                            username = currentUser.username,
+                            affectedId = stateObj.id,
+                            affectedName = stateName,
+                            affectedType = Log.AffectedType.STATE,
+                            addedTo = "project ${project.name} [$projectId]"
+                        ))
                 }
-                projectsRepository.getProjectById(projectId)
-                    .getOrElse {
-                        throw NotFoundException(
-                            "Project not found"
-                        )
-                    }
-                    .also { project ->
-                        if (project.createdBy != currentUser.id) throw AccessDeniedException(
-                            "Only the creator of the project can add states"
-                        )
-                        if (project.states.contains(state)) throw AlreadyExistException(
-                            "State already exists in the project"
-                        )
-                        projectsRepository.updateProject(
-                            project.copy(
-                                states = project.states + state
-                            )
-                        )
-                    }
-
-                logsRepository.addLog(
-                    AddedLog(
-                        username = currentUser.username,
-                        affectedId = projectId,
-                        affectedType = Log.AffectedType.STATE,
-                        dateTime = LocalDateTime.now(),
-                        addedTo = projectId,
-                    )
-                ).getOrElse { throw FailedToLogException(
-                    "Failed to log the action"
-                ) }
             }
-
-    }
+        }
 }
-
-

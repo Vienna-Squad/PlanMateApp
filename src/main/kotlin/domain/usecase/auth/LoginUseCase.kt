@@ -1,16 +1,22 @@
 package org.example.domain.usecase.auth
 
-import org.example.domain.LoginException
-import org.example.domain.entity.User
-import org.example.domain.repository.AuthenticationRepository
 
-class LoginUseCase(
-    private val authenticationRepository: AuthenticationRepository
-) {
-    operator fun invoke(username: String, password: String): User {
-        authenticationRepository.login(username = username, password = password)
-            .getOrElse { throw LoginException("Error During Log in please try again") }
-            .let { user -> return user }
-    }
+import org.example.domain.repository.UsersRepository
+import org.example.data.repository.UsersRepositoryImpl
+import org.example.domain.UnauthorizedException
+
+class LoginUseCase(private val usersRepository: UsersRepository) {
+    operator fun invoke(username: String, password: String) =
+        usersRepository.getAllUsers()
+            .find { it.username == username && it.hashedPassword == UsersRepositoryImpl.encryptPassword(password) }
+            ?.let { user ->
+                usersRepository.storeUserData(
+                    userId = user.id,
+                    username = user.username,
+                    role = user.role
+                )
+            } ?: throw UnauthorizedException()
+
+    fun getCurrentUserIfLoggedIn() = usersRepository.getCurrentUser()
 
 }

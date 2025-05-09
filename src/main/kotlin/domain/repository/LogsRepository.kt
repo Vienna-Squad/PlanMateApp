@@ -1,8 +1,8 @@
 package org.example.domain.repository
 
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.Log
 
 interface LogsRepository {
-    fun getAllLogs(): Result<List<Log>>
-    fun addLog(log: Log): Result<Unit>
+    fun getAllLogs(): List<Log>
+    fun addLog(log: Log)
 }

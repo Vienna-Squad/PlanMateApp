@@ -4,9 +4,9 @@ import org.example.domain.entity.Task
 import java.util.*
 
 interface TasksRepository {
-    fun getTaskById(taskId: UUID): Result<Task>
-    fun getAllTasks(): Result<List<Task>>
-    fun addTask(task: Task): Result<Unit>
-    fun updateTask(task: Task): Result<Unit>
-    fun deleteTaskById(taskId: UUID): Result<Unit>
+    fun getTaskById(taskId: UUID): Task
+    fun getAllTasks(): List<Task>
+    fun addTask(newTask: Task)
+    fun updateTask(updatedTask: Task)
+    fun deleteTaskById(taskId: UUID)
 }

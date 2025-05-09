@@ -1,86 +1,110 @@
 package domain.usecase.task
 
+import dummyProject
+import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.*
-import org.example.domain.entity.ChangedLog
-import org.example.domain.entity.Project
-import org.example.domain.entity.Task
-import org.example.domain.entity.User
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.State
+import org.example.domain.entity.log.ChangedLog
+import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
-import org.example.domain.usecase.project.EditProjectStatesUseCase
+import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.task.EditTaskStateUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.example.domain.repository.LogsRepository
-import org.example.domain.repository.TasksRepository
-import org.example.domain.usecase.task.EditTaskStateUseCase
-import org.example.presentation.utils.viewer.ExceptionViewer
-import java.time.LocalDateTime
-import java.util.UUID
-import kotlin.test.assertEquals
 
 class EditTaskStateUseCaseTest {
     private lateinit var editTaskStateUseCase: EditTaskStateUseCase
+    private val logsRepository: LogsRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
-
-    private val dummyTask = Task(
-        id = UUID.randomUUID(),
-        title = "Sample Task",
-        state = "To Do",
-        assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
-        createdBy = UUID.randomUUID(),
-        createdAt = LocalDateTime.now(),
-        projectId = UUID.randomUUID()
-    )
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
+    private val dummyTask = dummyTasks[0]
 
     @BeforeEach
     fun setup() {
         editTaskStateUseCase = EditTaskStateUseCase(
-            tasksRepository
+            tasksRepository,
+            logsRepository,
+            usersRepository,
+            projectsRepository
         )
     }
 
     @Test
     fun `should edit task state when task exists`() {
         // Given
-        every { tasksRepository.getTaskById(dummyTask.id) } returns Result.success(dummyTask)
+        val task = dummyTask.copy(projectId = dummyProject.id, state = State(name = "test-state"))
+        val newState = dummyProject.states.random().name
+        every { tasksRepository.getTaskById(task.id) } returns task
+        every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
 
         // When
-        editTaskStateUseCase(dummyTask.id, "In Progress")
+        editTaskStateUseCase(dummyTask.id, newState)
 
         // Then
         verify {
             tasksRepository.updateTask(match {
-                it.state == "In Progress" && it.id == dummyTask.id // Using random UUID comparison
+                it.state.name == newState && it.id == dummyTask.id
             })
         }
+        verify {
+            logsRepository.addLog(
+                match
+                {
+                    it is ChangedLog
+                })
+        }
     }
 
     @Test
-    fun `should throw NoFoundException when task does not exist`() {
+    fun `should throw an Exception and not log when getTaskById fails `() {
         // Given
-        every { tasksRepository.getTaskById(dummyTask.id) } returns Result.failure(NotFoundException(""))
 
-        // When & Then
-        assertThrows<NotFoundException> {
+        every { tasksRepository.getTaskById(dummyTask.id) } throws Exception()
+
+        // when&Then
+        assertThrows<Exception> {
             editTaskStateUseCase(dummyTask.id, "In Progress")
         }
+        verify(exactly = 0) {
+            tasksRepository.updateTask(match {
+                it.id == dummyTask.id
+            })
+        }
+        verify(exactly = 0) {
+            logsRepository.addLog(
+                match
+                {
+                    it is ChangedLog
+                })
+        }
     }
 
     @Test
-    fun `should throw InvalidIdException when task id is blank`() {
+    fun `should throw an Exception and not log when updateTask fails `() {
         // Given
-        val exception = InvalidIdException("")
-        every { tasksRepository.getTaskById(any()) } throws exception // Allow any UUID for invalid id
-
-        // When & Then
-        val thrown = assertThrows<InvalidIdException> {
-            editTaskStateUseCase(UUID.randomUUID(), "In Progress") // Use random UUID
+        val task = dummyTask.copy(projectId = dummyProject.id, state = State(name = "test-state"))
+        every { tasksRepository.getTaskById(task.id) } returns task
+        every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
+        every { tasksRepository.updateTask(any()) } throws Exception()
+        // when&Then
+        assertThrows<Exception> {
+            editTaskStateUseCase(task.id, dummyProject.states.random().name)
         }
-        assertEquals(exception.message, thrown.message)
+
+        verify(exactly = 0) {
+            logsRepository.addLog(
+                match
+                {
+                    it is ChangedLog
+                })
+        }
     }
+
+
 }
+

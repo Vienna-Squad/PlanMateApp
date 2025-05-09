@@ -1,6 +1,26 @@
+import org.gradle.declarative.dsl.schema.FqName.Empty.packageName
+import java.io.FileInputStream
+import java.util.*
+
 plugins {
     kotlin("jvm") version "2.1.0"
+    id("com.github.gmazzo.buildconfig") version "4.1.2"
     jacoco
+}
+val localProperties = Properties().apply {
+    val localFile = rootProject.file("Keys.properties")
+    if (localFile.exists()) {
+        FileInputStream(localFile).use { load(it) }
+    }
+}
+val mongoUri = localProperties.getProperty("MONGO.URI")
+val databaseName = localProperties.getProperty("DATABASE.NAME")
+
+buildConfig {
+    packageName("org.example")
+    buildConfigField("String", "MONGO_URI", "\"${mongoUri}\"")
+    buildConfigField("String", "DATABASE_NAME", "\"${databaseName}\"")
+    buildConfigField("String", "APP_VERSION", "\"${project.version}\"")
 }
 jacoco {
     toolVersion = "0.8.7"
@@ -103,6 +123,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("com.google.truth:truth:1.4.2")
+    // MongoDB driver
+    implementation("org.mongodb:mongodb-driver-sync:4.9.1")
+
+    // Kotlin serialization for MongoDB (optional but helpful)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }
 
 tasks.test {

@@ -1,53 +1,46 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.*
-
-import org.example.domain.entity.CreatedLog
-import org.example.domain.entity.Log
+import org.example.domain.AccessDeniedException
+import org.example.domain.ProjectHasNoException
+import org.example.domain.entity.State
 import org.example.domain.entity.Task
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.entity.log.CreatedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
+import java.util.*
 
 class CreateTaskUseCase(
     private val tasksRepository: TasksRepository,
+    private val usersRepository: UsersRepository,
     private val logsRepository: LogsRepository,
     private val projectsRepository: ProjectsRepository,
-    private val authenticationRepository: AuthenticationRepository
 ) {
-    operator fun invoke(newTask: Task) {
-        authenticationRepository.getCurrentUser()
-            .getOrElse {
-                throw UnauthorizedException(
-                    "User not found"
+    operator fun invoke(title: String, stateName: String, projectId: UUID) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException(
+                    "project"
                 )
-            }.also { currentUser ->
-                projectsRepository.getProjectById(newTask.projectId)
-                    .getOrElse {
-                        throw NotFoundException(
-                            "Project with id ${newTask.projectId} not found"
+                if (project.states.all { it.name != stateName }) throw ProjectHasNoException("state")
+                Task(
+                    title = title,
+                    state = State(name = stateName),
+                    projectId = projectId,
+                    createdBy = currentUser.id
+                ).let { newTask ->
+                    tasksRepository.addTask(newTask)
+                    logsRepository.addLog(
+                        CreatedLog(
+                            username = currentUser.username,
+                            affectedId = newTask.id,
+                            affectedName = newTask.title,
+                            affectedType = Log.AffectedType.TASK,
                         )
-                    }.also { project ->
-
-                if (!project.matesIds.contains(currentUser.id)
-                    &&(project.createdBy != currentUser.id)){throw AccessDeniedException(
-                        " Only the mates of the project or creator can create tasks"
-                    )}
-
-                tasksRepository.addTask(newTask).getOrElse {throw FailedToAddException(
-                    "Failed to add task"
-                ) }
-                logsRepository.addLog(
-                    CreatedLog(
-                        username = currentUser.username,
-                        affectedId = newTask.id,
-                        affectedType = Log.AffectedType.TASK,
                     )
-                ).getOrElse { throw FailedToLogException(
-                    "Failed to add log"
-                ) }
+                }
             }
-    }
-}
+        }
 }

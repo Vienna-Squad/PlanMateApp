@@ -1,49 +1,40 @@
 package org.example.presentation.controller.task
 
-import org.example.domain.UnknownException
-import org.example.domain.entity.Task
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.InvalidInputException
 import org.example.domain.usecase.task.CreateTaskUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
+import org.example.presentation.utils.viewer.ItemViewer
+import org.example.presentation.utils.viewer.TextViewer
 import org.koin.java.KoinJavaComponent.getKoin
 import java.util.*
 
 class CreateTaskUiController(
-    private val createTaskUseCase: CreateTaskUseCase=getKoin().get(),
-    private val authenticationRepository: AuthenticationRepository=getKoin().get(),
-    private val inputReader: InputReader<String> = StringInputReader()
-
+    private val createTaskUseCase: CreateTaskUseCase = getKoin().get(),
+    private val viewer: ItemViewer<String> = TextViewer(),
+    private val input: InputReader<String> = StringInputReader()
 ) : UiController {
     override fun execute() {
         tryAndShowError {
-            println("Enter task title: ")
-            val taskTitle = inputReader.getInput()
-            println("Enter task state: ")
-            val taskState = inputReader.getInput()
-            if (taskState.isBlank()) {
-                throw UnknownException(
-                    "Task state cannot be blank. Please provide a valid state."
-                )
+            print("Please enter the task title: ")
+            val taskTitle = input.getInput().also {
+                if (it.isBlank()) throw InvalidInputException("Task title cannot be empty. Please provide a valid title.")
             }
-            println("Enter project id: ")
-            val projectId = inputReader.getInput()
-            val createdBy = authenticationRepository.getCurrentUser().getOrElse {
-                throw UnknownException(
-                    "User not authenticated. Please log in to create a task."
-                )
+            print("Please enter the task state: ")
+            val taskState = input.getInput().also {
+                if (it.isBlank()) throw InvalidInputException("Task state cannot be empty. Please provide a valid state.")
+            }
+            print("Please enter the project ID: ")
+            val projectId = input.getInput().also {
+                if (it.isBlank()) throw InvalidInputException("Project ID cannot be empty. Please provide a valid ID.")
             }
             createTaskUseCase(
-                Task(
-                    title = taskTitle,
-                    state = taskState,
-                    assignedTo = emptyList(),
-                    createdBy =  createdBy.id,
-                    projectId = UUID.fromString( projectId)
-                )
+                title = taskTitle,
+                stateName = taskState,
+                projectId = UUID.fromString(projectId)
             )
-            println("Task created successfully")
+            viewer.view("Task \"$taskTitle\" has been created successfully under project [$projectId].\n")
         }
     }
 }

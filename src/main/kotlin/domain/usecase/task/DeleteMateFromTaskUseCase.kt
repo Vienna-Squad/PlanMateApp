@@ -1,61 +1,41 @@
 package org.example.domain.usecase.task
 
 import org.example.domain.AccessDeniedException
-import org.example.domain.FailedToAddLogException
-import org.example.domain.NotFoundException
-import org.example.domain.UnauthorizedException
-import org.example.domain.entity.DeletedLog
-import org.example.domain.entity.Log
-import org.example.domain.entity.UserType
-import org.example.domain.repository.AuthenticationRepository
+import org.example.domain.TaskHasNoException
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
 import java.util.*
 
 class DeleteMateFromTaskUseCase(
     private val tasksRepository: TasksRepository,
-    private val authenticationRepository: AuthenticationRepository,
-    private val logRepository: LogsRepository
+    private val logsRepository: LogsRepository,
+    private val usersRepository: UsersRepository,
+    private val projectsRepository: ProjectsRepository,
 ) {
-    operator fun invoke(taskId: UUID, mate: UUID) {
-
-        authenticationRepository.getCurrentUser().getOrElse { throw UnauthorizedException(
-            "User not found"
-        ) }.let { currentUser ->
-
-            if (currentUser.type != UserType.ADMIN) {
-                throw AccessDeniedException(
-                    "Only admins can delete mates from tasks"
-                )
-            }
-
-            tasksRepository.getTaskById(taskId).getOrElse { throw NotFoundException(
-                " Task with id $taskId not found"
-            ) }.let { task ->
-
-                if (!task.assignedTo.contains(mate)) {
-                    throw NotFoundException(
-                        "User with id $mate is not assigned to task $taskId"
-                    )
+    operator fun invoke(taskId: UUID, mateId: UUID) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            tasksRepository.getTaskById(taskId).let { task ->
+                projectsRepository.getProjectById(task.projectId).let { project ->
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
+                    if (!task.assignedTo.contains(mateId)) throw TaskHasNoException("mate")
+                    task.assignedTo.toMutableList().let { mates ->
+                        mates.remove(mateId)
+                        tasksRepository.updateTask(task.copy(assignedTo = mates))
+                        logsRepository.addLog(
+                            DeletedLog(
+                                username = currentUser.username,
+                                affectedId = mateId,
+                                affectedName = usersRepository.getUserByID(mateId).username,
+                                affectedType = Log.AffectedType.MATE,
+                                deletedFrom = "task ${task.title} [$taskId]"
+                            )
+                        )
+                    }
                 }
-
-                val updatedAssignedTo = task.assignedTo.filter { it != mate }
-                val updatedTask = task.copy(assignedTo = updatedAssignedTo)
-                tasksRepository.updateTask(updatedTask)
-
-                logRepository.addLog(
-                    log = DeletedLog(
-                        username = currentUser.username,
-                        affectedType = Log.AffectedType.MATE,
-                        affectedId = taskId,
-                        deletedFrom = task.title
-                    )
-                ).getOrElse { throw FailedToAddLogException(
-                    "Failed to add log"
-                ) }
-
             }
         }
-
-    }
 }

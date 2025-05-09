@@ -1,33 +1,34 @@
 package org.example.presentation.controller.project
 
-import org.example.domain.InvalidIdException
+import org.example.domain.InvalidInputException
+import org.example.domain.entity.Task
 import org.example.domain.usecase.project.GetAllTasksOfProjectUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
 import org.example.presentation.utils.viewer.ItemViewer
-import org.example.presentation.utils.viewer.StringViewer
+import org.example.presentation.utils.viewer.ItemsViewer
+import org.example.presentation.utils.viewer.TasksViewer
+import org.example.presentation.utils.viewer.TextViewer
 import org.koin.java.KoinJavaComponent.getKoin
 import java.util.*
 
 class GetAllTasksOfProjectController(
     private val getAllTasksOfProjectUseCase: GetAllTasksOfProjectUseCase = getKoin().get(),
-    private val stringViewer: ItemViewer<String> = StringViewer(),
-    private val inputReader: InputReader<String> = StringInputReader(),
-): UiController {
+    private val viewer: ItemViewer<String> = TextViewer(),
+    private val input: InputReader<String> = StringInputReader(),
+    private val tasksViewer: ItemsViewer<Task> = TasksViewer()
+) : UiController {
     override fun execute() {
-        tryAndShowError{
-            println("enter project ID: ")
-            val projectId = inputReader.getInput()
-            if (projectId.isBlank()) {
-                throw InvalidIdException(
-                    "Project ID cannot be blank. Please provide a valid ID."
-                )
+        tryAndShowError {
+            print("Please enter the project ID: ")
+            val projectId = input.getInput().also {
+                if (it.isBlank()) throw InvalidInputException("Project ID cannot be blank. Please enter a valid ID.")
             }
-            val tasks = getAllTasksOfProjectUseCase(
-                UUID.fromString( projectId))
-            stringViewer.view(tasks.toString())
+            getAllTasksOfProjectUseCase(UUID.fromString(projectId)).also {
+                viewer.view("Tasks for project ID $projectId:\n")
+                tasksViewer.view(it)
+            }
         }
-
     }
 }
