@@ -2,11 +2,7 @@ package org.example.data.repository
 
 import data.datasource.DataSource
 import data.datasource.preferences.Preference
-import org.example.common.Constants.PreferenceKeys.CURRENT_USER_ID
-import org.example.common.Constants.PreferenceKeys.CURRENT_USER_NAME
-import org.example.common.Constants.PreferenceKeys.CURRENT_USER_ROLE
 import org.example.data.utils.safeCall
-import org.example.domain.UnauthorizedException
 import org.example.domain.entity.User
 import org.example.domain.repository.UsersRepository
 import java.security.MessageDigest
@@ -18,11 +14,7 @@ class UsersRepositoryImpl(
     private val preferences: Preference,
 ) : UsersRepository {
     override fun storeUserData(userId: UUID, username: String, role: User.UserRole) = safeCall {
-        usersDataSource.getById(userId).let {
-            preferences.put(CURRENT_USER_ID, it.id.toString())
-            preferences.put(CURRENT_USER_NAME, it.username)
-            preferences.put(CURRENT_USER_ROLE, it.role.toString())
-        }
+        preferences.saveUser(userId = userId, username = username, role = role)
     }
 
     override fun getAllUsers() = safeCall { usersDataSource.getAll() }
@@ -31,11 +23,7 @@ class UsersRepositoryImpl(
         usersDataSource.add(user.copy(hashedPassword = encryptPassword(user.hashedPassword)))
     }
 
-    override fun getCurrentUser() = safeCall {
-        preferences.get(CURRENT_USER_ID)?.let { userId ->
-            getAllUsers().find { it.id == UUID.fromString(userId) } ?: throw UnauthorizedException()
-        } ?: throw UnauthorizedException()
-    }
+    override fun getCurrentUser() = safeCall { getUserByID(preferences.getCurrentUserID()) }
 
     override fun getUserByID(userId: UUID) = safeCall { usersDataSource.getById(userId) }
 
