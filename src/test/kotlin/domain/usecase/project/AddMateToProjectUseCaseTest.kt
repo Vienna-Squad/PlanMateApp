@@ -48,8 +48,4 @@ class AddMateToProjectUseCaseTest {
         // then
         verify { logsRepository.addLog(any()) }
     }
-
-
-
-
 }

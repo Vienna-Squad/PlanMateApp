@@ -9,6 +9,7 @@ data class User(
     val hashedPassword: String,//hashed using MD5
     val role: UserRole,
     val cratedAt: LocalDateTime = LocalDateTime.now(),
-)
+){
+    enum class UserRole { ADMIN, MATE }
+}
 
-enum class UserRole { ADMIN, MATE }

@@ -6,7 +6,7 @@ import io.mockk.verify
 import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
 import org.example.domain.UnauthorizedException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
+import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.auth.LoginUseCase
 import org.junit.jupiter.api.Assertions.assertEquals

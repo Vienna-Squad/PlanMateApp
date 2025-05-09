@@ -6,9 +6,9 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import org.example.domain.NotFoundException
-import org.example.domain.entity.AddedLog
-import org.example.domain.entity.CreatedLog
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.CreatedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.usecase.project.GetProjectHistoryUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -32,11 +32,13 @@ class GetProjectHistoryUseCaseTest {
         val projectLogs = listOf(
             CreatedLog(
                 username = "admin1",
-                affectedId = dummyProject.id.toString(),
+                affectedId = dummyProject.id,
+                affectedName = "P-101",
                 affectedType = Log.AffectedType.PROJECT
             ), AddedLog(
                 username = "admin1",
-                affectedId = UUID.randomUUID().toString(),
+                affectedId = UUID.randomUUID(),
+                affectedName = "P-102",
                 affectedType = Log.AffectedType.STATE,
                 addedTo = "project-${dummyProject.id}"
             )
@@ -47,7 +49,7 @@ class GetProjectHistoryUseCaseTest {
         //then
         assertThat(result.size).isEqualTo(2)
         assertThat(result.all {
-            it.affectedId == dummyProject.id.toString() || it.toString().contains(dummyProject.id.toString())
+            it.affectedId == dummyProject.id || it.toString().contains(dummyProject.id.toString())
         }).isTrue()
     }
 

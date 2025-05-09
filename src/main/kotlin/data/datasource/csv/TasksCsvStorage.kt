@@ -1,6 +1,7 @@
 package data.datasource.csv
 
 import org.example.domain.NotFoundException
+import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import java.io.File
 import java.time.LocalDateTime
@@ -21,7 +22,7 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
         val task = Task(
             id = UUID.fromString(fields[ID_INDEX]),
             title = fields[TITLE_INDEX],
-            state = fields[STATE_INDEX],
+            state = fields[STATE_INDEX].split(STATE_SEPARATOR).let { State(UUID.fromString(it[0]), it[1]) },
             assignedTo = assignedTo,
             createdBy = UUID.fromString(fields[CREATED_BY_INDEX]),
             projectId = UUID.fromString(fields[PROJECT_ID_INDEX]),
@@ -34,17 +35,17 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
         return CSV_HEADER
     }
 
-    override fun update(item: Task) {
+    override fun update(updatedItem: Task) {
         if (!file.exists()) throw NotFoundException("file")
         val list = getAll().toMutableList()
-        val itemIndex = list.indexOfFirst { it.id == item.id }
-        if (itemIndex == -1) throw NotFoundException("$item")
-        list[itemIndex] = item
+        val itemIndex = list.indexOfFirst { it.id == updatedItem.id }
+        if (itemIndex == -1) throw NotFoundException("$updatedItem")
+        list[itemIndex] = updatedItem
         write(list)
     }
 
     override fun getById(id: UUID): Task {
-        return getAll().find { it.id == id } ?: throw NotFoundException()
+        return getAll().find { it.id == id } ?: throw NotFoundException("task")
     }
 
     override fun delete(item: Task) {
@@ -55,6 +56,8 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
         list.removeAt(itemIndex)
         write(list)
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("tasks") }
 
     companion object {
         const val CSV_HEADER = "id,title,state,assignedTo,createdBy,projectId,createdAt\n"
@@ -67,5 +70,6 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
         private const val CREATED_AT_INDEX = 6
         private const val EXPECTED_COLUMNS = 7
         private const val MULTI_VALUE_SEPARATOR = "|"
+        private const val STATE_SEPARATOR = ":"
     }
 }

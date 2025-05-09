@@ -1,21 +1,28 @@
 package data.datasource.remote.mongo
 
+import com.google.common.truth.Truth.assertThat
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.result.InsertOneResult
-import io.mockk.*
+import data.datasource.mongo.LogsMongoStorage
+import data.datasource.mongo.MongoStorage
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import org.bson.Document
 import org.example.domain.NotFoundException
 import org.example.domain.UnknownException
-import org.example.domain.entity.*
-import org.example.domain.entity.Log.AffectedType
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.ChangedLog
+import org.example.domain.entity.log.CreatedLog
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log.AffectedType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import com.google.common.truth.Truth.assertThat
-import data.datasource.mongo.LogsMongoStorage
-import data.datasource.mongo.MongoStorage
 import java.time.LocalDateTime
+import java.util.*
 
 class LogsMongoStorageTest {
 
@@ -39,7 +46,8 @@ class LogsMongoStorageTest {
         // Given
         val addedLog = AddedLog(
             username = "testUser",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "T-101",
             affectedType = AffectedType.TASK,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0),
             addedTo = "projectX"
@@ -50,7 +58,7 @@ class LogsMongoStorageTest {
 
         // Then
         assertThat(document.getString("username")).isEqualTo("testUser")
-        assertThat(document.getString("affectedId")).isEqualTo("123")
+        assertThat(document.getString("affectedId")).isEqualTo(addedLog.affectedId.toString())
         assertThat(document.getString("affectedType")).isEqualTo("TASK")
         assertThat(document.getString("dateTime")).isEqualTo("2023-01-01T12:00")
         assertThat(document.getString("actionType")).isEqualTo("ADDED")
@@ -62,7 +70,8 @@ class LogsMongoStorageTest {
         // Given
         val changedLog = ChangedLog(
             username = "testUser",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "T-101",
             affectedType = AffectedType.TASK,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0),
             changedFrom = "TODO",
@@ -83,7 +92,8 @@ class LogsMongoStorageTest {
         // Given
         val createdLog = CreatedLog(
             username = "testUser",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "P-101",
             affectedType = AffectedType.PROJECT,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0)
         )
@@ -100,7 +110,8 @@ class LogsMongoStorageTest {
         // Given
         val deletedLog = DeletedLog(
             username = "testUser",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "M-101",
             affectedType = AffectedType.MATE,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0),
             deletedFrom = "system"
@@ -119,7 +130,8 @@ class LogsMongoStorageTest {
         // Given
         val document = Document()
             .append("username", "testUser")
-            .append("affectedId", "123")
+            .append("affectedId", "8722f308-76cb-4a0f-8dfb-c862b28390ed")
+            .append("affectedName", "P-101")
             .append("affectedType", "TASK")
             .append("dateTime", "2023-01-01T12:00")
             .append("actionType", "ADDED")
@@ -132,7 +144,7 @@ class LogsMongoStorageTest {
         assertThat(log).isInstanceOf(AddedLog::class.java)
         val addedLog = log as AddedLog
         assertThat(addedLog.username).isEqualTo("testUser")
-        assertThat(addedLog.affectedId).isEqualTo("123")
+        assertThat(addedLog.affectedId).isEqualTo(UUID.fromString("8722f308-76cb-4a0f-8dfb-c862b28390ed"))
         assertThat(addedLog.affectedType).isEqualTo(AffectedType.TASK)
         assertThat(addedLog.dateTime).isEqualTo(LocalDateTime.of(2023, 1, 1, 12, 0))
         assertThat(addedLog.addedTo).isEqualTo("projectX")
@@ -143,7 +155,8 @@ class LogsMongoStorageTest {
         // Given
         val document = Document()
             .append("username", "testUser")
-            .append("affectedId", "123")
+            .append("affectedId", "8722f308-76cb-4a0f-8dfb-c862b28390ed")
+            .append("affectedName", "T-101")
             .append("affectedType", "TASK")
             .append("dateTime", "2023-01-01T12:00")
             .append("actionType", "CHANGED")
@@ -166,14 +179,16 @@ class LogsMongoStorageTest {
         // Given
         val createdLog = CreatedLog(
             username = "user1",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "T-101",
             affectedType = AffectedType.TASK,
             dateTime = LocalDateTime.parse("2023-01-01T12:00")
         )
 
         val deletedLog = DeletedLog(
             username = "user2",
-            affectedId = "456",
+            affectedId = UUID.randomUUID(),
+            affectedName = "P-101",
             affectedType = AffectedType.PROJECT,
             dateTime = LocalDateTime.parse("2023-01-02T12:00"),
             deletedFrom = "system"
@@ -210,7 +225,8 @@ class LogsMongoStorageTest {
         // Given
         val log = CreatedLog(
             username = "testUser",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "P-101",
             affectedType = AffectedType.PROJECT,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0)
         )
@@ -231,7 +247,8 @@ class LogsMongoStorageTest {
         // Given
         val log = CreatedLog(
             username = "testUser",
-            affectedId = "123",
+            affectedId = UUID.randomUUID(),
+            affectedName = "P-101",
             affectedType = AffectedType.PROJECT,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0)
         )

@@ -5,14 +5,14 @@ import data.datasource.mongo.LogsMongoStorage
 import data.datasource.mongo.ProjectsMongoStorage
 import data.datasource.mongo.TasksMongoStorage
 import data.datasource.mongo.UsersMongoStorage
-import data.datasource.preferences.CsvPreferences
+import data.datasource.preferences.UserPreferences
 import data.datasource.preferences.Preference
 import org.example.common.Constants
 import org.example.common.Constants.NamedDataSources.LOGS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.PROJECTS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.TASKS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.USERS_DATA_SOURCE
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.Log
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
@@ -21,7 +21,7 @@ import org.koin.dsl.module
 import java.io.File
 
 val dataModule = module {
-    single<Preference> { CsvPreferences(File(Constants.Files.PREFERENCES_FILE_NAME)) }
+    single<Preference> { UserPreferences(File(Constants.Files.PREFERENCES_FILE_NAME)) }
 
     single<DataSource<Log>>(named(LOGS_DATA_SOURCE)) { LogsMongoStorage() }
     single<DataSource<Project>>(named(PROJECTS_DATA_SOURCE)) { ProjectsMongoStorage() }

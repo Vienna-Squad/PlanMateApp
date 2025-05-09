@@ -8,6 +8,6 @@ class GetProjectHistoryUseCase(
     private val logsRepository: LogsRepository,
 ) {
     operator fun invoke(projectId: UUID) = logsRepository.getAllLogs()
-        .filter { it.affectedId == projectId.toString() || it.toString().contains(projectId.toString()) }
+        .filter { it.affectedId == projectId || it.toString().contains(projectId.toString()) }
         .ifEmpty { throw NotFoundException("logs") }
 }

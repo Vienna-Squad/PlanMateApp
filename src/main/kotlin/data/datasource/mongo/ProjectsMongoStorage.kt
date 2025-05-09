@@ -3,7 +3,9 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.PROJECTS_COLLECTION
+import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
+import org.example.domain.entity.State
 import java.time.LocalDateTime
 import java.util.*
 
@@ -12,14 +14,18 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
         return Document()
             .append("_id", item.id.toString())
             .append("name", item.name)
-            .append("states", item.states)
+            .append("states", item.states.map { it.toString() })
             .append("createdBy", item.createdBy.toString())
             .append("createdAt", item.createdAt.toString())
             .append("matesIds", item.matesIds.map { it.toString() })
     }
 
     override fun fromDocument(document: Document): Project {
-        val states = document.getList("states", String::class.java) ?: emptyList()
+        val states = document.getList("states", String::class.java).map {
+            it.split(":").let { state ->
+                State(UUID.fromString(state[0]), state[1])
+            }
+        }
         val matesIdsStrings = document.getList("matesIds", String::class.java) ?: emptyList()
         val matesIds = matesIdsStrings.map { UUID.fromString(it) }
         val uuidStr = document.getString("_id")
@@ -33,4 +39,6 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
             matesIds = matesIds
         )
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("projects") }
 }

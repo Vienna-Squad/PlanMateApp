@@ -1,7 +1,8 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.entity.DeletedLog
-import org.example.domain.entity.Log
+import org.example.domain.AccessDeniedException
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -12,13 +13,19 @@ class DeleteProjectUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID) = projectsRepository.deleteProjectById(projectId).also {
-        logsRepository.addLog(
-            DeletedLog(
-                username = usersRepository.getCurrentUser().username,
-                affectedId = projectId.toString(),
-                affectedType = Log.AffectedType.PROJECT,
-            )
-        )
-    }
+    operator fun invoke(projectId: UUID) =
+        usersRepository.getCurrentUser().let { currentUser ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+                projectsRepository.deleteProjectById(projectId)
+                logsRepository.addLog(
+                    DeletedLog(
+                        username = currentUser.username,
+                        affectedId = projectId,
+                        affectedName = project.name,
+                        affectedType = Log.AffectedType.PROJECT,
+                    )
+                )
+            }
+        }
 }

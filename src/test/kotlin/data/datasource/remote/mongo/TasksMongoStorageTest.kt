@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import com.google.common.truth.Truth.assertThat
 import data.datasource.mongo.MongoStorage
 import data.datasource.mongo.TasksMongoStorage
+import org.example.domain.entity.State
 import java.time.LocalDateTime
 import java.util.*
 
@@ -41,11 +42,12 @@ class TasksMongoStorageTest {
         val creatorUuid = UUID.randomUUID()
         val projectId = UUID.randomUUID()
         val assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val state = State(name = "In Progress")
 
         val task = Task(
             id = uuid,
             title = "Implement Feature X",
-            state = "In Progress",
+            state = state,
             assignedTo = assignedTo,
             createdBy = creatorUuid,
             createdAt = LocalDateTime.of(2023, 1, 1, 12, 0),
@@ -59,7 +61,7 @@ class TasksMongoStorageTest {
         assertThat(document.getString("_id")).isEqualTo(uuid.toString())
         // Then (continued)
         assertThat(document.getString("title")).isEqualTo("Implement Feature X")
-        assertThat(document.getString("state")).isEqualTo("In Progress")
+        assertThat(document.getString("state")).isEqualTo(state.toString())
         assertThat(document.get("createdBy")).isEqualTo(creatorUuid)
         assertThat(document.getString("createdAt")).isEqualTo("2023-01-01T12:00")
         assertThat(document.get("projectId")).isEqualTo(projectId)
@@ -77,11 +79,13 @@ class TasksMongoStorageTest {
         val creatorUuid = UUID.randomUUID()
         val projectId = UUID.randomUUID()
         val assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val state = State(name = "In Progress")
+
 
         val document = Document()
             .append("_id", uuid.toString())
             .append("title", "Implement Feature X")
-            .append("state", "In Progress")
+            .append("state", state.toString())
             .append("assignedTo", assignedTo.map { it.toString() })
             .append("createdBy", creatorUuid)
             .append("createdAt", "2023-01-01T12:00")
@@ -93,7 +97,7 @@ class TasksMongoStorageTest {
         // Then
         assertThat(task.id).isEqualTo(uuid)
         assertThat(task.title).isEqualTo("Implement Feature X")
-        assertThat(task.state).isEqualTo("In Progress")
+        assertThat(task.state.name).isEqualTo("In Progress")
         assertThat(task.createdBy).isEqualTo(creatorUuid)
         assertThat(task.createdAt).isEqualTo(LocalDateTime.of(2023, 1, 1, 12, 0))
         assertThat(task.projectId).isEqualTo(projectId)
@@ -109,7 +113,7 @@ class TasksMongoStorageTest {
         val task1 = Task(
             id = uuid1,
             title = "Task 1",
-            state = "Backlog",
+            state = State(name = "Backlog"),
             assignedTo = listOf(UUID.randomUUID()),
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
@@ -119,7 +123,7 @@ class TasksMongoStorageTest {
         val task2 = Task(
             id = uuid2,
             title = "Task 2",
-            state = "In Progress",
+            state = State(name = "In Progress"),
             assignedTo = listOf(UUID.randomUUID()),
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
@@ -148,7 +152,7 @@ class TasksMongoStorageTest {
         val task = Task(
             id = uuid,
             title = "New Task",
-            state = "Backlog",
+            state = State(name = "Backlog"),
             assignedTo = listOf(UUID.randomUUID()),
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
@@ -173,7 +177,7 @@ class TasksMongoStorageTest {
         val task = Task(
             id = uuid,
             title = "Updated Task",
-            state = "Done",
+            state = State(name = "Done"),
             assignedTo = listOf(UUID.randomUUID()),
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
@@ -198,7 +202,7 @@ class TasksMongoStorageTest {
         val task = Task(
             id = uuid,
             title = "Task to Delete",
-            state = "Cancelled",
+            state = State(name = "Cancelled"),
             assignedTo = listOf(UUID.randomUUID()),
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),

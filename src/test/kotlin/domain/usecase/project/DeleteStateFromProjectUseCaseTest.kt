@@ -4,8 +4,9 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.NotFoundException
-import org.example.domain.entity.DeletedLog
+import org.example.domain.ProjectHasNoException
+import org.example.domain.entity.State
+import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.junit.jupiter.api.BeforeEach
@@ -20,37 +21,40 @@ class DeleteStateFromProjectUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        deleteStateFromProjectUseCase = DeleteStateFromProjectUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
+        deleteStateFromProjectUseCase =
+            DeleteStateFromProjectUseCase(projectsRepository, logsRepository, mockk(relaxed = true))
     }
 
     @Test
     fun `should delete state when project has it`() {
         //given
-        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = listOf("test", "done"))
+        val project = dummyProject.copy(states = listOf("test", "done").map { State(name = it) })
+        every { projectsRepository.getProjectById(dummyProject.id) } returns project
         //when
-        deleteStateFromProjectUseCase.invoke(dummyProject.id, "test")
+        deleteStateFromProjectUseCase.invoke(project.id, "test")
         //then
-        verify { projectsRepository.updateProject(match { !it.states.contains("test") }) }
+        verify { projectsRepository.updateProject(match { it.states.all { state -> state.name != "test" } }) }
         verify { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
 
     @Test
-    fun `should throw NotFoundException state when project has no this state`() {
+    fun `should throw ProjectHasNoException state when project has no this state`() {
         //given
-        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = listOf("done"))
+        val project = dummyProject.copy(states = listOf("done").map { State(name = it) })
+        every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<NotFoundException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
-        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
+        assertThrows<ProjectHasNoException> { deleteStateFromProjectUseCase(project.id, "test") }
+        verify(exactly = 0) { projectsRepository.updateProject(match { it.id == project.id }) }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
     @Test
-    fun `should throw NotFoundException state when project has no any states`() {
+    fun `should throw ProjectHasNoException state when project has no any states`() {
         //given
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = emptyList())
         //when && then
-        assertThrows<NotFoundException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
+        assertThrows<ProjectHasNoException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
         verify(exactly = 0) { projectsRepository.updateProject(match { it.id == dummyProject.id }) }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
@@ -68,10 +72,11 @@ class DeleteStateFromProjectUseCaseTest {
     @Test
     fun `should not log when project update fails`() {
         //given
-        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(states = listOf("test", "done"))
-        every { projectsRepository.updateProject(match { !it.states.contains("test") }) } throws Exception()
+        val project = dummyProject.copy(states = listOf("test", "done").map { State(name = it) })
+        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.updateProject(any()) } throws Exception()
         //when && then
-        assertThrows<Exception> { deleteStateFromProjectUseCase.invoke(dummyProject.id, "test") }
+        assertThrows<Exception> { deleteStateFromProjectUseCase.invoke(project.id, "test") }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
     }
 }

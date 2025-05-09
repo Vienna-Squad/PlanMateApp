@@ -27,7 +27,7 @@ class AddStateToProjectUiController(
             }
             addStateToProjectUseCase(
                 projectId = UUID.fromString(projectId),
-                state = newState
+                stateName = newState
             )
             viewer.view("State \"$newState\" was successfully added to Project [$projectId].\n")
         }

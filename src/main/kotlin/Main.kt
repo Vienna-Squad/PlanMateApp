@@ -9,7 +9,7 @@ import org.example.common.di.repositoryModule
 import data.datasource.mongo.MongoConfig
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
 import org.example.data.repository.UsersRepositoryImpl
-import org.example.domain.entity.UserRole
+import org.example.domain.entity.User
 import org.example.presentation.AuthApp
 import org.koin.core.context.GlobalContext.startKoin
 import java.time.LocalDateTime
@@ -28,7 +28,7 @@ fun createAdminUser() {
         val collection = MongoConfig.database.getCollection(USERS_COLLECTION)
 
         // Check if admin1 already exists
-        val existingAdmin = collection.find(Filters.eq("username", "admin")).first()
+        val existingAdmin = collection.find(Filters.eq("username", "mohannad")).first()
         if (existingAdmin != null) {
             println("Admin user already exists")
             return
@@ -38,9 +38,9 @@ fun createAdminUser() {
         val adminId = UUID.randomUUID()
         val adminDoc = Document()
             .append("_id", adminId.toString())
-            .append("username", "admin")
+            .append("username", "mohannad")
             .append("hashedPassword", UsersRepositoryImpl.encryptPassword("12345678"))
-            .append("role", UserRole.ADMIN.name)
+            .append("role", User.UserRole.ADMIN.name)
             .append("createdAt", LocalDateTime.now().toString())
 
         collection.insertOne(adminDoc)

@@ -2,9 +2,10 @@ package domain.usecase.task
 
 import dummyTasks
 import io.mockk.*
-import org.example.domain.entity.DeletedLog
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.task.DeleteTaskUseCase
@@ -16,6 +17,7 @@ class DeleteTaskUseCaseTest {
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     private val usersRepository: UsersRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private lateinit var deleteTaskUseCase: DeleteTaskUseCase
     private val dummyTask = dummyTasks[0]
 
@@ -24,7 +26,8 @@ class DeleteTaskUseCaseTest {
         deleteTaskUseCase = DeleteTaskUseCase(
             tasksRepository,
             logsRepository,
-            usersRepository
+            usersRepository,
+            projectsRepository
         )
     }
 
@@ -45,7 +48,7 @@ class DeleteTaskUseCaseTest {
         verify {
             logsRepository.addLog(match {
                 it is DeletedLog &&
-                        it.affectedId == dummyTask.id.toString() &&
+                        it.affectedId == dummyTask.id &&
                         it.affectedType == Log.AffectedType.TASK
 
             })
@@ -68,8 +71,8 @@ class DeleteTaskUseCaseTest {
             logsRepository.addLog(
                 match {
                     it is DeletedLog &&
-                    it.affectedId == dummyTask.id.toString() &&
-                    it.affectedType == Log.AffectedType.TASK
+                            it.affectedId == dummyTask.id &&
+                            it.affectedType == Log.AffectedType.TASK
 
 
                 })

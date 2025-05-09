@@ -3,7 +3,9 @@ package domain.usecase.task
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.task.GetTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,11 +16,14 @@ import kotlin.test.assertTrue
 class GetTaskUseCaseTest {
 
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
     private lateinit var getTaskUseCase: GetTaskUseCase
-    private val dummyTask=dummyTasks[0]
+    private val dummyTask = dummyTasks[0]
+
     @BeforeEach
     fun setup() {
-        getTaskUseCase = GetTaskUseCase(tasksRepository)
+        getTaskUseCase = GetTaskUseCase(tasksRepository, usersRepository, projectsRepository)
     }
 
     @Test
