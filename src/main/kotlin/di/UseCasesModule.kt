@@ -1,4 +1,4 @@
-package common.di
+package di
 
 import domain.usecase.project.DeleteStateFromProjectUseCase
 import org.example.domain.usecase.auth.CreateUserUseCase

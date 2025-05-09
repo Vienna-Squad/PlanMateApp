@@ -1,4 +1,4 @@
-package org.example.common.di
+package org.example.di
 
 import data.datasource.DataSource
 import data.datasource.mongo.LogsMongoStorage

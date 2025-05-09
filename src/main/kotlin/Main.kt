@@ -1,11 +1,11 @@
 package org.example
 
 import com.mongodb.client.model.Filters
-import common.di.appModule
-import common.di.useCasesModule
+import di.appModule
+import di.useCasesModule
 import org.bson.Document
-import org.example.common.di.dataModule
-import org.example.common.di.repositoryModule
+import org.example.di.dataModule
+import org.example.di.repositoryModule
 import data.datasource.mongo.MongoConfig
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
 import org.example.data.repository.UsersRepositoryImpl

@@ -1,4 +1,4 @@
-package common.di
+package di
 
 import org.example.common.Constants
 import org.example.presentation.AdminApp

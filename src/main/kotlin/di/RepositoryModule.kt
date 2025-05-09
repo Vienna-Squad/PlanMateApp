@@ -1,4 +1,4 @@
-package org.example.common.di
+package org.example.di
 
 import org.example.common.Constants.NamedDataSources.LOGS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.PROJECTS_DATA_SOURCE
