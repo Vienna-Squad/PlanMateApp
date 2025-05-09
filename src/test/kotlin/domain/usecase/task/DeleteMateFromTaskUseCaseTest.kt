@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
@@ -21,11 +22,14 @@ class DeleteMateFromTaskUseCaseTest {
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     private val usersRepository: UsersRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
 
     private val dummyTask = dummyTasks[0]
+
     @BeforeEach
     fun setUp() {
-        deleteMateFromTaskUseCase = DeleteMateFromTaskUseCase(tasksRepository, logsRepository, usersRepository  )
+        deleteMateFromTaskUseCase =
+            DeleteMateFromTaskUseCase(tasksRepository, logsRepository, usersRepository, projectsRepository)
 
     }
 
@@ -63,14 +67,14 @@ class DeleteMateFromTaskUseCaseTest {
     fun `should throw Exception when tasksRepository updateTask throw Exception given task id`() {
         //Given
         val task = dummyTask.copy(assignedTo = dummyTask.assignedTo + dummyMate.id)
-        every { tasksRepository.getTaskById(task.id) } returns  task
+        every { tasksRepository.getTaskById(task.id) } returns task
         every { tasksRepository.updateTask(any()) } throws Exception()
 
         // When & Then
         assertThrows<Exception> {
             deleteMateFromTaskUseCase(dummyTask.id, dummyMate.id)
         }
-        verify (exactly = 0){ logsRepository.addLog(match { it is DeletedLog }) }
+        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
 
     }
 
@@ -78,7 +82,7 @@ class DeleteMateFromTaskUseCaseTest {
     fun `should throw Exception when addLog fails `() {
         //Given
         val task = dummyTask.copy(assignedTo = dummyTask.assignedTo + dummyMate.id)
-        every { tasksRepository.getTaskById(task.id) } returns  task
+        every { tasksRepository.getTaskById(task.id) } returns task
         every { logsRepository.addLog(any()) } throws Exception()
 
         // When & Then

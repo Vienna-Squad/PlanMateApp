@@ -2,14 +2,11 @@ package data.repository
 
 import com.google.common.truth.Truth.assertThat
 import data.datasource.DataSource
-import data.datasource.preferences.Preference
 import dummyLogs
 import io.mockk.*
 import org.example.data.repository.LogsRepositoryImpl
-import org.example.data.utils.SafeExecutor
 import org.example.domain.PlanMateAppException
 import org.example.domain.entity.log.Log
-import org.example.domain.entity.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,15 +14,11 @@ import org.junit.jupiter.api.assertThrows
 
 class LogsRepositoryImplTest {
     private lateinit var logsRepository: LogsRepositoryImpl
-    private lateinit var safeExecutor: SafeExecutor
     private val logsDataSource: DataSource<Log> = mockk(relaxed = true)
-    private val usersRemoteDataSource: DataSource<User> = mockk(relaxed = true)
-    private val preferences: Preference = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        safeExecutor = SafeExecutor(usersRemoteDataSource, preferences)
-        logsRepository = LogsRepositoryImpl(logsDataSource, safeExecutor)
+        logsRepository = LogsRepositoryImpl(logsDataSource)
     }
 
     @Test

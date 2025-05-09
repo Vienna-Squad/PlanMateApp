@@ -15,15 +15,12 @@ abstract class MongoStorage<T>(
     abstract fun toDocument(item: T): Document
     abstract fun fromDocument(document: Document): T
 
-    override fun getAll(): List<T> {
-        return collection.find().map { fromDocument(it) }.toList()
-            .ifEmpty { throw NotFoundException() }
-    }
+    override fun getAll() = collection.find().map { fromDocument(it) }.toList()
 
     override fun getById(id: UUID): T {
         return collection.find(Filters.eq("_id", id.toString())).firstOrNull()?.let {
             fromDocument(it)
-        } ?: throw NotFoundException()
+        } ?: throw NotFoundException("")
     }
 
     override fun add(newItem: T) {

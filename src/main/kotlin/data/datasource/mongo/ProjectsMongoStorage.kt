@@ -3,6 +3,7 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.PROJECTS_COLLECTION
+import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
 import java.time.LocalDateTime
@@ -38,4 +39,6 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
             matesIds = matesIds
         )
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("projects") }
 }

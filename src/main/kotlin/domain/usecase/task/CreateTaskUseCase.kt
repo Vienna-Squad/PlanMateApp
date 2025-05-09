@@ -1,5 +1,6 @@
 package org.example.domain.usecase.task
 
+import org.example.domain.AccessDeniedException
 import org.example.domain.ProjectHasNoException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
@@ -18,21 +19,28 @@ class CreateTaskUseCase(
     private val projectsRepository: ProjectsRepository,
 ) {
     operator fun invoke(title: String, stateName: String, projectId: UUID) =
-        projectsRepository.getProjectById(projectId).let { project ->
-            if (project.states.all { it.name != stateName }) throw ProjectHasNoException("state")
-            usersRepository.getCurrentUser().let { currentUser ->
-                Task(title = title, state = State(name = stateName), projectId = projectId, createdBy = currentUser.id)
-                    .let { newTask ->
-                        tasksRepository.addTask(newTask)
-                        logsRepository.addLog(
-                            CreatedLog(
-                                username = currentUser.username,
-                                affectedId = newTask.id,
-                                affectedName = newTask.title,
-                                affectedType = Log.AffectedType.TASK,
-                            )
+        usersRepository.getCurrentUser().let { currentUser ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException(
+                    "project"
+                )
+                if (project.states.all { it.name != stateName }) throw ProjectHasNoException("state")
+                Task(
+                    title = title,
+                    state = State(name = stateName),
+                    projectId = projectId,
+                    createdBy = currentUser.id
+                ).let { newTask ->
+                    tasksRepository.addTask(newTask)
+                    logsRepository.addLog(
+                        CreatedLog(
+                            username = currentUser.username,
+                            affectedId = newTask.id,
+                            affectedName = newTask.title,
+                            affectedType = Log.AffectedType.TASK,
                         )
-                    }
+                    )
+                }
             }
         }
 }

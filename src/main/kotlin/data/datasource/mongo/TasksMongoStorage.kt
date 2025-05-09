@@ -3,6 +3,7 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.TASKS_COLLECTION
+import org.example.domain.NotFoundException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import java.time.LocalDateTime
@@ -39,4 +40,6 @@ class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(
             projectId = document.get("projectId", UUID::class.java)
         )
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("tasks") }
 }

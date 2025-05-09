@@ -1,5 +1,6 @@
 package domain.usecase.auth
 
+import dummyAdmin
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -26,7 +27,7 @@ class CreateUserUseCaseTest {
             hashedPassword = "123456789",
             role = UserRole.MATE
         )
-        every { usersRepository.createUser(any()) } returns Unit
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
         // when & then
         createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
     }
@@ -39,6 +40,7 @@ class CreateUserUseCaseTest {
             hashedPassword = "123456789",
             role = UserRole.MATE
         )
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
         // when
         createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         //then

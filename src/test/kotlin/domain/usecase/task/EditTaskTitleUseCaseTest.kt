@@ -6,7 +6,9 @@ import io.mockk.verify
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.task.EditTaskTitleUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,11 +19,14 @@ class EditTaskTitleUseCaseTest {
 
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     lateinit var editTaskTitleUseCase: EditTaskTitleUseCase
 
     @BeforeEach
     fun setUp() {
-        editTaskTitleUseCase = EditTaskTitleUseCase(tasksRepository, logsRepository, mockk(relaxed = true))
+        editTaskTitleUseCase =
+            EditTaskTitleUseCase(tasksRepository, logsRepository, usersRepository, projectsRepository)
     }
 
     @Test

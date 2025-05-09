@@ -1,5 +1,6 @@
 package org.example.domain.usecase.task
 
+import org.example.domain.AccessDeniedException
 import org.example.domain.NoChangeException
 import org.example.domain.ProjectHasNoException
 import org.example.domain.entity.log.ChangedLog
@@ -17,20 +18,26 @@ class EditTaskStateUseCase(
     private val projectsRepository: ProjectsRepository,
 ) {
     operator fun invoke(taskId: UUID, stateName: String) =
-        tasksRepository.getTaskById(taskId).let { task ->
-            if (task.state.name == stateName) throw NoChangeException()
-            projectsRepository.getProjectById(task.projectId).states.find { it.name == stateName }?.let { state ->
-                tasksRepository.updateTask(task.copy(state = state))
-                logsRepository.addLog(
-                    ChangedLog(
-                        username = usersRepository.getCurrentUser().username,
-                        affectedId = task.id,
-                        affectedName = task.title,
-                        affectedType = Log.AffectedType.TASK,
-                        changedFrom = task.state.name,
-                        changedTo = stateName
-                    )
-                )
-            } ?: throw ProjectHasNoException("state")
+        usersRepository.getCurrentUser().let { currentUser ->
+            tasksRepository.getTaskById(taskId).let { task ->
+                projectsRepository.getProjectById(task.projectId).let { project ->
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
+                    if (task.state.name == stateName) throw NoChangeException()
+                    projectsRepository.getProjectById(task.projectId).states.find { it.name == stateName }
+                        ?.let { state ->
+                            tasksRepository.updateTask(task.copy(state = state))
+                            logsRepository.addLog(
+                                ChangedLog(
+                                    username = currentUser.username,
+                                    affectedId = task.id,
+                                    affectedName = task.title,
+                                    affectedType = Log.AffectedType.TASK,
+                                    changedFrom = task.state.name,
+                                    changedTo = stateName
+                                )
+                            )
+                        } ?: throw ProjectHasNoException("state")
+                }
+            }
         }
 }

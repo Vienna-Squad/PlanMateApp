@@ -2,6 +2,7 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
+import org.example.domain.NotFoundException
 import org.example.domain.entity.User
 import java.time.LocalDateTime
 import java.util.*
@@ -28,4 +29,6 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
             cratedAt = LocalDateTime.parse(document.getString("createdAt"))
         )
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("users") }
 }

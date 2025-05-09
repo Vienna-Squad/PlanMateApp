@@ -110,8 +110,10 @@ class LogsCsvStorage(file: File) : CsvStorage<Log>(file) {
     }
 
     override fun getById(id: UUID): Log {
-        return getAll().find { it.affectedId == id } ?: throw NotFoundException()
+        return getAll().find { it.affectedId == id } ?: throw NotFoundException("log")
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("logs") }
 
     override fun delete(item: Log) {}
 

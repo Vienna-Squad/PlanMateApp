@@ -1,8 +1,10 @@
 package org.example.domain.usecase.task
 
+import org.example.domain.AccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
 import java.util.*
@@ -11,17 +13,25 @@ class DeleteTaskUseCase(
     private val tasksRepository: TasksRepository,
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
+    private val projectsRepository: ProjectsRepository,
 ) {
     operator fun invoke(taskId: UUID) =
-        tasksRepository.getTaskById(taskId).let { task ->
-            tasksRepository.deleteTaskById(taskId)
-            logsRepository.addLog(
-                DeletedLog(
-                    username = usersRepository.getCurrentUser().username,
-                    affectedId = taskId,
-                    affectedName = task.title,
-                    affectedType = Log.AffectedType.TASK,
-                )
-            )
+        usersRepository.getCurrentUser().let { currentUser ->
+            tasksRepository.getTaskById(taskId).let { task ->
+                projectsRepository.getProjectById(task.projectId).let { project ->
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException(
+                        "task"
+                    )
+                    tasksRepository.deleteTaskById(taskId)
+                    logsRepository.addLog(
+                        DeletedLog(
+                            username = currentUser.username,
+                            affectedId = taskId,
+                            affectedName = task.title,
+                            affectedType = Log.AffectedType.TASK,
+                        )
+                    )
+                }
+            }
         }
 }

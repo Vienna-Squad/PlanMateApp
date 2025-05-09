@@ -37,7 +37,7 @@ class UsersCsvStorage(file: File) : CsvStorage<User>(file) {
     }
 
     override fun getById(id: UUID): User {
-        return getAll().find { it.id == id } ?: throw NotFoundException()
+        return getAll().find { it.id == id } ?: throw NotFoundException("user")
     }
 
     override fun delete(item: User) {
@@ -48,6 +48,8 @@ class UsersCsvStorage(file: File) : CsvStorage<User>(file) {
         list.removeAt(itemIndex)
         write(list)
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("users") }
 
     companion object {
         const val CSV_HEADER = "id,username,password,type,createdAt\n"

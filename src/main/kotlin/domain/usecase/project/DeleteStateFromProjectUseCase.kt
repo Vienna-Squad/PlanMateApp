@@ -1,5 +1,6 @@
 package domain.usecase.project
 
+import org.example.domain.AccessDeniedException
 import org.example.domain.ProjectHasNoException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
@@ -14,21 +15,24 @@ class DeleteStateFromProjectUseCase(
     private val usersRepository: UsersRepository,
 ) {
     operator fun invoke(projectId: UUID, stateName: String) =
-        projectsRepository.getProjectById(projectId).let { project ->
-            project.states.toMutableList().let { states ->
-                states.find { it.name == stateName }?.let { stateObj ->
-                    states.remove(stateObj)
-                    projectsRepository.updateProject(project.copy(states = states))
-                    logsRepository.addLog(
-                        DeletedLog(
-                            username = usersRepository.getCurrentUser().username,
-                            affectedId = stateObj.id,
-                            affectedName = stateName,
-                            affectedType = Log.AffectedType.STATE,
-                            deletedFrom = "project ${project.name} [$projectId]"
+        usersRepository.getCurrentUser().let { currentUser ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+                project.states.toMutableList().let { states ->
+                    states.find { it.name == stateName }?.let { stateObj ->
+                        states.remove(stateObj)
+                        projectsRepository.updateProject(project.copy(states = states))
+                        logsRepository.addLog(
+                            DeletedLog(
+                                username = currentUser.username,
+                                affectedId = stateObj.id,
+                                affectedName = stateName,
+                                affectedType = Log.AffectedType.STATE,
+                                deletedFrom = "project ${project.name} [$projectId]"
+                            )
                         )
-                    )
-                } ?: throw ProjectHasNoException("state")
+                    } ?: throw ProjectHasNoException("state")
+                }
             }
         }
 }

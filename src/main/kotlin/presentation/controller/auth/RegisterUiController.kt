@@ -2,6 +2,7 @@ package org.example.presentation.controller.auth
 
 import org.example.domain.InvalidInputException
 import org.example.domain.entity.User
+
 import org.example.domain.usecase.auth.CreateUserUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader

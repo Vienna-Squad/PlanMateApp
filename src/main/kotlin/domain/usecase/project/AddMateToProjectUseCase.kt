@@ -1,5 +1,6 @@
 package org.example.domain.usecase.project
 
+import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
@@ -14,19 +15,22 @@ class AddMateToProjectUseCase(
     private val usersRepository: UsersRepository,
 ) {
     operator fun invoke(projectId: UUID, mateId: UUID) =
-        usersRepository.getUserByID(mateId).let { mate ->
+        usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
-                if (project.matesIds.contains(mate.id)) throw AlreadyExistException("mate")
-                projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mate.id))
-                logsRepository.addLog(
-                    AddedLog(
-                        username = usersRepository.getCurrentUser().username,
-                        affectedId = mateId,
-                        affectedName = mate.username,
-                        affectedType = Log.AffectedType.MATE,
-                        addedTo = "project ${project.name} [$projectId]"
+                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+                usersRepository.getUserByID(mateId).let { mate ->
+                    if (project.matesIds.contains(mate.id)) throw AlreadyExistException("mate")
+                    projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mate.id))
+                    logsRepository.addLog(
+                        AddedLog(
+                            username = currentUser.username,
+                            affectedId = mateId,
+                            affectedName = mate.username,
+                            affectedType = Log.AffectedType.MATE,
+                            addedTo = "project ${project.name} [$projectId]"
+                        )
                     )
-                )
+                }
             }
         }
 }

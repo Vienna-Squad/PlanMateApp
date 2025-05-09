@@ -45,7 +45,7 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
     }
 
     override fun getById(id: UUID): Task {
-        return getAll().find { it.id == id } ?: throw NotFoundException()
+        return getAll().find { it.id == id } ?: throw NotFoundException("task")
     }
 
     override fun delete(item: Task) {
@@ -56,6 +56,8 @@ class TasksCsvStorage(file: File) : CsvStorage<Task>(file) {
         list.removeAt(itemIndex)
         write(list)
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("tasks") }
 
     companion object {
         const val CSV_HEADER = "id,title,state,assignedTo,createdBy,projectId,createdAt\n"

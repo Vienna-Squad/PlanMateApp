@@ -20,7 +20,9 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
 
         val states =
             if (fields[STATES_INDEX].isNotEmpty()) fields[STATES_INDEX].split(MULTI_VALUE_SEPARATOR)
-                .map { it.split(STATE_SEPARATOR).let { state -> State(UUID.fromString(state[0]), state[1]) } } else emptyList()
+                .map {
+                    it.split(STATE_SEPARATOR).let { state -> State(UUID.fromString(state[0]), state[1]) }
+                } else emptyList()
         val matesIds = if (fields[MATES_IDS_INDEX].isNotEmpty()) fields[MATES_IDS_INDEX].split("|") else emptyList()
 
         val project = Project(
@@ -49,7 +51,7 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
     }
 
     override fun getById(id: UUID): Project {
-        return getAll().find { it.id == id } ?: throw NotFoundException()
+        return getAll().find { it.id == id } ?: throw NotFoundException("project")
     }
 
     override fun delete(item: Project) {
@@ -60,6 +62,8 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
         list.removeAt(itemIndex)
         write(list)
     }
+
+    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("projects") }
 
     companion object {
         private const val ID_INDEX = 0

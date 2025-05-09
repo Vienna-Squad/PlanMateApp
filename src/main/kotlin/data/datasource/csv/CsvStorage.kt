@@ -1,7 +1,6 @@
 package data.datasource.csv
 
 import data.datasource.DataSource
-import org.example.domain.NotFoundException
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -17,13 +16,9 @@ abstract class CsvStorage<T>(val file: File) : DataSource<T> {
             throw IllegalArgumentException("Invalid CSV format: missing or incorrect header")
         }
 
-        return if (lines.size > 1) {
-            lines.drop(1)  // Skip header
-                .filter { it.isNotEmpty() }
-                .map { row -> fromCsvRow(row.split(",")) }
-        } else {
-            throw NotFoundException()
-        }
+        return lines.drop(1)  // Skip header
+            .filter { it.isNotEmpty() }
+            .map { row -> fromCsvRow(row.split(",")) }
     }
 
     override fun add(newItem: T) {
