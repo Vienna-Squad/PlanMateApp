@@ -1,7 +1,8 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.entity.AddedLog
-import org.example.domain.entity.Log
+import org.example.domain.AlreadyExistException
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -13,15 +14,19 @@ class AddMateToProjectUseCase(
     private val usersRepository: UsersRepository,
 ) {
     operator fun invoke(projectId: UUID, mateId: UUID) =
-        projectsRepository.getProjectById(projectId).let { project ->
-        projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mateId))
-        logsRepository.addLog(
-            AddedLog(
-                username = usersRepository.getCurrentUser().username,
-                affectedId = mateId.toString(),
-                affectedType = Log.AffectedType.MATE,
-                addedTo = "project $projectId"
-            )
-        )
-    }
+        usersRepository.getUserByID(mateId).let { mate ->
+            projectsRepository.getProjectById(projectId).let { project ->
+                if (project.matesIds.contains(mate.id)) throw AlreadyExistException("mate")
+                projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mate.id))
+                logsRepository.addLog(
+                    AddedLog(
+                        username = usersRepository.getCurrentUser().username,
+                        affectedId = mateId,
+                        affectedName = mate.username,
+                        affectedType = Log.AffectedType.MATE,
+                        addedTo = "project ${project.name} [$projectId]"
+                    )
+                )
+            }
+        }
 }

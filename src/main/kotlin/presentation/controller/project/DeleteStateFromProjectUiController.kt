@@ -28,7 +28,7 @@ class DeleteStateFromProjectUiController(
             }
             deleteStateFromProjectUseCase(
                 projectId = UUID.fromString(projectId),
-                state = stateToDelete
+                stateName = stateToDelete
             )
             viewer.view("State \"$stateToDelete\" has been successfully removed from the project.\n")
         }

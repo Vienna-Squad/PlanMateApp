@@ -1,11 +1,13 @@
 package domain.usecase.task
 
-import com.google.common.truth.Truth.assertThat
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import org.example.domain.NotFoundException
-import org.example.domain.entity.*
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.CreatedLog
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.usecase.task.GetTaskHistoryUseCase
 import org.junit.jupiter.api.BeforeEach
@@ -48,7 +50,7 @@ class GetTaskHistoryUseCaseTest {
     @Test
     fun `should throw NoFoundException list when no logs for the given task `() {
         // Given
-        val dummyLogs=dummyTasksLogs.subList(0, 1)
+        val dummyLogs = dummyTasksLogs.subList(0, 1)
         every { logsRepository.getAllLogs() } returns dummyLogs
         //when&//Then
         assertThrows<NotFoundException> {
@@ -59,18 +61,21 @@ class GetTaskHistoryUseCaseTest {
     private val dummyTasksLogs = listOf(
         AddedLog(
             username = "abc",
-            affectedId = UUID.randomUUID().toString(),
+            affectedId = UUID.randomUUID(),
+            affectedName = "T-101",
             affectedType = Log.AffectedType.TASK,
             addedTo = UUID.randomUUID().toString()
         ),
         CreatedLog(
             username = "abc",
-            affectedId = dummyTasks[0].id.toString(),
+            affectedId = dummyTasks[0].id,
+            affectedName = "T-101",
             affectedType = Log.AffectedType.TASK
         ),
         DeletedLog(
             username = "abc",
-            affectedId = dummyTasks[0].id.toString(),
+            affectedId = dummyTasks[0].id,
+            affectedName = "T-101",
             affectedType = Log.AffectedType.TASK,
             deletedFrom = UUID.randomUUID().toString()
         )

@@ -3,16 +3,18 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.LOGS_COLLECTION
-import org.example.domain.entity.*
-import org.example.domain.entity.Log.ActionType
-import org.example.domain.entity.Log.AffectedType
+import org.example.domain.entity.log.*
+import org.example.domain.entity.log.Log.ActionType
+import org.example.domain.entity.log.Log.AffectedType
 import java.time.LocalDateTime
+import java.util.*
 
 class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LOGS_COLLECTION)) {
     override fun toDocument(item: Log): Document {
         val doc = Document()
             .append("username", item.username)
-            .append("affectedId", item.affectedId)
+            .append("affectedId", item.affectedId.toString())
+            .append("affectedName", item.affectedName)
             .append("affectedType", item.affectedType.name)
             .append("dateTime", item.dateTime.toString())
 
@@ -44,7 +46,8 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
     override fun fromDocument(document: Document): Log {
         val actionType = ActionType.valueOf(document.get("actionType", String::class.java))
         val username = document.get("username", String::class.java)
-        val affectedId = document.get("affectedId", String::class.java)
+        val affectedId = UUID.fromString(document.get("affectedId", String::class.java))
+        val affectedName = document.get("affectedName", String::class.java)
         val affectedType = AffectedType.valueOf(document.get("affectedType", String::class.java))
         val dateTime = LocalDateTime.parse(document.get("dateTime", String::class.java))
 
@@ -52,6 +55,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
             ActionType.ADDED -> AddedLog(
                 username = username,
                 affectedId = affectedId,
+                affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime,
                 addedTo = document.get("addedTo", String::class.java)
@@ -60,6 +64,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
             ActionType.CHANGED -> ChangedLog(
                 username = username,
                 affectedId = affectedId,
+                affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime,
                 changedFrom = document.get("changedFrom", String::class.java),
@@ -69,6 +74,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
             ActionType.CREATED -> CreatedLog(
                 username = username,
                 affectedId = affectedId,
+                affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime
             )
@@ -76,6 +82,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
             ActionType.DELETED -> DeletedLog(
                 username = username,
                 affectedId = affectedId,
+                affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime,
                 deletedFrom = document.get("deletedFrom", String::class.java)

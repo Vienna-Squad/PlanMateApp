@@ -31,7 +31,7 @@ class CreateTaskUiController(
             }
             createTaskUseCase(
                 title = taskTitle,
-                state = taskState,
+                stateName = taskState,
                 projectId = UUID.fromString(projectId)
             )
             viewer.view("Task \"$taskTitle\" has been created successfully under project [$projectId].\n")

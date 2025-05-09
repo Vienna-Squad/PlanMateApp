@@ -22,14 +22,14 @@ val useCasesModule = module {
     single { EditProjectNameUseCase(get(), get(),get()) }
     single { GetAllTasksOfProjectUseCase(get()) }
     single { GetProjectHistoryUseCase(get()) }
-    single { CreateTaskUseCase(get(), get(), get()) }
+    single { CreateTaskUseCase(get(), get(), get(),get()) }
     single { GetProjectHistoryUseCase(get()) }
     single { DeleteTaskUseCase(get(), get(),get()) }
     single { GetTaskHistoryUseCase(get()) }
     single { GetTaskUseCase(get()) }
-    single { AddMateToTaskUseCase(get(), get(),get()) }
+    single { AddMateToTaskUseCase(get(), get(),get(),get()) }
     single { DeleteMateFromTaskUseCase(get(), get(),get()) }
-    single { EditTaskStateUseCase(get(), get(),get()) }
+    single { EditTaskStateUseCase(get(), get(),get(),get()) }
     single { EditTaskTitleUseCase(get(), get(),get()) }
     single { GetAllProjectsUseCase(get(), get()) }
 }

@@ -4,7 +4,7 @@ import data.datasource.DataSource
 import org.example.data.utils.SafeExecutor
 import org.example.domain.AccessDeniedException
 import org.example.domain.entity.Project
-import org.example.domain.entity.UserRole
+import org.example.domain.entity.User
 import org.example.domain.repository.ProjectsRepository
 import java.util.*
 
@@ -24,7 +24,7 @@ class ProjectsRepositoryImpl(
     override fun getAllProjects() = safeExecutor.authCall { projectsDataSource.getAll() }
 
     override fun addProject(project: Project) = safeExecutor.authCall { currentUser ->
-        if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
+        if (currentUser.role != User.UserRole.ADMIN) throw AccessDeniedException()
         projectsDataSource.add(project)
     }
 

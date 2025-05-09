@@ -9,7 +9,7 @@ import io.mockk.*
 import org.bson.Document
 import org.example.domain.NotFoundException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
+import org.example.domain.entity.User.UserRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

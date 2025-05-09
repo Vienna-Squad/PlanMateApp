@@ -1,11 +1,14 @@
 package domain.usecase.task
 
+import dummyProject
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.entity.ChangedLog
+import org.example.domain.entity.State
+import org.example.domain.entity.log.ChangedLog
 import org.example.domain.repository.LogsRepository
+import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.task.EditTaskStateUseCase
@@ -18,6 +21,7 @@ class EditTaskStateUseCaseTest {
     private val logsRepository: LogsRepository = mockk(relaxed = true)
     private val usersRepository: UsersRepository = mockk(relaxed = true)
     private val tasksRepository: TasksRepository = mockk(relaxed = true)
+    private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val dummyTask = dummyTasks[0]
 
     @BeforeEach
@@ -25,22 +29,26 @@ class EditTaskStateUseCaseTest {
         editTaskStateUseCase = EditTaskStateUseCase(
             tasksRepository,
             logsRepository,
-            usersRepository
+            usersRepository,
+            projectsRepository
         )
     }
 
     @Test
     fun `should edit task state when task exists`() {
         // Given
-        every { tasksRepository.getTaskById(dummyTask.id) } returns (dummyTask)
+        val task = dummyTask.copy(projectId = dummyProject.id, state = State(name = "test-state"))
+        val newState = dummyProject.states.random().name
+        every { tasksRepository.getTaskById(task.id) } returns task
+        every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
 
         // When
-        editTaskStateUseCase(dummyTask.id, "In Progress")
+        editTaskStateUseCase(dummyTask.id, newState)
 
         // Then
         verify {
             tasksRepository.updateTask(match {
-                it.state == "In Progress" && it.id == dummyTask.id
+                it.state.name == newState && it.id == dummyTask.id
             })
         }
         verify {
@@ -79,10 +87,13 @@ class EditTaskStateUseCaseTest {
     @Test
     fun `should throw an Exception and not log when updateTask fails `() {
         // Given
+        val task = dummyTask.copy(projectId = dummyProject.id, state = State(name = "test-state"))
+        every { tasksRepository.getTaskById(task.id) } returns task
+        every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
         every { tasksRepository.updateTask(any()) } throws Exception()
         // when&Then
         assertThrows<Exception> {
-            editTaskStateUseCase(dummyTask.id, "In Progress")
+            editTaskStateUseCase(task.id, dummyProject.states.random().name)
         }
 
         verify(exactly = 0) {

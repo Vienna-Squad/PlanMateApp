@@ -8,7 +8,7 @@ import io.mockk.*
 import org.example.data.repository.LogsRepositoryImpl
 import org.example.data.utils.SafeExecutor
 import org.example.domain.PlanMateAppException
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.Log
 import org.example.domain.entity.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

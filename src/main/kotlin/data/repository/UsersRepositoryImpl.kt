@@ -9,7 +9,6 @@ import org.example.data.utils.SafeExecutor
 import org.example.domain.AccessDeniedException
 import org.example.domain.AlreadyExistException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
 import org.example.domain.repository.UsersRepository
 import java.security.MessageDigest
 import java.util.*
@@ -20,7 +19,7 @@ class UsersRepositoryImpl(
     private val preferences: Preference,
     private val safeExecutor: SafeExecutor
 ) : UsersRepository {
-    override fun storeUserData(userId: UUID, username: String, role: UserRole) = safeExecutor.call {
+    override fun storeUserData(userId: UUID, username: String, role: User.UserRole) = safeExecutor.call {
         usersDataSource.getById(userId).let {
             preferences.put(CURRENT_USER_ID, it.id.toString())
             preferences.put(CURRENT_USER_NAME, it.username)
@@ -31,8 +30,8 @@ class UsersRepositoryImpl(
     override fun getAllUsers() = safeExecutor.call { usersDataSource.getAll() }
 
     override fun createUser(user: User) = safeExecutor.authCall { currentUser ->
-        if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
-        if (usersDataSource.getAll().contains(user)) throw AlreadyExistException()
+        if (currentUser.role != User.UserRole.ADMIN) throw AccessDeniedException()
+        if (usersDataSource.getAll().contains(user)) throw AlreadyExistException("user")
         usersDataSource.add(user.copy(hashedPassword = encryptPassword(user.hashedPassword)))
     }
 

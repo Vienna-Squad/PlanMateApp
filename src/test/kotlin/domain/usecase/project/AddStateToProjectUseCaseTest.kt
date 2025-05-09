@@ -1,22 +1,13 @@
 package domain.usecase.project
 
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.*
-
-import org.example.domain.entity.AddedLog
-import org.example.domain.entity.Project
-import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
-import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.usecase.project.AddStateToProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import java.util.UUID
+import java.util.*
 
 class AddStateToProjectUseCaseTest {
 
@@ -39,7 +30,7 @@ class AddStateToProjectUseCaseTest {
     @Test
     fun `should call updated project`() {
         // when
-        addStateToProjectUseCase(projectId = projectId , state = state)
+        addStateToProjectUseCase(projectId = projectId ,   state)
         // then
         verify { projectsRepository.getProjectById(any()) }
     }
@@ -48,7 +39,7 @@ class AddStateToProjectUseCaseTest {
     @Test
     fun `should add log `() {
         // when
-        addStateToProjectUseCase(projectId = projectId , state = state)
+        addStateToProjectUseCase(projectId = projectId ,state)
         // then
         verify { logsRepository.addLog(any()) }
     }

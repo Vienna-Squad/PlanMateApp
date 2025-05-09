@@ -6,7 +6,7 @@ import java.util.UUID
 data class Project(
     val id: UUID = UUID.randomUUID(),
     val name: String,
-    val states: List<String> = emptyList(),
+    val states: List<State> = emptyList(),
     val createdBy: UUID,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val matesIds: List<UUID> = emptyList()
@@ -15,7 +15,7 @@ data class Project(
         return """
             Project ID: $id
             Name: $name
-            States: $states
+            States: ${states.map { it.name }}
             Mates IDs: $matesIds
             Created By: $createdBy
             Created At: $createdAt

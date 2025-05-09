@@ -1,8 +1,8 @@
 package domain.usecase.project
 
-import org.example.domain.NotFoundException
-import org.example.domain.entity.DeletedLog
-import org.example.domain.entity.Log
+import org.example.domain.ProjectHasNoException
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -13,19 +13,22 @@ class DeleteStateFromProjectUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID, state: String) = projectsRepository.getProjectById(projectId).let { project ->
-        project.states.toMutableList().let { states ->
-            if (!states.contains(state)) throw NotFoundException("state")
-            states.remove(state)
-            projectsRepository.updateProject(project.copy(states = states))
-            logsRepository.addLog(
-                DeletedLog(
-                    username = usersRepository.getCurrentUser().username,
-                    affectedId = state,
-                    affectedType = Log.AffectedType.STATE,
-                    deletedFrom = "project $projectId"
-                )
-            )
+    operator fun invoke(projectId: UUID, stateName: String) =
+        projectsRepository.getProjectById(projectId).let { project ->
+            project.states.toMutableList().let { states ->
+                states.find { it.name == stateName }?.let { stateObj ->
+                    states.remove(stateObj)
+                    projectsRepository.updateProject(project.copy(states = states))
+                    logsRepository.addLog(
+                        DeletedLog(
+                            username = usersRepository.getCurrentUser().username,
+                            affectedId = stateObj.id,
+                            affectedName = stateName,
+                            affectedType = Log.AffectedType.STATE,
+                            deletedFrom = "project ${project.name} [$projectId]"
+                        )
+                    )
+                } ?: throw ProjectHasNoException("state")
+            }
         }
-    }
 }

@@ -1,7 +1,7 @@
 package org.example.presentation.controller.auth
 
 import org.example.domain.InvalidInputException
-import org.example.domain.entity.UserRole
+import org.example.domain.entity.User
 import org.example.domain.usecase.auth.CreateUserUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
@@ -23,7 +23,7 @@ class RegisterUiController(
             val password = input.getInput()
             print("Please enter the role (ADMIN or MATE): ")
             val role = input.getInput().let { value ->
-                UserRole.entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
+                User.UserRole.entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
                     ?: throw InvalidInputException("Invalid role: \"$value\". Please enter either ADMIN or MATE.")
             }
             if (username.isBlank() || password.isBlank()) throw InvalidInputException("Username and password cannot be empty.")

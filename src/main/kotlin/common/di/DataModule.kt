@@ -12,7 +12,7 @@ import org.example.common.Constants.NamedDataSources.LOGS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.PROJECTS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.TASKS_DATA_SOURCE
 import org.example.common.Constants.NamedDataSources.USERS_DATA_SOURCE
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.Log
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User

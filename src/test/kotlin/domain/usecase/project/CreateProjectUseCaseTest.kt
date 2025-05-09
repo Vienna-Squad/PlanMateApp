@@ -1,14 +1,13 @@
 package domain.usecase.project
 
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.repository.UsersRepository
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.project.CreateProjectUseCase
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 
 class CreateProjectUseCaseTest {

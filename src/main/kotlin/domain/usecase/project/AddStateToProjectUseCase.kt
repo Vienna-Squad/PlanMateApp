@@ -1,8 +1,10 @@
 package org.example.domain.usecase.project
 
 
-import org.example.domain.entity.AddedLog
-import org.example.domain.entity.Log
+import org.example.domain.AlreadyExistException
+import org.example.domain.entity.State
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -14,17 +16,20 @@ class AddStateToProjectUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID, state: String) = projectsRepository.getProjectById(projectId).let { project ->
-        projectsRepository.updateProject(project.copy(states = project.states + state))
-        logsRepository.addLog(
-            AddedLog(
-                username = usersRepository.getCurrentUser().username,
-                affectedId = state,
-                affectedType = Log.AffectedType.STATE,
-                addedTo = "project $projectId"
-            )
-        )
-    }
+    operator fun invoke(projectId: UUID, stateName: String) =
+        projectsRepository.getProjectById(projectId).let { project ->
+            if (project.states.any { it.name == stateName }) throw AlreadyExistException("state")
+            State(name = stateName).let { stateObj ->
+                projectsRepository.updateProject(project.copy(states = project.states + stateObj))
+                logsRepository.addLog(
+                    AddedLog(
+                        username = usersRepository.getCurrentUser().username,
+                        affectedId = stateObj.id,
+                        affectedName = stateName,
+                        affectedType = Log.AffectedType.STATE,
+                        addedTo = "project ${project.name} [$projectId]"
+                    )
+                )
+            }
+        }
 }
-
-

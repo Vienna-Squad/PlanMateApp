@@ -1,8 +1,8 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.NoChangeException
-import org.example.domain.entity.ChangedLog
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.ChangedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -20,7 +20,8 @@ class EditProjectNameUseCase(
             logsRepository.addLog(
                 ChangedLog(
                     username = usersRepository.getCurrentUser().username,
-                    affectedId = projectId.toString(),
+                    affectedId = projectId,
+                    affectedName = project.name,
                     affectedType = Log.AffectedType.PROJECT,
                     changedFrom = project.name,
                     changedTo = newName

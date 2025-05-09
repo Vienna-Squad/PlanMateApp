@@ -3,7 +3,6 @@ package data.datasource.mongo
 import org.bson.Document
 import org.example.common.Constants.MongoCollections.USERS_COLLECTION
 import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
 import java.time.LocalDateTime
 import java.util.*
 
@@ -25,7 +24,7 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
             id = UUID.fromString(uuidStr),
             username = document.getString("username"),
             hashedPassword = document.getString("hashedPassword"),
-            role = UserRole.valueOf(document.getString("role")),
+            role = User.UserRole.valueOf(document.getString("role")),
             cratedAt = LocalDateTime.parse(document.getString("createdAt"))
         )
     }

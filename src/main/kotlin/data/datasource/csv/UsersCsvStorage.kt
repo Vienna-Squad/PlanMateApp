@@ -2,7 +2,6 @@ package data.datasource.csv
 
 import org.example.domain.NotFoundException
 import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
@@ -18,7 +17,7 @@ class UsersCsvStorage(file: File) : CsvStorage<User>(file) {
             id = UUID.fromString(fields[ID_INDEX]),
             username = fields[USERNAME_INDEX],
             hashedPassword = fields[PASSWORD_INDEX],
-            role = UserRole.valueOf(fields[TYPE_INDEX]),
+            role = User.UserRole.valueOf(fields[TYPE_INDEX]),
             cratedAt = LocalDateTime.parse(fields[CREATED_AT_INDEX])
         )
         return user

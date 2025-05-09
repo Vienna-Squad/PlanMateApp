@@ -15,6 +15,8 @@ import org.junit.jupiter.api.assertThrows
 import com.google.common.truth.Truth.assertThat
 import data.datasource.mongo.MongoStorage
 import data.datasource.mongo.ProjectsMongoStorage
+import dummyProject
+import org.example.domain.entity.State
 import java.time.LocalDateTime
 import java.util.*
 
@@ -37,34 +39,21 @@ class ProjectsMongoStorageTest {
 
     @Test
     fun `toDocument should convert Project to Document correctly`() {
-        // Given
-        val uuid = UUID.randomUUID()
-        val creatorUuid = UUID.randomUUID()
-        val mateIds = listOf(UUID.randomUUID(), UUID.randomUUID())
-        val project = Project(
-            id = uuid,
-            name = "Test Project",
-            states = listOf("Backlog", "In Progress", "Done"),
-            createdBy = creatorUuid,
-            createdAt = LocalDateTime.of(2023, 1, 1, 12, 0),
-            matesIds = mateIds
-        )
-
         // When
-        val document = storage.toDocument(project)
+        val document = storage.toDocument(dummyProject)
 
         // Then
-        assertThat(document.getString("_id")).isEqualTo(uuid.toString())
-        assertThat(document.getString("name")).isEqualTo("Test Project")
-        assertThat(document.getList("states", String::class.java))
-            .containsExactly("Backlog", "In Progress", "Done")
-        assertThat(document.getString("createdBy")).isEqualTo(creatorUuid.toString())
-        assertThat(document.getString("createdAt")).isEqualTo("2023-01-01T12:00")
+        assertThat(document.getString("_id")).isEqualTo(dummyProject.id.toString())
+        assertThat(document.getString("name")).isEqualTo(dummyProject.name)
+        assertThat(document.getList("states", String::class.java).size)
+            .isEqualTo(dummyProject.states.size)
+        assertThat(document.getString("createdBy")).isEqualTo(dummyProject.createdBy.toString())
+        assertThat(document.getString("createdAt")).isEqualTo(dummyProject.createdAt.toString())
 
         val docMateIds = document.getList("matesIds", String::class.java)
-        assertThat(docMateIds).hasSize(2)
-        assertThat(docMateIds).contains(mateIds[0].toString())
-        assertThat(docMateIds).contains(mateIds[1].toString())
+        assertThat(docMateIds).hasSize(dummyProject.matesIds.size)
+        assertThat(docMateIds).contains(dummyProject.matesIds[0].toString())
+        assertThat(docMateIds).contains(dummyProject.matesIds[1].toString())
     }
 
     @Test
@@ -73,11 +62,12 @@ class ProjectsMongoStorageTest {
         val uuid = UUID.randomUUID()
         val creatorUuid = UUID.randomUUID()
         val mateIds = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val states= listOf("Backlog", "In Progress", "Done").map { State(name = it) }
 
         val document = Document()
             .append("_id", uuid.toString())
             .append("name", "Test Project")
-            .append("states", listOf("Backlog", "In Progress", "Done"))
+            .append("states", states.map { it.toString() })
             .append("createdBy", creatorUuid.toString())
             .append("createdAt", "2023-01-01T12:00")
             .append("matesIds", mateIds.map { it.toString() })
@@ -88,7 +78,7 @@ class ProjectsMongoStorageTest {
         // Then
         assertThat(project.id).isEqualTo(uuid)
         assertThat(project.name).isEqualTo("Test Project")
-        assertThat(project.states).containsExactly("Backlog", "In Progress", "Done")
+        assertThat(project.states.map { it.name }).containsExactly("Backlog", "In Progress", "Done")
         assertThat(project.createdBy).isEqualTo(creatorUuid)
         assertThat(project.createdAt).isEqualTo(LocalDateTime.of(2023, 1, 1, 12, 0))
         assertThat(project.matesIds).containsExactlyElementsIn(mateIds)
@@ -111,7 +101,7 @@ class ProjectsMongoStorageTest {
         val expectedProject = Project(
             id = uuid,
             name = "Test Project",
-            states = listOf("Backlog", "In Progress", "Done"),
+            states = listOf("Backlog", "In Progress", "Done").map { State(name = it) },
             createdBy = creatorUuid,
             createdAt = LocalDateTime.parse("2023-01-01T12:00"),
             matesIds = document.getList("matesIds", String::class.java)
@@ -150,7 +140,7 @@ class ProjectsMongoStorageTest {
         val project = Project(
             id = uuid,
             name = "Test Project",
-            states = listOf("Backlog", "In Progress", "Done"),
+            states = listOf("Backlog", "In Progress", "Done").map { State(name = it) },
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
             matesIds = listOf(UUID.randomUUID())
@@ -174,7 +164,7 @@ class ProjectsMongoStorageTest {
         val project = Project(
             id = uuid,
             name = "Test Project",
-            states = listOf("Backlog", "In Progress", "Done"),
+            states = listOf("Backlog", "In Progress", "Done").map { State(name = it) },
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
             matesIds = listOf(UUID.randomUUID())
@@ -195,7 +185,7 @@ class ProjectsMongoStorageTest {
         val project = Project(
             id = uuid,
             name = "Updated Project",
-            states = listOf("New", "Completed"),
+            states = listOf("New", "Completed").map { State(name = it) },
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
             matesIds = listOf(UUID.randomUUID())
@@ -219,7 +209,7 @@ class ProjectsMongoStorageTest {
         val project = Project(
             id = uuid,
             name = "Updated Project",
-            states = listOf("New", "Completed"),
+            states = listOf("New", "Completed").map { State(name = it) },
             createdBy = UUID.randomUUID(),
             createdAt = LocalDateTime.now(),
             matesIds = listOf(UUID.randomUUID())

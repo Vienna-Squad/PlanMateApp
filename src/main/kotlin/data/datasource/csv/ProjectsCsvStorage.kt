@@ -2,6 +2,7 @@ package data.datasource.csv
 
 import org.example.domain.NotFoundException
 import org.example.domain.entity.Project
+import org.example.domain.entity.State
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
@@ -18,7 +19,8 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
         require(fields.size == EXPECTED_COLUMNS) { "Invalid project data format: " }
 
         val states =
-            if (fields[STATES_INDEX].isNotEmpty()) fields[STATES_INDEX].split(MULTI_VALUE_SEPARATOR) else emptyList()
+            if (fields[STATES_INDEX].isNotEmpty()) fields[STATES_INDEX].split(MULTI_VALUE_SEPARATOR)
+                .map { it.split(STATE_SEPARATOR).let { state -> State(UUID.fromString(state[0]), state[1]) } } else emptyList()
         val matesIds = if (fields[MATES_IDS_INDEX].isNotEmpty()) fields[MATES_IDS_INDEX].split("|") else emptyList()
 
         val project = Project(
@@ -69,5 +71,6 @@ class ProjectsCsvStorage(file: File) : CsvStorage<Project>(file) {
         private const val EXPECTED_COLUMNS = 6
         private const val CSV_HEADER = "id,name,states,createdBy,matesIds,createdAt\n"
         private const val MULTI_VALUE_SEPARATOR = "|"
+        private const val STATE_SEPARATOR = ":"
     }
 }

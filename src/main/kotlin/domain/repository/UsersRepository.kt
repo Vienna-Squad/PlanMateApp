@@ -1,8 +1,7 @@
 package org.example.domain.repository
 
 import org.example.domain.entity.User
-import org.example.domain.entity.UserRole
-import java.util.UUID
+import java.util.*
 
 interface UsersRepository {
     fun getAllUsers(): List<User>
@@ -13,6 +12,6 @@ interface UsersRepository {
     fun storeUserData(
         userId: UUID,
         username: String,
-        role: UserRole
+        role: User.UserRole
     )
 }

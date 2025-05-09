@@ -2,7 +2,7 @@ package org.example.presentation.controller.auth
 
 import org.example.common.Constants
 import org.example.domain.InvalidInputException
-import org.example.domain.entity.UserRole
+import org.example.domain.entity.User
 import org.example.domain.usecase.auth.LoginUseCase
 import org.example.presentation.App
 import org.example.presentation.controller.UiController
@@ -33,10 +33,10 @@ class LoginUiController(
             loginUseCase(username, password)
             viewer.view("You have successfully logged in.\n")
 
-            loginUseCase.getCurrentUserIfLoggedIn()?.role.let { role ->
-                if (role == UserRole.ADMIN) {
+            loginUseCase.getCurrentUserIfLoggedIn().role.let { role ->
+                if (role == User.UserRole.ADMIN) {
                     adminApp.run()
-                } else if (role == UserRole.MATE) {
+                } else if (role == User.UserRole.MATE) {
                     mateApp.run()
                 }
             }

@@ -2,8 +2,8 @@ package domain.usecase.task
 
 import dummyTasks
 import io.mockk.*
-import org.example.domain.entity.DeletedLog
-import org.example.domain.entity.Log
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -45,7 +45,7 @@ class DeleteTaskUseCaseTest {
         verify {
             logsRepository.addLog(match {
                 it is DeletedLog &&
-                        it.affectedId == dummyTask.id.toString() &&
+                        it.affectedId == dummyTask.id &&
                         it.affectedType == Log.AffectedType.TASK
 
             })
@@ -68,8 +68,8 @@ class DeleteTaskUseCaseTest {
             logsRepository.addLog(
                 match {
                     it is DeletedLog &&
-                    it.affectedId == dummyTask.id.toString() &&
-                    it.affectedType == Log.AffectedType.TASK
+                            it.affectedId == dummyTask.id &&
+                            it.affectedType == Log.AffectedType.TASK
 
 
                 })
