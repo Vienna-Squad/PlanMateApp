@@ -1,6 +1,8 @@
 package domain.usecase.task
 
+import dummyAdmin
 import dummyMate
+import dummyProject
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
@@ -14,6 +16,7 @@ import org.example.domain.usecase.task.DeleteMateFromTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.*
 
 class DeleteMateFromTaskUseCaseTest {
 
@@ -24,55 +27,105 @@ class DeleteMateFromTaskUseCaseTest {
     private val usersRepository: UsersRepository = mockk(relaxed = true)
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
 
-    private val dummyTask = dummyTasks[0]
 
     @BeforeEach
     fun setUp() {
         deleteMateFromTaskUseCase =
             DeleteMateFromTaskUseCase(tasksRepository, logsRepository, usersRepository, projectsRepository)
-
     }
-
     @Test
     fun `should delete mate when given task id and mate id`() {
         //Given
-        val dummyMates = dummyTask.assignedTo
-        every { tasksRepository.getTaskById(dummyTask.id) } returns dummyTask
+        val project= dummyProject.copy(createdBy = dummyAdmin.id)
+        val task= dummyTask.copy(createdBy = dummyAdmin.id, projectId = project.id)
+        every { usersRepository.getCurrentUser() }returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyTask.id) } returns task
+        every { projectsRepository.getProjectById(project.id) }returns project
         // When
-        deleteMateFromTaskUseCase(dummyTask.id, dummyMates[0])
+        deleteMateFromTaskUseCase(task.id,task.assignedTo[0])
         //Then
-        verify {
-            tasksRepository.updateTask(match {
-                !
-                (it.assignedTo.contains(dummyMates[0]))
+        verify { tasksRepository.updateTask(
+            match { !
+            (it.assignedTo.contains(task.assignedTo[0]))
             })
         }
         verify { logsRepository.addLog(match { it is DeletedLog }) }
     }
+    @Test
+    fun `should throw AccessDeniedException project not created by current user`() {
+        //Given
+        val project= dummyProject
+        val task= dummyTask.copy(createdBy = dummyAdmin.id, projectId = project.id)
+        every { usersRepository.getCurrentUser() }returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyTask.id) } returns task
+        every { projectsRepository.getProjectById(project.id) }returns project
+        // When&then
+        assertThrows<org.example.domain.AccessDeniedException> {
+            deleteMateFromTaskUseCase(task.id,task.assignedTo[0])
+        }
+    }
 
     @Test
-    fun `should throw Exception when tasksRepository getTaskById throw Exception given task id`() {
+    fun `should throw TaskHasNoException when current user not assigned to task given task id & mate id`() {
         //Given
-        every { tasksRepository.getTaskById(dummyTask.id) } throws Exception()
-
-        // When & Then
-        assertThrows<Exception> {
-            deleteMateFromTaskUseCase(dummyTask.id, dummyMate.id)
+        val project= dummyProject.copy(createdBy = dummyAdmin.id)
+        val task= dummyTask.copy(createdBy = dummyAdmin.id, projectId = project.id)
+        every { usersRepository.getCurrentUser() }returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyTask.id) } returns task
+        every { projectsRepository.getProjectById(project.id) }returns project
+        // When&then
+        assertThrows<org.example.domain.TaskHasNoException> {
+            deleteMateFromTaskUseCase(task.id,UUID.randomUUID())
         }
-        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
+    }
 
+
+    @Test
+    fun `should not complete execution when getCurrentUser fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteMateFromTaskUseCase(dummyTask.id,dummyMate.id) }
+        verify(exactly = 0) { tasksRepository.getTaskById(any()) }
+        verify(exactly = 0) { projectsRepository.getProjectById(any()) }
+        verify (exactly=0) { tasksRepository.updateTask(any()) }
+        verify (exactly=0) { logsRepository.addLog(any()) }
+    }
+
+    @Test
+    fun `should not complete execution when getTaskById fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { tasksRepository.getTaskById(any()) } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteMateFromTaskUseCase(dummyTask.id,dummyAdmin.id) }
+        verify(exactly = 0) { projectsRepository.getProjectById(any()) }
+        verify(exactly = 0) { tasksRepository.updateTask(any()) }
+        verify(exactly = 0) { logsRepository.addLog(any()) }
+    }
+    @Test
+    fun `should not complete execution when getProjectById fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyTask.id) } returns dummyTask
+        every { projectsRepository.getProjectById(dummyTask.projectId) } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteMateFromTaskUseCase(dummyTask.id,dummyAdmin.id) }
     }
 
     @Test
     fun `should throw Exception when tasksRepository updateTask throw Exception given task id`() {
         //Given
-        val task = dummyTask.copy(assignedTo = dummyTask.assignedTo + dummyMate.id)
-        every { tasksRepository.getTaskById(task.id) } returns task
+        val project= dummyProject.copy(createdBy = dummyAdmin.id)
+        val task= dummyTask.copy(createdBy = dummyAdmin.id, projectId = project.id)
+        every { usersRepository.getCurrentUser() }returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyTask.id) } returns task
+        every { projectsRepository.getProjectById(project.id) }returns project
         every { tasksRepository.updateTask(any()) } throws Exception()
 
         // When & Then
         assertThrows<Exception> {
-            deleteMateFromTaskUseCase(dummyTask.id, dummyMate.id)
+            deleteMateFromTaskUseCase(task.id,task.assignedTo[0])
         }
         verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
 
@@ -81,14 +134,17 @@ class DeleteMateFromTaskUseCaseTest {
     @Test
     fun `should throw Exception when addLog fails `() {
         //Given
-        val task = dummyTask.copy(assignedTo = dummyTask.assignedTo + dummyMate.id)
-        every { tasksRepository.getTaskById(task.id) } returns task
+        val project= dummyProject.copy(createdBy = dummyAdmin.id)
+        val task= dummyTask.copy(createdBy = dummyAdmin.id, projectId = project.id)
+        every { usersRepository.getCurrentUser() }returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyTask.id) } returns task
+        every { projectsRepository.getProjectById(project.id) }returns project
+        every { tasksRepository.updateTask(any()) } returns Unit
         every { logsRepository.addLog(any()) } throws Exception()
-
         // When & Then
         assertThrows<Exception> {
-            deleteMateFromTaskUseCase(dummyTask.id, dummyMate.id)
-        }
+            deleteMateFromTaskUseCase(task.id,task.assignedTo[0])        }
 
     }
 }
+private val dummyTask = dummyTasks[0]
