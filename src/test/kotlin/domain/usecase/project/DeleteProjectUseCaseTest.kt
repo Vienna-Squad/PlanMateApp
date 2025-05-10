@@ -2,9 +2,7 @@ package domain.usecase.project
 
 import dummyAdmin
 import dummyProject
-import io.mockk.Runs
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.AccessDeniedException
@@ -79,7 +77,7 @@ class DeleteProjectUseCaseTest {
     }
 
     @Test
-    fun `should not log when deletion fails`() {
+    fun `should not proceed when deleteProjectById fails`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
@@ -91,12 +89,12 @@ class DeleteProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw exception when log addition fails`() {
+    fun `should not proceed when addLog fails`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
-        every { projectsRepository.deleteProjectById(project.id) } just Runs
+        every { projectsRepository.deleteProjectById(project.id) }
         every { logsRepository.addLog(any()) } throws Exception()
         //when && then
         assertThrows<Exception> { deleteProjectUseCase(dummyProject.id) }

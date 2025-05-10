@@ -14,25 +14,20 @@ class DeleteStateFromProjectUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID, stateName: String) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
-                project.states.toMutableList().let { states ->
-                    states.find { it.name == stateName }?.let { stateObj ->
-                        states.remove(stateObj)
-                        projectsRepository.updateProject(project.copy(states = states))
-                        logsRepository.addLog(
-                            DeletedLog(
-                                username = currentUser.username,
-                                affectedId = stateObj.id,
-                                affectedName = stateName,
-                                affectedType = Log.AffectedType.STATE,
-                                deletedFrom = "project ${project.name} [$projectId]"
-                            )
-                        )
-                    } ?: throw ProjectHasNoException("state")
-                }
-            }
-        }
+    operator fun invoke(projectId: UUID, stateName: String) {
+        val currentUser = usersRepository.getCurrentUser()
+        val project = projectsRepository.getProjectById(projectId)
+        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+        val stateToDelete = project.states.find { it.name == stateName } ?: throw ProjectHasNoException("state")
+        projectsRepository.updateProject(project.copy(states = project.states - stateToDelete))
+        logsRepository.addLog(
+            DeletedLog(
+                username = currentUser.username,
+                affectedId = stateToDelete.id,
+                affectedName = stateName,
+                affectedType = Log.AffectedType.STATE,
+                deletedFrom = "project ${project.name} [$projectId]"
+            )
+        )
+    }
 }

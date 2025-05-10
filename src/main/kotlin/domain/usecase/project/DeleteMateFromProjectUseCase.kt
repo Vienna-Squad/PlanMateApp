@@ -20,8 +20,7 @@ class DeleteMateFromProjectUseCase(
         if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
         val mate = usersRepository.getUserByID(mateId)
         if (!project.matesIds.contains(mate.id)) throw ProjectHasNoException("mate")
-        val updatedMates = project.matesIds.toMutableList().apply { remove(mateId) }
-        projectsRepository.updateProject(project.copy(matesIds = updatedMates))
+        projectsRepository.updateProject(project.copy(matesIds = project.matesIds - mateId))
         logsRepository.addLog(
             DeletedLog(
                 username = currentUser.username,

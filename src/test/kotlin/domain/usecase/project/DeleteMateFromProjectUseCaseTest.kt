@@ -3,9 +3,7 @@ package domain.usecase.project
 import dummyAdmin
 import dummyMate
 import dummyProject
-import io.mockk.Runs
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.ProjectHasNoException
@@ -31,7 +29,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should project creator can delete mate from project and log when project has this mate`() {
+    fun `should remove mate and log when user is project creator and mate exists`() {
         //given
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id, createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
@@ -45,7 +43,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when the currentUser is not the project creator`() {
+    fun `should throw AccessDeniedException when user is not project creator`() {
         //given
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
@@ -58,7 +56,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw ProjectHasNoException when the project has no this mate`() {
+    fun `should throw ProjectHasNoException when mate is not in project`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
@@ -84,7 +82,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should not update the project or log if getCurrentUser fails`() {
+    fun `should not proceed when getCurrentUser fails`() {
         //given
         every { usersRepository.getCurrentUser() } throws Exception()
         //when && then
@@ -98,7 +96,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should not update the project or log if getProjectById fails`() {
+    fun `should not proceed when getProjectById fails`() {
         //given
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(any()) } throws Exception()
@@ -112,7 +110,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should not update the project or log if getUserByID fails`() {
+    fun `should not proceed when getUserByID fails`() {
         //given
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id, createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
@@ -127,7 +125,7 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should not log if updateProject fails`() {
+    fun `should not proceed when updateProject fails`() {
         //given
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id, createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
@@ -142,13 +140,13 @@ class DeleteMateFromProjectUseCaseTest {
     }
 
     @Test
-    fun `should use case throw exception if any function fails`() {
+    fun `should not proceed when addLog fails`() {
         //given
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id, createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         every { usersRepository.getUserByID(dummyMate.id) } returns dummyMate
-        every { projectsRepository.updateProject(match { !it.matesIds.contains(dummyMate.id) }) } just Runs
+        every { projectsRepository.updateProject(project.copy(matesIds = project.matesIds - dummyMate.id)) }
         every { logsRepository.addLog(any()) } throws Exception()
         //when && then
         assertThrows<Exception> {
