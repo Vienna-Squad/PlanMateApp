@@ -1,8 +1,11 @@
 package domain.usecase.task
 
+import dummyAdmin
+import dummyProjects
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -19,7 +22,7 @@ class GetTaskUseCaseTest {
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val usersRepository: UsersRepository = mockk(relaxed = true)
     private lateinit var getTaskUseCase: GetTaskUseCase
-    private val dummyTask = dummyTasks[0]
+
 
     @BeforeEach
     fun setup() {
@@ -29,24 +32,59 @@ class GetTaskUseCaseTest {
     @Test
     fun `should return task given task id`() {
         //Given
-        every { tasksRepository.getTaskById(dummyTask.id) } returns dummyTask
-
+        val project= dummyProject.copy(createdBy =dummyAdmin.id )
+        val task= dummyTask.copy(projectId = project.id)
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { tasksRepository.getTaskById(task.id) } returns task
+        every { projectsRepository.getProjectById(project.id) } returns project
         //when
-        val result = getTaskUseCase(dummyTask.id)
+        val result = getTaskUseCase(task.id)
 
         //then
-        assertTrue { result.id == dummyTask.id }
+        assertTrue { result.id == task.id }
     }
 
     @Test
-    fun `should throw Exception  when repo fails to fetch data task given task id`() {
-        //Given
-        every { tasksRepository.getTaskById(dummyTask.id) } throws Exception()
-
-        //when & then
+    fun `should not complete execution when getCurrentUser fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } throws Exception()
+        //when && then
         assertThrows<Exception> { getTaskUseCase(dummyTask.id) }
+        verify(exactly = 0) { tasksRepository.getTaskById(any()) }
+        verify(exactly = 0) { projectsRepository.getProjectById(any()) }
     }
 
+    @Test
+    fun `should not complete execution when getTaskById fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { tasksRepository.getTaskById(any()) } throws Exception()
+        //when && then
+        assertThrows<Exception> { getTaskUseCase(dummyAdmin.id) }
+        verify(exactly = 0) { projectsRepository.getProjectById(any()) }
+    }
+    @Test
+    fun `should not complete execution when getProjectById fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { tasksRepository.getTaskById(dummyAdmin.id) } returns dummyTask
+        every { projectsRepository.getProjectById(dummyTask.projectId) } throws Exception()
+        //when && then
+        assertThrows<Exception> { getTaskUseCase(dummyAdmin.id) }
+    }
+
+    @Test
+    fun `should throw AccessDeniedException when user is not owner or mate in the project `() {
+        //given
+        val task = dummyTask
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { tasksRepository.getTaskById(task.id) } returns task
+        every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
+        //when && then
+        assertThrows<org.example.domain.AccessDeniedException> { getTaskUseCase(task.id) }
+    }
 
 }
+private val dummyTask = dummyTasks[0]
+private val dummyProject=dummyProjects[0]
 
