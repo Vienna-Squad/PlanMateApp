@@ -219,3 +219,15 @@ val dummyLogs = listOf(
     )
 )
 
+val dummyTask = Task(
+    title = "Implement user authentication",
+    state = State(name = "In Progress"),
+    assignedTo = listOf(UUID.randomUUID(), UUID.randomUUID()),
+    createdBy = UUID.randomUUID(),
+    projectId = UUID.randomUUID()
+)
+val dummyProjectId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
+val dummyMateId = UUID.fromString("550e8400-e29b-41d4-a716-446655440001")
+val dummyState = "done"
+
+
