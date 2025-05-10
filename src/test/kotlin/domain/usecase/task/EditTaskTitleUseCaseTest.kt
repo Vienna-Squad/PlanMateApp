@@ -39,7 +39,7 @@ class EditTaskTitleUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when current user not create project or from team in project`() {
+    fun `should throw AccessDeniedException when current user not create project`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
@@ -48,6 +48,18 @@ class EditTaskTitleUseCaseTest {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }
+
+    @Test
+    fun `should throw AccessDeniedException when current user not from team in project`() {
+        // given
+        every { usersRepository.getCurrentUser() } returns dummyMate
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id, matesIds = listOf())
+        // when & then
+        assertThrows<AccessDeniedException> {
+            editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
+        }
+    }
+
 
     @Test
     fun `should throw NoChangeException when new title is the same of old title`() {
