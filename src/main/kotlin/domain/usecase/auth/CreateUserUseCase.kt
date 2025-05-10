@@ -1,5 +1,6 @@
 package org.example.domain.usecase.auth
 
+import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
 import org.example.domain.AccessDeniedException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
@@ -15,7 +16,7 @@ class CreateUserUseCase(
     operator fun invoke(username: String, password: String, role: UserRole) =
         usersRepository.getCurrentUser().let { currentUser ->
             if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException("feature")
-            User(username = username, hashedPassword = password, role = role).let { newUser ->
+            User(username = username, hashedPassword = encryptPassword(password) , role = role).let { newUser ->
                 usersRepository.createUser(newUser)
                 logsRepository.addLog(
                     CreatedLog(

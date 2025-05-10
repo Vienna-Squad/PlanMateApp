@@ -27,6 +27,18 @@ class LoginUseCaseTest {
 
 
     @Test
+    fun `should throw any Exception when getAllUsers throw exception`() {
+        // given
+        every { usersRepository.getAllUsers() } throws Exception()
+
+        // when & then
+        assertThrows<Exception> {
+            loginUseCase.invoke(username = "Ahmed", password = "12345678")
+        }
+    }
+
+
+    @Test
     fun `invoke should throw UnauthorizedException when list of users is empty`() {
         // given
         every { usersRepository.getAllUsers() } returns emptyList()
@@ -38,8 +50,9 @@ class LoginUseCaseTest {
     }
 
 
+
     @Test
-    fun `invoke should throw UnauthorizedException when user not correct`() {
+    fun `invoke should throw UnauthorizedException when username not correct`() {
         // given
         every { usersRepository.getAllUsers() } returns listOf(
             User(
@@ -61,7 +74,7 @@ class LoginUseCaseTest {
         every { usersRepository.getAllUsers() } returns listOf(
             User(
                 username = "Ahmed",
-                hashedPassword = "uofah83r",
+                hashedPassword = encryptPassword("134328"),
                 role = UserRole.MATE,
             )
         )
@@ -71,6 +84,7 @@ class LoginUseCaseTest {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
+
 
     @Test
     fun `invoke should logged in when user found `() {
@@ -83,7 +97,11 @@ class LoginUseCaseTest {
             )
         )
 
+        // when
         loginUseCase.invoke(username = "Ahmed", password = "12345678")
+
+        //then
+        verify { usersRepository.storeUserData(any(), any(), any()) }
 
     }
 
@@ -122,6 +140,7 @@ class LoginUseCaseTest {
 
     }
 
+
     @Test
     fun `getCurrentUserIfLoggedIn should return user when user already logged in `() {
         // given
@@ -130,7 +149,6 @@ class LoginUseCaseTest {
             hashedPassword = encryptPassword("12345678"),
             role = UserRole.ADMIN,
         )
-        every { usersRepository.getAllUsers() } returns listOf(user)
         every { usersRepository.getCurrentUser() } returns user
 
         //when
