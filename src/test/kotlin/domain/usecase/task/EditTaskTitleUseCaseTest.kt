@@ -1,8 +1,16 @@
 package domain.usecase.task
 
+import dummyMate
+import dummyMateId
+import dummyProject
+import dummyProjectId
+import dummyTask
+import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.AccessDeniedException
+import org.example.domain.NoChangeException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import org.example.domain.repository.LogsRepository
@@ -12,6 +20,7 @@ import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.task.EditTaskTitleUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.*
 
 
@@ -30,41 +39,44 @@ class EditTaskTitleUseCaseTest {
     }
 
     @Test
-    fun `invoke should edit task when the task id is valid`() {
+    fun `should throw AccessDeniedException when current user not create project or from team in project`() {
         // given
-        val task = Task(
-            id = UUID.randomUUID(),
-            title = "Auth Feature",
-            state = State(name = "in progress"),
-            assignedTo = listOf(UUID.randomUUID()),
-            createdBy = UUID.randomUUID(),
-            projectId = UUID.randomUUID()
-        )
-
-        every { tasksRepository.updateTask(any()) } returns Unit
-
-        editTaskTitleUseCase.invoke(taskId = task.id, newTitle = "School Library")
-
+        every { usersRepository.getCurrentUser() } returns dummyMate
+        every { projectsRepository.getProjectById(any()) } returns dummyProject
+        // when & then
+        assertThrows<AccessDeniedException> {
+            editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
+        }
     }
 
     @Test
-    fun `invoke should add changed log for new title of task`() {
+    fun `should throw NoChangeException when new title is the same of old title`() {
         // given
-        val task = Task(
-            id = UUID.randomUUID(),
-            title = "Auth Feature",
-            state = State(name = "in progress"),
-            assignedTo = listOf(UUID.randomUUID()),
-            createdBy = UUID.randomUUID(),
-            projectId = UUID.randomUUID()
-        )
-
-        every { tasksRepository.updateTask(any()) } returns Unit
-
-        editTaskTitleUseCase.invoke(taskId = task.id, newTitle = "School Library")
-
-        verify { logsRepository.addLog(any()) }
-
+        every { usersRepository.getCurrentUser() } returns dummyMate
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id , matesIds = listOf(dummyMate.id))
+        every { tasksRepository.getTaskById(any()) } returns dummyTask.copy(title = "School Library")
+        // when & then
+        assertThrows<NoChangeException> {
+            editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
+        }
     }
+
+
+
+    @Test
+    fun `invoke should edit task when the task id is valid`() {
+        // given
+        every { usersRepository.getCurrentUser() } returns dummyMate
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id , matesIds = listOf(dummyMate.id))
+        every { tasksRepository.getTaskById(any()) } returns dummyTask.copy(id = dummyTask.id,title = "i hate final exams")
+
+        // when
+        editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
+
+        // then
+        verify { tasksRepository.updateTask(any()) }
+        verify { logsRepository.addLog(any()) }
+    }
+
 
 }
