@@ -19,7 +19,12 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Restore keys.properties
-        run: echo "$KEYS_FILE" | base64 -d > keys.properties
+        run: |
+          echo "$KEYS_FILE" | base64 -d > keys.properties
+          echo "Decoded keys.properties content:"
+          cat keys.properties
+          echo "Current directory tree:"
+          tree -a -L 2 || ls -R
         env:
           KEYS_FILE: ${{ secrets.KEYS_FILE }}
 
