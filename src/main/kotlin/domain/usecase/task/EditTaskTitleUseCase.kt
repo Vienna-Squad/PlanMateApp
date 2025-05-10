@@ -20,7 +20,7 @@ class EditTaskTitleUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
+                    if (project.createdBy != currentUser.id || currentUser.id !in project.matesIds) throw AccessDeniedException("task")
                     if (task.title == newTitle) throw NoChangeException()
                     tasksRepository.updateTask(task.copy(title = newTitle))
                     logsRepository.addLog(
