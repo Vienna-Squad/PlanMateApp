@@ -1,6 +1,7 @@
 .gradle
 build/
 .idea
+.csv
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/bauild/
 !**/src/test/**/build/
@@ -16,7 +17,8 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
+keys.properties
+local.properties
 ### Kotlin ###
 .kotlin
 
