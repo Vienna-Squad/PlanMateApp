@@ -1,8 +1,8 @@
 package org.example.presentation.controller.project
 
 
-import domain.usecase.project.DeleteStateFromProjectUseCase
 import org.example.domain.InvalidInputException
+import org.example.domain.usecase.project.DeleteStateFromProjectUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader

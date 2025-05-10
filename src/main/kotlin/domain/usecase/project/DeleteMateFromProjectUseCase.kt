@@ -14,26 +14,22 @@ class DeleteMateFromProjectUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID, mateId: UUID) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
-                usersRepository.getUserByID(mateId).let { mate ->
-                    if (!project.matesIds.contains(mate.id)) throw ProjectHasNoException("mate")
-                    project.matesIds.toMutableList().let { matesIds ->
-                        matesIds.remove(mateId)
-                        projectsRepository.updateProject(project.copy(matesIds = matesIds))
-                        logsRepository.addLog(
-                            DeletedLog(
-                                username = currentUser.username,
-                                affectedId = mateId,
-                                affectedName = mate.username,
-                                affectedType = Log.AffectedType.MATE,
-                                deletedFrom = "project ${project.name} [$projectId]"
-                            )
-                        )
-                    }
-                }
-            }
-        }
+    operator fun invoke(projectId: UUID, mateId: UUID) {
+        val currentUser = usersRepository.getCurrentUser()
+        val project = projectsRepository.getProjectById(projectId)
+        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+        val mate = usersRepository.getUserByID(mateId)
+        if (!project.matesIds.contains(mate.id)) throw ProjectHasNoException("mate")
+        val updatedMates = project.matesIds.toMutableList().apply { remove(mateId) }
+        projectsRepository.updateProject(project.copy(matesIds = updatedMates))
+        logsRepository.addLog(
+            DeletedLog(
+                username = currentUser.username,
+                affectedId = mateId,
+                affectedName = mate.username,
+                affectedType = Log.AffectedType.MATE,
+                deletedFrom = "project ${project.name} [$projectId]"
+            )
+        )
+    }
 }

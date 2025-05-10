@@ -1,4 +1,4 @@
-package domain.usecase.project
+package org.example.domain.usecase.project
 
 import org.example.domain.AccessDeniedException
 import org.example.domain.ProjectHasNoException
