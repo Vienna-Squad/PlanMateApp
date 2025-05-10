@@ -1,51 +1,84 @@
 package domain.usecase.project
 
+import dummyAdmin
+import dummyMate
+import dummyMateId
+import dummyProject
+import dummyProjectId
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.AccessDeniedException
+import org.example.domain.AlreadyExistException
+import org.example.domain.entity.Project
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.project.AddMateToProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.*
 
 class AddMateToProjectUseCaseTest {
     private lateinit var projectsRepository: ProjectsRepository
     private lateinit var logsRepository: LogsRepository
+    private lateinit var usersRepository: UsersRepository
     private lateinit var addMateToProjectUseCase: AddMateToProjectUseCase
 
-    private val projectId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000")
-    private val mateId = UUID.fromString("550e8400-e29b-41d4-a716-446655440001")
 
     @BeforeEach
     fun setup() {
         projectsRepository = mockk(relaxed = true)
         logsRepository = mockk(relaxed = true)
-        addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository,mockk(relaxed = true))
+        usersRepository = mockk(relaxed = true)
+        addMateToProjectUseCase = AddMateToProjectUseCase(projectsRepository, logsRepository, usersRepository)
     }
 
 
     @Test
-    fun `should call updated project`() {
-        // when
-        addMateToProjectUseCase.invoke(projectId = projectId , mateId = mateId )
-        // then
-        verify { projectsRepository.getProjectById(any()) }
+    fun `should throw AccessDeniedException when who creates project is not current user`() {
+        // given
+        every { usersRepository.getCurrentUser() } returns dummyMate
+        every { projectsRepository.getProjectById(any()) } returns dummyProject
+        // when & then
+        assertThrows<AccessDeniedException> {
+            addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
+        }
     }
 
     @Test
-    fun `should call getProjectById`() {
+    fun `should throw AlreadyExistException when mate already found in project`() {
+        // given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(
+            id = dummyProjectId,
+            createdBy = dummyAdmin.id,
+            matesIds = listOf(dummyMateId)
+        )
+        every { usersRepository.getUserByID(any()) } returns dummyMate.copy(id = dummyMateId)
+        // when & then
+        assertThrows<AlreadyExistException> {
+            addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
+        }
+    }
+
+    @Test
+    fun `should complete addition of mate to project `() {
+        // given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(
+            id = dummyProjectId,
+            createdBy = dummyAdmin.id,
+            matesIds = listOf()
+        )
+        every { usersRepository.getUserByID(any()) } returns dummyMate.copy(id = dummyMateId)
         // when
-        addMateToProjectUseCase.invoke(projectId = projectId , mateId = mateId )
+        addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
         // then
         verify { projectsRepository.updateProject(any()) }
-    }
-
-    @Test
-    fun `should add log `() {
-        // when
-        addMateToProjectUseCase.invoke(projectId = projectId , mateId = mateId )
-        // then
         verify { logsRepository.addLog(any()) }
     }
+
+
 }
