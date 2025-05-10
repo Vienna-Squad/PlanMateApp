@@ -22,6 +22,7 @@ jobs:
         run: echo "$KEYS_FILE" | base64 -d > keys.properties
         env:
           KEYS_FILE: ${{ secrets.KEYS_FILE }}
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
