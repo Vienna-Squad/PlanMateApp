@@ -14,22 +14,21 @@ class EditProjectNameUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID, newName: String) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
-                if (project.name == newName) throw NoChangeException()
-                projectsRepository.updateProject(project.copy(name = newName))
-                logsRepository.addLog(
-                    ChangedLog(
-                        username = currentUser.username,
-                        affectedId = projectId,
-                        affectedName = project.name,
-                        affectedType = Log.AffectedType.PROJECT,
-                        changedFrom = project.name,
-                        changedTo = newName
-                    )
-                )
-            }
-        }
+    operator fun invoke(projectId: UUID, newName: String) {
+        val currentUser = usersRepository.getCurrentUser()
+        val project = projectsRepository.getProjectById(projectId)
+        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+        if (project.name == newName.trim()) throw NoChangeException()
+        projectsRepository.updateProject(project.copy(name = newName))
+        logsRepository.addLog(
+            ChangedLog(
+                username = currentUser.username,
+                affectedId = projectId,
+                affectedName = project.name,
+                affectedType = Log.AffectedType.PROJECT,
+                changedFrom = project.name,
+                changedTo = newName
+            )
+        )
+    }
 }

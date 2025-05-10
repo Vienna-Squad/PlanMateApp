@@ -67,6 +67,18 @@ class DeleteStateFromProjectUseCaseTest {
     }
 
     @Test
+    fun `should throw ProjectHasNoException when project has no states`() {
+        //given
+        val project = dummyProject.copy(createdBy = dummyAdmin.id, states = emptyList())
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(project.id) } returns project
+        //when && then
+        assertThrows<ProjectHasNoException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
+        verify(exactly = 0) { projectsRepository.updateProject(any()) }
+        verify(exactly = 0) { logsRepository.addLog(any()) }
+    }
+
+    @Test
     fun `should not proceed when getCurrentUser fails`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
