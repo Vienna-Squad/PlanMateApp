@@ -2,7 +2,6 @@ package domain.usecase.project
 
 import com.google.common.truth.Truth.assertThat
 import dummyAdmin
-import dummyProject
 import dummyProjects
 import io.mockk.every
 import io.mockk.mockk
@@ -26,33 +25,54 @@ class GetAllProjectsUseCaseTest {
     }
 
     @Test
-    fun `should retrieve user projects when user logged in`() {
+    fun `should return projects created by current user when user logged in`() {
         //given
-        every { projectsRepository.getAllProjects() } returns dummyProjects + dummyProjects.random()
-            .copy(createdBy = dummyAdmin.id) + dummyProject.copy(createdBy = dummyAdmin.id)
+        val projects = dummyProjects + listOf(
+            dummyProjects.random().copy(createdBy = dummyAdmin.id),
+            dummyProjects.random().copy(createdBy = dummyAdmin.id),
+            dummyProjects.random().copy(createdBy = dummyAdmin.id),
+        )
         every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getAllProjects() } returns projects.shuffled()
         //when
-        val projects = getAllProjectsUseCase()
+        val filteredProjects = getAllProjectsUseCase()
         //then
-        assertThat(projects.size).isEqualTo(2)
-        assertThat(projects.all { it.createdBy == dummyAdmin.id }).isTrue()
+        assertThat(filteredProjects.all { it.createdBy == dummyAdmin.id }).isTrue()
     }
 
     @Test
-    fun `should throw NotFoundException when user not have any project`() {
+    fun `should throw NotFoundException when user has no projects`() {
         //given
-        every { projectsRepository.getAllProjects() } returns dummyProjects
         every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getAllProjects() } returns dummyProjects
         //when && then
         assertThrows<NotFoundException> { getAllProjectsUseCase() }
     }
 
     @Test
-    fun `should throw Exception when getAllProjects fails`() {
+    fun `should throw NotFoundException when all projects list is empty`() {
         //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getAllProjects() } returns emptyList()
+        //when && then
+        assertThrows<NotFoundException> { getAllProjectsUseCase() }
+    }
+
+    @Test
+    fun `should not proceed when getCurrentUser fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } throws Exception()
+        //when && then
+        assertThrows<Exception> { getAllProjectsUseCase() }
+        verify(exactly = 0) { projectsRepository.getAllProjects() }
+    }
+
+    @Test
+    fun `should not proceed when getAllProjects fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getAllProjects() } throws Exception()
         //when && then
         assertThrows<Exception> { getAllProjectsUseCase() }
-        verify(exactly = 0) { usersRepository.getCurrentUser() }
     }
 }
