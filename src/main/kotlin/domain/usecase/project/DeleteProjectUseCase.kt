@@ -13,19 +13,18 @@ class DeleteProjectUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
 ) {
-    operator fun invoke(projectId: UUID) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
-                projectsRepository.deleteProjectById(projectId)
-                logsRepository.addLog(
-                    DeletedLog(
-                        username = currentUser.username,
-                        affectedId = projectId,
-                        affectedName = project.name,
-                        affectedType = Log.AffectedType.PROJECT,
-                    )
-                )
-            }
-        }
+    operator fun invoke(projectId: UUID) {
+        val currentUser = usersRepository.getCurrentUser()
+        val project = projectsRepository.getProjectById(projectId)
+        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+        projectsRepository.deleteProjectById(projectId)
+        logsRepository.addLog(
+            DeletedLog(
+                username = currentUser.username,
+                affectedId = projectId,
+                affectedName = project.name,
+                affectedType = Log.AffectedType.PROJECT,
+            )
+        )
+    }
 }

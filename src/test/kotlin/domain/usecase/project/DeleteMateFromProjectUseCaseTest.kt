@@ -101,7 +101,7 @@ class DeleteMateFromProjectUseCaseTest {
     fun `should not update the project or log if getProjectById fails`() {
         //given
         every { usersRepository.getCurrentUser() } returns dummyAdmin
-        every { projectsRepository.getProjectById(dummyProject.id) } throws Exception()
+        every { projectsRepository.getProjectById(any()) } throws Exception()
         //when && then
         assertThrows<Exception> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
@@ -117,7 +117,7 @@ class DeleteMateFromProjectUseCaseTest {
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id, createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
-        every { usersRepository.getUserByID(dummyMate.id) } throws Exception()
+        every { usersRepository.getUserByID(any()) } throws Exception()
         //when && then
         assertThrows<Exception> {
             deleteMateFromProjectUseCase(dummyProject.id, dummyMate.id)
@@ -148,7 +148,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         every { usersRepository.getUserByID(dummyMate.id) } returns dummyMate
-        every { projectsRepository.updateProject(match{ !it.matesIds.contains(dummyMate.id) }) } just Runs
+        every { projectsRepository.updateProject(match { !it.matesIds.contains(dummyMate.id) }) } just Runs
         every { logsRepository.addLog(any()) } throws Exception()
         //when && then
         assertThrows<Exception> {

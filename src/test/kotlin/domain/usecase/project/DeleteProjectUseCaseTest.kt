@@ -1,12 +1,17 @@
 package domain.usecase.project
 
+import dummyAdmin
 import dummyProject
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.AccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
+import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.project.DeleteProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,20 +21,23 @@ class DeleteProjectUseCaseTest {
     private lateinit var deleteProjectUseCase: DeleteProjectUseCase
     private val projectsRepository: ProjectsRepository = mockk(relaxed = true)
     private val logsRepository: LogsRepository = mockk(relaxed = true)
+    private val usersRepository: UsersRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
         deleteProjectUseCase = DeleteProjectUseCase(
             projectsRepository,
             logsRepository,
-            mockk(relaxed = true)
+            usersRepository
         )
     }
 
     @Test
-    fun `should delete project and add log when project exists`() {
+    fun `should delete project and log when user is creator`() {
         //given
-        every { projectsRepository.deleteProjectById(dummyProject.id) } returns Unit
+        val project = dummyProject.copy(createdBy = dummyAdmin.id)
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(dummyProject.id) } returns project
         //when
         deleteProjectUseCase(dummyProject.id)
         //then
@@ -38,13 +46,59 @@ class DeleteProjectUseCaseTest {
     }
 
     @Test
-    fun `should not log if project deletion fails`() {
+    fun `should throw AccessDeniedException when user is not project creator`() {
         //given
-        every { projectsRepository.deleteProjectById(dummyProject.id) } throws Exception()
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<Exception> {
-            deleteProjectUseCase(dummyProject.id)
-        }
-        verify(exactly = 0) { logsRepository.addLog(match { it is DeletedLog }) }
+        assertThrows<AccessDeniedException> { deleteProjectUseCase(dummyProject.id) }
+        verify(exactly = 0) { projectsRepository.deleteProjectById(any()) }
+        verify(exactly = 0) { logsRepository.addLog(any()) }
+    }
+
+    @Test
+    fun `should not proceed when getCurrentUser fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteProjectUseCase(dummyProject.id) }
+        verify(exactly = 0) { projectsRepository.getProjectById(any()) }
+        verify(exactly = 0) { projectsRepository.deleteProjectById(any()) }
+        verify(exactly = 0) { logsRepository.addLog(any()) }
+    }
+
+    @Test
+    fun `should not proceed when getProjectById fails`() {
+        //given
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(any()) } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteProjectUseCase(dummyProject.id) }
+        verify(exactly = 0) { projectsRepository.deleteProjectById(any()) }
+        verify(exactly = 0) { logsRepository.addLog(any()) }
+    }
+
+    @Test
+    fun `should not log when deletion fails`() {
+        //given
+        val project = dummyProject.copy(createdBy = dummyAdmin.id)
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.deleteProjectById(any()) } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteProjectUseCase(dummyProject.id) }
+        verify(exactly = 0) { logsRepository.addLog(any()) }
+    }
+
+    @Test
+    fun `should throw exception when log addition fails`() {
+        //given
+        val project = dummyProject.copy(createdBy = dummyAdmin.id)
+        every { usersRepository.getCurrentUser() } returns dummyAdmin
+        every { projectsRepository.getProjectById(project.id) } returns project
+        every { projectsRepository.deleteProjectById(project.id) } just Runs
+        every { logsRepository.addLog(any()) } throws Exception()
+        //when && then
+        assertThrows<Exception> { deleteProjectUseCase(dummyProject.id) }
     }
 }
