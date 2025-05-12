@@ -1,6 +1,6 @@
 package org.example.data.repository
 
-import data.datasource.preferences.CurrentUserPreferences
+import data.datasource.preferences.Preferences
 import org.example.common.bases.DataSource
 import org.example.data.utils.safeCall
 import org.example.domain.entity.User
@@ -11,7 +11,7 @@ import java.util.*
 
 class UsersRepositoryImpl(
     private val usersDataSource: DataSource<User>,
-    private val preferences: CurrentUserPreferences = CurrentUserPreferences(),
+    private val preferences: Preferences = Preferences(),
 ) : UsersRepository {
     override fun storeCurrentUserId(userId: UUID) = safeCall { preferences.saveCurrentUserId(userId) }
 

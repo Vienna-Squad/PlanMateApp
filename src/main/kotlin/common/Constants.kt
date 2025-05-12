@@ -9,6 +9,7 @@ object APPS {
 
 object PreferenceKeys {
     const val CURRENT_USER_ID = "CURRENT_USER_ID"
+    const val DATA_SOURCE_TYPE = "DATA_SOURCE_TYPE"
 }
 
 object FilesPaths {
@@ -35,4 +36,9 @@ object NamedDataSources {
     const val TASKS_REMOTE_DATA_SOURCE = "TASKS_REMOTE_DATA_SOURCE"
     const val PROJECTS_REMOTE_DATA_SOURCE = "PROJECTS_REMOTE_DATA_SOURCE"
     const val USERS_REMOTE_DATA_SOURCE = "USERS_REMOTE_DATA_SOURCE"
+}
+
+enum class StorageType {
+    LOCAL,
+    REMOTE
 }

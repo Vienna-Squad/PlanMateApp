@@ -4,7 +4,7 @@ import java.util.*
 
 abstract class CsvFileManager<T>(
     filePath: String,
-    parser: CsvParser<T>
+    parser: Parser<T>
 ) : UnEditableCsvFileManager<T>(filePath, parser) {
     fun clear() {
         if (file.exists()) file.writeText("")

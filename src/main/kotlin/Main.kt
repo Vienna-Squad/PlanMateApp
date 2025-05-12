@@ -20,7 +20,6 @@ import java.util.*
 fun main() {
     println("Hello, PlanMate!")
     startKoin { modules(appModule, useCasesModule, repositoryModule, dataModule) }
-    //createAdminUser()
     createLocalAdminUser()
     AuthApp().run()
 }
@@ -60,16 +59,12 @@ fun createLocalAdminUser() {
     val password = "12345"
     println("Creating local admin ...")
     val repo: UsersRepository = getKoin().get()
-    if (repo.getAllUsers().find { it.username == username } == null) {
-        repo.createUser(
-            User(
-                username = username,
-                hashedPassword = encryptPassword(password),
-                role = User.UserRole.ADMIN
-            )
+    repo.createUser(
+        User(
+            username = username,
+            hashedPassword = encryptPassword(password),
+            role = User.UserRole.ADMIN
         )
-        println("Created successfully ... user: $username / $password")
-    } else {
-        println("Already created ... user: $username / $password")
-    }
+    )
+    println("Created successfully ... user: $username / $password")
 }
