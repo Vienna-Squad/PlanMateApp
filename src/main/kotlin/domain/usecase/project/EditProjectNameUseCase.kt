@@ -17,7 +17,7 @@ class EditProjectNameUseCase(
     operator fun invoke(projectId: UUID, newName: String) {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+        if (project.createdBy != currentUser.id) throw AccessDeniedException()
         if (project.name == newName.trim()) throw NoChangeException()
         projectsRepository.updateProject(project.copy(name = newName))
         logsRepository.addLog(

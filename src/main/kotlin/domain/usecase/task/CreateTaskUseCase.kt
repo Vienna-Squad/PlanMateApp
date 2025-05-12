@@ -22,9 +22,8 @@ class CreateTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
                 if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException(
-                    "project"
                 )
-                if (project.states.all { it.name != stateName }) throw ProjectHasNoException("state")
+                if (project.states.all { it.name != stateName }) throw ProjectHasNoException()
                 Task(
                     title = title,
                     state = State(name = stateName),

@@ -8,5 +8,5 @@ import java.util.*
 class GetTaskHistoryUseCase(private val logsRepository: LogsRepository = getKoin().get()) {
     operator fun invoke(taskId: UUID) = logsRepository.getAllLogs()
         .filter { it.toString().contains(taskId.toString()) }
-        .ifEmpty { throw NotFoundException("logs") }
+        .ifEmpty { throw NotFoundException() }
 }

@@ -29,7 +29,7 @@ class LoginUiController(
             val password = input.getInput()
 
             if (username.isBlank() || password.isBlank())
-                throw InvalidInputException("Username and password must not be empty.")
+                throw InvalidInputException()
 
             loginUseCase(username, password)
             viewer.view("You have successfully logged in.\n")

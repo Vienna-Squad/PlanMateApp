@@ -40,5 +40,5 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
         )
     }
 
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException("projects") }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException() }
 }

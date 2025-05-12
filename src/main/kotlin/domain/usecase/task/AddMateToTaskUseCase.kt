@@ -21,9 +21,9 @@ class AddMateToTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
-                    if (task.assignedTo.contains(mateId)) throw AlreadyExistException("mate")
-                    if (!project.matesIds.contains(mateId)) throw ProjectHasNoException("mate")
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException()
+                    if (task.assignedTo.contains(mateId)) throw AlreadyExistException()
+                    if (!project.matesIds.contains(mateId)) throw ProjectHasNoException()
                     tasksRepository.updateTask(task.copy(assignedTo = task.assignedTo + mateId))
                     logsRepository.addLog(
                         AddedLog(

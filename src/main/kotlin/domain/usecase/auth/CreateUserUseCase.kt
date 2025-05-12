@@ -15,7 +15,7 @@ class CreateUserUseCase(
 ) {
     operator fun invoke(username: String, password: String, role: UserRole) =
         usersRepository.getCurrentUser().let { currentUser ->
-            if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException("feature")
+            if (currentUser.role != UserRole.ADMIN) throw AccessDeniedException()
             User(username = username, hashedPassword = encryptPassword(password) , role = role).let { newUser ->
                 usersRepository.createUser(newUser)
                 logsRepository.addLog(

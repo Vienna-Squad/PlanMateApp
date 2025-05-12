@@ -16,7 +16,7 @@ class DeleteProjectUseCase(
     operator fun invoke(projectId: UUID) {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+        if (project.createdBy != currentUser.id) throw AccessDeniedException()
         projectsRepository.deleteProjectById(projectId)
         logsRepository.addLog(
             DeletedLog(

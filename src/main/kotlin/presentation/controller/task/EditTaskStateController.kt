@@ -19,11 +19,11 @@ class EditTaskStateController(
         tryAndShowError {
             print("Please enter the Task ID: ")
             val taskId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter the new state: ")
             val newState = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("State cannot be empty. Please provide a valid state.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             editTaskStateUseCase(UUID.fromString(taskId), newState)
             viewer.view("Task #$taskId state has been successfully updated to \"$newState\".\n")

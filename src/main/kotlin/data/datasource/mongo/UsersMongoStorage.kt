@@ -30,5 +30,5 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
         )
     }
 
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException("users") }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException() }
 }

@@ -10,10 +10,10 @@ import java.util.*
 class ProjectsCsvStorage(
     private val fileManager: CsvFileManager<Project> = ProjectsCsvFileManager(),
 ) : DataSource<Project> {
-    override fun getAllItems() = fileManager.readAll().ifEmpty { throw NotFoundException("projects") }
+    override fun getAllItems() = fileManager.readAll().ifEmpty { throw NotFoundException() }
     override fun addItem(newItem: Project) = fileManager.append(newItem)
     override fun deleteItem(item: Project) = fileManager.delete(item)
-    override fun getItemById(id: UUID) = fileManager.getById(id) ?: throw NotFoundException("project")
+    override fun getItemById(id: UUID) = fileManager.getById(id) ?: throw NotFoundException()
     override fun updateItem(updatedItem: Project) =
-        fileManager.update(updatedItem).let { if (!it) throw NotFoundException("project") }
+        fileManager.update(updatedItem).let { if (!it) throw NotFoundException() }
 }

@@ -20,11 +20,11 @@ class DeleteStateFromProjectUiController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be empty. Please enter a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Enter the state you want to delete: ")
             val stateToDelete = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("State name cannot be empty. Please enter a valid state.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             deleteStateFromProjectUseCase(
                 projectId = UUID.fromString(projectId),

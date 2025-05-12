@@ -8,6 +8,6 @@ import org.example.domain.entity.log.Log
 class LogsCsvStorage(
     private val fileManager: UnEditableCsvFileManager<Log>
 ) : UnEditableDataSource<Log> {
-    override fun getAllItems() = fileManager.readAll().ifEmpty { throw NotFoundException("logs") }
+    override fun getAllItems() = fileManager.readAll().ifEmpty { throw NotFoundException() }
     override fun addItem(newItem: Log) = fileManager.append(newItem)
 }

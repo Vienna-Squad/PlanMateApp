@@ -2,6 +2,7 @@ package org.example.data.repository
 
 import data.datasource.preferences.CurrentUserPreferences
 import org.example.common.bases.DataSource
+import org.example.data.utils.safeCall
 import org.example.domain.entity.User
 import org.example.domain.repository.UsersRepository
 import java.security.MessageDigest

@@ -18,10 +18,10 @@ class GetAllTasksOfProjectUseCase(
     operator fun invoke(projectId: UUID): List<Task> {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (!isOwnerOrMate(project, currentUser)) throw AccessDeniedException("project")
+        if (!isOwnerOrMate(project, currentUser)) throw AccessDeniedException()
         return tasksRepository.getAllTasks()
             .filter { task -> task.projectId == projectId }
-            .ifEmpty { throw NotFoundException("tasks") }
+            .ifEmpty { throw NotFoundException() }
     }
 
     private fun isOwnerOrMate(project: Project, currentUser: User) =

@@ -17,8 +17,8 @@ class DeleteStateFromProjectUseCase(
     operator fun invoke(projectId: UUID, stateName: String) {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
-        val stateToDelete = project.states.find { it.name == stateName } ?: throw ProjectHasNoException("state")
+        if (project.createdBy != currentUser.id) throw AccessDeniedException()
+        val stateToDelete = project.states.find { it.name == stateName } ?: throw ProjectHasNoException()
         projectsRepository.updateProject(project.copy(states = project.states - stateToDelete))
         logsRepository.addLog(
             DeletedLog(

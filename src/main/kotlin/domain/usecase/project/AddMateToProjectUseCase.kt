@@ -17,9 +17,9 @@ class AddMateToProjectUseCase(
     operator fun invoke(projectId: UUID, mateId: UUID) =
         usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
+                if (project.createdBy != currentUser.id) throw AccessDeniedException()
                 usersRepository.getUserByID(mateId).let { mate ->
-                    if (project.matesIds.contains(mate.id)) throw AlreadyExistException("mate")
+                    if (project.matesIds.contains(mate.id)) throw AlreadyExistException()
                     projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mate.id))
                     logsRepository.addLog(
                         AddedLog(

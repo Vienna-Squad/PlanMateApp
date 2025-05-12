@@ -20,8 +20,8 @@ class DeleteMateFromTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
-                    if (!task.assignedTo.contains(mateId)) throw TaskHasNoException("mate")
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException()
+                    if (!task.assignedTo.contains(mateId)) throw TaskHasNoException()
                     task.assignedTo.toMutableList().let { mates ->
                         mates.remove(mateId)
                         tasksRepository.updateTask(task.copy(assignedTo = mates))

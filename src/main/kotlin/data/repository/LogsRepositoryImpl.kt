@@ -1,6 +1,7 @@
 package org.example.data.repository
 
 import org.example.common.bases.UnEditableDataSource
+import org.example.data.utils.safeCall
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 

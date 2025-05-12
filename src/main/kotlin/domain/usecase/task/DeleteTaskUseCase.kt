@@ -20,7 +20,7 @@ class DeleteTaskUseCase(
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
                     if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException(
-                        "task"
+
                     )
                     tasksRepository.deleteTaskById(taskId)
                     logsRepository.addLog(

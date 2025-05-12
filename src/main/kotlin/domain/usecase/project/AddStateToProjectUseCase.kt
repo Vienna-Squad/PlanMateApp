@@ -18,8 +18,8 @@ class AddStateToProjectUseCase(
     operator fun invoke(projectId: UUID, stateName: String) =
         usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw AccessDeniedException("project")
-                if (project.states.any { it.name == stateName }) throw AlreadyExistException("state")
+                if (project.createdBy != currentUser.id) throw AccessDeniedException()
+                if (project.states.any { it.name == stateName }) throw AlreadyExistException()
                 State(name = stateName).let { stateObj ->
                     projectsRepository.updateProject(project.copy(states = project.states + stateObj))
                     logsRepository.addLog(AddedLog(

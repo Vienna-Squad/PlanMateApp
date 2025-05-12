@@ -17,7 +17,7 @@ class CreateProjectUseCase(
 ) {
     operator fun invoke(name: String) =
         usersRepository.getCurrentUser().let { currentUser ->
-            if (currentUser.role != User.UserRole.ADMIN) throw AccessDeniedException("feature")
+            if (currentUser.role != User.UserRole.ADMIN) throw AccessDeniedException()
             Project(name = name, createdBy = currentUser.id).let { newProject ->
                 projectsRepository.addProject(newProject)
                 logsRepository.addLog(

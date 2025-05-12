@@ -41,5 +41,5 @@ class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(
         )
     }
 
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException("tasks") }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException() }
 }

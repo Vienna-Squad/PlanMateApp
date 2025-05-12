@@ -1,6 +1,7 @@
 package org.example.data.repository
 
 import org.example.common.bases.DataSource
+import org.example.data.utils.safeCall
 import org.example.domain.entity.Project
 import org.example.domain.repository.ProjectsRepository
 import java.util.*

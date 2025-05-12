@@ -91,5 +91,5 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
         }
     }
 
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException("logs") }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException() }
 }
