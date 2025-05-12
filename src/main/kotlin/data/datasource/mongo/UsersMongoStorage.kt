@@ -1,7 +1,7 @@
 package data.datasource.mongo
 
 import org.bson.Document
-import org.example.common.Constants.MongoCollections.USERS_COLLECTION
+import org.example.common.MongoCollections.USERS_COLLECTION
 import org.example.domain.NotFoundException
 import org.example.domain.entity.User
 import java.time.LocalDateTime
@@ -12,7 +12,7 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
     override fun toDocument(item: User): Document {
         return Document()
             .append("_id", item.id.toString())
-            .append("uuid", item.id.toString())  // Store UUID as string
+            .append("uuid", item.id.toString())  // Store UUID as String
             .append("username", item.username)
             .append("hashedPassword", item.hashedPassword)
             .append("role", item.role.name)
@@ -30,5 +30,5 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
         )
     }
 
-    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("users") }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException("users") }
 }

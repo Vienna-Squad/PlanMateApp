@@ -1,6 +1,7 @@
 package org.example.presentation.controller.auth
 
-import org.example.common.Constants
+import org.example.common.APPS.ADMIN_APP
+import org.example.common.APPS.MATE_APP
 import org.example.domain.InvalidInputException
 import org.example.domain.entity.User.UserRole
 import org.example.domain.usecase.auth.LoginUseCase
@@ -17,8 +18,8 @@ class LoginUiController(
     private val loginUseCase: LoginUseCase = getKoin().get(),
     private val viewer: ItemViewer<String> = TextViewer(),
     private val input: InputReader<String> = StringInputReader(),
-    private val mateApp: App = getKoin().get(named(Constants.APPS.MATE_APP)),
-    private val adminApp: App = getKoin().get(named(Constants.APPS.ADMIN_APP)),
+    private val mateApp: App = getKoin().get(named(MATE_APP)),
+    private val adminApp: App = getKoin().get(named(ADMIN_APP)),
 ) : UiController {
     override fun execute() {
         tryAndShowError {

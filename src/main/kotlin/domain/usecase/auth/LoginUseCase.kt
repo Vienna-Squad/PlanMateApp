@@ -10,11 +10,7 @@ class LoginUseCase(private val usersRepository: UsersRepository) {
         usersRepository.getAllUsers()
             .find { it.username == username && it.hashedPassword == UsersRepositoryImpl.encryptPassword(password) }
             ?.let { user ->
-                usersRepository.storeUserData(
-                    userId = user.id,
-                    username = user.username,
-                    role = user.role
-                )
+                usersRepository.storeCurrentUserId(user.id)
             } ?: throw UnauthorizedException()
 
     fun getCurrentUserIfLoggedIn() = usersRepository.getCurrentUser()

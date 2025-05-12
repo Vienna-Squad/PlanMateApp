@@ -50,7 +50,6 @@ class LoginUseCaseTest {
     }
 
 
-
     @Test
     fun `invoke should throw UnauthorizedException when username not correct`() {
         // given
@@ -101,7 +100,7 @@ class LoginUseCaseTest {
         loginUseCase.invoke(username = "Ahmed", password = "12345678")
 
         //then
-        verify { usersRepository.storeUserData(any(), any(), any()) }
+        verify { usersRepository.storeCurrentUserId(any()) }
 
     }
 
@@ -119,7 +118,7 @@ class LoginUseCaseTest {
 
         loginUseCase.invoke(username = "Ahmed", password = "12345678")
 
-        verify { usersRepository.storeUserData(any(), any(), any()) }
+        verify { usersRepository.storeCurrentUserId(any()) }
 
     }
 
