@@ -20,7 +20,7 @@ import org.example.common.NamedDataSources.USERS_REMOTE_DATA_SOURCE
 import org.example.common.bases.DataSource
 import org.example.common.bases.UnEditableCsvFileManager
 import org.example.common.bases.UnEditableDataSource
-import org.example.data.datasource.csv.parser.LogCsvParser
+import org.example.data.datasource.csv.parser.LogParser
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
@@ -29,7 +29,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val dataModule = module {
-    single<UnEditableCsvFileManager<Log>> { UnEditableCsvFileManager(LOGS_FILE_PATH, LogCsvParser()) }
+    single<UnEditableCsvFileManager<Log>> { UnEditableCsvFileManager(LOGS_FILE_PATH, LogParser()) }
 
     single<UnEditableDataSource<Log>>(named(LOGS_LOCAL_DATA_SOURCE)) { LogsCsvStorage(get()) }
     single<DataSource<Project>>(named(PROJECTS_LOCAL_DATA_SOURCE)) { ProjectsCsvStorage() }

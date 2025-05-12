@@ -1,16 +1,17 @@
 package org.example.data.datasource.csv.parser
 
-import org.example.common.bases.CsvParser
+import org.example.common.bases.Parser
 import org.example.domain.entity.User
 import java.time.LocalDateTime
 import java.util.UUID
 
-class UserCsvParser : CsvParser<User> {
-    override fun toCsvRow(item: User): String {
+class UserParser : Parser<User> {
+    override fun serialize(item: User): String {
         return "${item.id},${item.username},${item.hashedPassword},${item.role},${item.cratedAt}\n"
     }
 
-    override fun fromCsvRow(fields: List<String>): User {
+    override fun deserialize(row: String): User {
+        val fields: List<String> = row.split(",")
         require(fields.size == EXPECTED_COLUMNS) { "Invalid user data format: " }
         val user = User(
             id = UUID.fromString(fields[ID_INDEX]),

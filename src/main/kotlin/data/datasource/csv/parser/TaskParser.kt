@@ -1,18 +1,19 @@
 package org.example.data.datasource.csv.parser
 
-import org.example.common.bases.CsvParser
+import org.example.common.bases.Parser
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import java.time.LocalDateTime
 import java.util.UUID
 
-class TaskCsvParser : CsvParser<Task> {
-    override fun toCsvRow(item: Task): String {
+class TaskParser : Parser<Task> {
+    override fun serialize(item: Task): String {
         val assignedTo = item.assignedTo.joinToString("|")
         return "${item.id},${item.title},${item.state},${assignedTo},${item.createdBy},${item.projectId},${item.createdAt}\n"
     }
 
-    override fun fromCsvRow(fields: List<String>): Task {
+    override fun deserialize(row: String): Task {
+        val fields: List<String> = row.split(",")
         require(fields.size == EXPECTED_COLUMNS) { "Invalid task data format: " }
         val assignedTo =
             if (fields[ASSIGNED_TO_INDEX].isNotEmpty()) fields[ASSIGNED_TO_INDEX].split(MULTI_VALUE_SEPARATOR)
