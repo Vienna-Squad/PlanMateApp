@@ -8,7 +8,7 @@ plugins {
     jacoco
 }
 val localProperties = Properties().apply {
-    val localFile = rootProject.file("Keys.properties")
+    val localFile = rootProject.file("keys.properties")
     if (localFile.exists()) {
         FileInputStream(localFile).use { load(it) }
     }
