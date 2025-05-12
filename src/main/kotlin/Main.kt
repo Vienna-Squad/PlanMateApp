@@ -20,7 +20,6 @@ import java.util.*
 fun main() {
     println("Hello, PlanMate!")
     startKoin { modules(appModule, useCasesModule, repositoryModule, dataModule) }
-    //createAdminUser()
     createLocalAdminUser()
     AuthApp().run()
 }
