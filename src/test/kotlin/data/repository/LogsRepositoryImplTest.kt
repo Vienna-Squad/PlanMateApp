@@ -1,9 +1,9 @@
 package data.repository
 
 import com.google.common.truth.Truth.assertThat
-import data.datasource.DataSource
 import dummyLogs
 import io.mockk.*
+import org.example.common.bases.DataSource
 import org.example.data.repository.LogsRepositoryImpl
 import org.example.domain.PlanMateAppException
 import org.example.domain.entity.log.Log
@@ -24,28 +24,28 @@ class LogsRepositoryImplTest {
     @Test
     fun `should return all logs when logs are existed`() {
         //given
-        every { logsDataSource.getAll() } returns dummyLogs
+        every { logsDataSource.getAllItems() } returns dummyLogs
         //when
         val result = logsRepository.getAllLogs()
         //then
         assertThat(result.size).isEqualTo(dummyLogs.size)
-        verify { logsDataSource.getAll() }
+        verify { logsDataSource.getAllItems() }
     }
 
     @Test
     fun `should add logs when pass a valid log`() {
         //given
-        every { logsDataSource.add(dummyLogs[2]) } just Runs
+        every { logsDataSource.addItem(dummyLogs[2]) } just Runs
         //when
         logsRepository.addLog(dummyLogs[2])
         //then
-        verify { logsDataSource.add(match { it == dummyLogs[2] }) }
+        verify { logsDataSource.addItem(match { it == dummyLogs[2] }) }
     }
 
     @Test
     fun `should throw PlanMateAppException when data source throw any exception while retrieval`() {
         //given
-        every { logsDataSource.getAll() } throws Exception()
+        every { logsDataSource.getAllItems() } throws Exception()
         //when && then
         assertThrows<PlanMateAppException> { logsRepository.getAllLogs() }
     }
@@ -53,7 +53,7 @@ class LogsRepositoryImplTest {
     @Test
     fun `should throw PlanMateAppException when data source throw any exception while adding`() {
         //given
-        every { logsDataSource.add(dummyLogs[2]) } throws Exception()
+        every { logsDataSource.addItem(dummyLogs[2]) } throws Exception()
         //when && then
         assertThrows<PlanMateAppException> { logsRepository.addLog(dummyLogs[2]) }
     }

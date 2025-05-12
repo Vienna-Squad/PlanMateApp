@@ -134,10 +134,10 @@ class TasksMongoStorageTest {
         val storageSpy = spyk(storage)
 
         // Mock the getAll method directly to return our test tasks
-        every { storageSpy.getAll() } returns listOf(task1, task2)
+        every { storageSpy.getAllItems() } returns listOf(task1, task2)
 
         // When
-        val result = storageSpy.getAll()
+        val result = storageSpy.getAllItems()
 
         // Then
         assertThat(result).hasSize(2)
@@ -164,7 +164,7 @@ class TasksMongoStorageTest {
         every { mockCollection.insertOne(any()) } returns mockResult
 
         // When
-        storage.add(task)
+        storage.addItem(task)
 
         // Then
         verify { mockCollection.insertOne(any()) }
@@ -189,7 +189,7 @@ class TasksMongoStorageTest {
         every { mockCollection.replaceOne(any(), any()) } returns mockResult
 
         // When
-        storage.update(task)
+        storage.updateItem(task)
 
         // Then
         verify { mockCollection.replaceOne(any(), any()) }
@@ -214,7 +214,7 @@ class TasksMongoStorageTest {
         every { mockCollection.deleteOne(any()) } returns mockResult
 
         // When
-        storage.delete(task)
+        storage.deleteItem(task)
 
         // Then
         verify { mockCollection.deleteOne(any()) }

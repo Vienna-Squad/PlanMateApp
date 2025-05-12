@@ -62,7 +62,7 @@ class ProjectsMongoStorageTest {
         val uuid = UUID.randomUUID()
         val creatorUuid = UUID.randomUUID()
         val mateIds = listOf(UUID.randomUUID(), UUID.randomUUID())
-        val states= listOf("Backlog", "In Progress", "Done").map { State(name = it) }
+        val states = listOf("Backlog", "In Progress", "Done").map { State(name = it) }
 
         val document = Document()
             .append("_id", uuid.toString())
@@ -110,10 +110,10 @@ class ProjectsMongoStorageTest {
 
         // Use a spy to intercept the call
         val spyStorage = spyk(storage)
-        every { spyStorage.getById(uuid) } returns expectedProject
+        every { spyStorage.getItemById(uuid) } returns expectedProject
 
         // When
-        val project = spyStorage.getById(uuid)
+        val project = spyStorage.getItemById(uuid)
 
         // Then
         assertThat(project.id).isEqualTo(uuid)
@@ -127,10 +127,10 @@ class ProjectsMongoStorageTest {
 
         // Use a spy to intercept the call
         val spyStorage = spyk(storage)
-        every { spyStorage.getById(uuid) } throws NotFoundException()
+        every { spyStorage.getItemById(uuid) } throws NotFoundException()
 
         // When/Then
-        assertThrows<NotFoundException> { spyStorage.getById(uuid) }
+        assertThrows<NotFoundException> { spyStorage.getItemById(uuid) }
     }
 
     @Test
@@ -151,7 +151,7 @@ class ProjectsMongoStorageTest {
         every { mockCollection.deleteOne(any()) } returns mockResult
 
         // When
-        storage.delete(project)
+        storage.deleteItem(project)
 
         // Then
         verify { mockCollection.deleteOne(Filters.eq("_id", uuid.toString())) }
@@ -175,7 +175,7 @@ class ProjectsMongoStorageTest {
         every { mockCollection.deleteOne(any()) } returns mockResult
 
         // When/Then
-        assertThrows<NotFoundException> { storage.delete(project) }
+        assertThrows<NotFoundException> { storage.deleteItem(project) }
     }
 
     @Test
@@ -196,7 +196,7 @@ class ProjectsMongoStorageTest {
         every { mockCollection.replaceOne(any(), any()) } returns mockResult
 
         // When
-        storage.update(project)
+        storage.updateItem(project)
 
         // Then
         verify { mockCollection.replaceOne(Filters.eq("_id", uuid.toString()), any()) }
@@ -220,6 +220,6 @@ class ProjectsMongoStorageTest {
         every { mockCollection.replaceOne(any(), any()) } returns mockResult
 
         // When/Then
-        assertThrows<NotFoundException> { storage.update(project) }
+        assertThrows<NotFoundException> { storage.updateItem(project) }
     }
 }

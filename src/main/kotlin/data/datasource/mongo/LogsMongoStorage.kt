@@ -2,7 +2,7 @@ package data.datasource.mongo
 
 
 import org.bson.Document
-import org.example.common.Constants.MongoCollections.LOGS_COLLECTION
+import org.example.common.MongoCollections.LOGS_COLLECTION
 import org.example.domain.NotFoundException
 import org.example.domain.entity.log.*
 import org.example.domain.entity.log.Log.ActionType
@@ -91,5 +91,5 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
         }
     }
 
-    override fun getAll() = super.getAll().ifEmpty { throw NotFoundException("logs") }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException("logs") }
 }
