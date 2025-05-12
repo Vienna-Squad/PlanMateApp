@@ -2,8 +2,7 @@ package org.example.domain
 
 abstract class PlanMateAppException : Throwable()
 
-class LoginException : PlanMateAppException()
-class RegisterException : PlanMateAppException()
+
 class UnauthorizedException : PlanMateAppException()
 class AccessDeniedException : PlanMateAppException()
 class NotFoundException : PlanMateAppException()
