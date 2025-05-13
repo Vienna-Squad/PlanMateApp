@@ -3,8 +3,6 @@ package data.datasource.preferences
 import org.example.common.PreferenceKeys.CURRENT_USER_ID
 import org.example.common.PreferenceKeys.DATA_SOURCE_TYPE
 import org.example.common.StorageType
-import org.example.domain.DataSourceTypeException
-//import org.example.domain.DataSourceTypeException
 import org.example.domain.UnauthorizedException
 import java.util.*
 
