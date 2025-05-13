@@ -1,7 +1,8 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.AccessDeniedException
-import org.example.domain.ProjectHasNoException
+
+import org.example.domain.ProjectAccessDenied
+import org.example.domain.StateNotInProjectException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import org.example.domain.entity.log.CreatedLog
@@ -21,9 +22,9 @@ class CreateTaskUseCase(
     operator fun invoke(title: String, stateName: String, projectId: UUID) =
         usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException(
+                if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw ProjectAccessDenied(
                 )
-                if (project.states.all { it.name != stateName }) throw ProjectHasNoException()
+                if (project.states.all { it.name != stateName }) throw StateNotInProjectException()
                 Task(
                     title = title,
                     state = State(name = stateName),

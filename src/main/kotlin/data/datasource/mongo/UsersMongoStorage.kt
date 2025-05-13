@@ -2,7 +2,7 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.MongoCollections.USERS_COLLECTION
-import org.example.domain.NotFoundException
+import org.example.domain.NoUsersFound
 import org.example.domain.entity.User
 import java.time.LocalDateTime
 import java.util.*
@@ -30,5 +30,5 @@ class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(
         )
     }
 
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NotFoundException() }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoUsersFound() }
 }

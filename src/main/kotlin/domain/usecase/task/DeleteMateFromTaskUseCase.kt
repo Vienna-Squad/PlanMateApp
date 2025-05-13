@@ -1,7 +1,9 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.AccessDeniedException
-import org.example.domain.TaskHasNoException
+
+import org.example.domain.MateNotAssignedToTaskException
+import org.example.domain.MateNotInProjectException
+import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -20,8 +22,8 @@ class DeleteMateFromTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException()
-                    if (!task.assignedTo.contains(mateId)) throw TaskHasNoException()
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw ProjectAccessDenied()
+                    if (!task.assignedTo.contains(mateId)) throw MateNotAssignedToTaskException()
                     task.assignedTo.toMutableList().let { mates ->
                         mates.remove(mateId)
                         tasksRepository.updateTask(task.copy(assignedTo = mates))

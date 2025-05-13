@@ -1,8 +1,9 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.AccessDeniedException
-import org.example.domain.AlreadyExistException
-import org.example.domain.ProjectHasNoException
+
+import org.example.domain.MateAlreadyExists
+import org.example.domain.MateNotInProjectException
+import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -21,9 +22,9 @@ class AddMateToTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException()
-                    if (task.assignedTo.contains(mateId)) throw AlreadyExistException()
-                    if (!project.matesIds.contains(mateId)) throw ProjectHasNoException()
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw ProjectAccessDenied()
+                    if (task.assignedTo.contains(mateId)) throw MateAlreadyExists()
+                    if (!project.matesIds.contains(mateId)) throw MateNotInProjectException()
                     tasksRepository.updateTask(task.copy(assignedTo = task.assignedTo + mateId))
                     logsRepository.addLog(
                         AddedLog(

@@ -3,6 +3,7 @@ package org.example.domain.usecase.auth
 
 import org.example.domain.repository.UsersRepository
 import org.example.data.repository.UsersRepositoryImpl
+import org.example.domain.AuthenticationException
 import org.example.domain.UnauthorizedException
 
 class LoginUseCase(private val usersRepository: UsersRepository) {
@@ -11,7 +12,7 @@ class LoginUseCase(private val usersRepository: UsersRepository) {
             .find { it.username == username && it.hashedPassword == UsersRepositoryImpl.encryptPassword(password) }
             ?.let { user ->
                 usersRepository.storeCurrentUserId(user.id)
-            } ?: throw UnauthorizedException()
+            } ?: throw AuthenticationException()
 
     fun getCurrentUserIfLoggedIn() = usersRepository.getCurrentUser()
 

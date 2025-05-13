@@ -3,7 +3,7 @@ package data.datasource.preferences
 import org.example.common.PreferenceKeys.CURRENT_USER_ID
 import org.example.common.PreferenceKeys.DATA_SOURCE_TYPE
 import org.example.common.StorageType
-import org.example.domain.DataSourceTypeException
+//import org.example.domain.DataSourceTypeException
 import org.example.domain.UnauthorizedException
 import java.util.*
 
@@ -20,7 +20,7 @@ class Preferences {
 
     fun getCurrentUserId() = map[CURRENT_USER_ID]?.let { UUID.fromString(it) } ?: throw UnauthorizedException()
 
-    fun getDataSourceType() = map[DATA_SOURCE_TYPE]?.let { throw DataSourceTypeException() }
+   // fun getDataSourceType() = map[DATA_SOURCE_TYPE]?.let { throw DataSourceTypeException() }
 
     fun clear() = map.clear()
 }

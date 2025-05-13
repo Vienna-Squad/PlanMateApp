@@ -1,6 +1,6 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.AccessDeniedException
+import org.example.domain.UnauthorizedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.log.CreatedLog
@@ -17,7 +17,7 @@ class CreateProjectUseCase(
 ) {
     operator fun invoke(name: String) =
         usersRepository.getCurrentUser().let { currentUser ->
-            if (currentUser.role != User.UserRole.ADMIN) throw AccessDeniedException()
+            if (currentUser.role != User.UserRole.ADMIN) throw UnauthorizedException()
             Project(name = name, createdBy = currentUser.id).let { newProject ->
                 projectsRepository.addProject(newProject)
                 logsRepository.addLog(

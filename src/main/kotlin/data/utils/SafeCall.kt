@@ -12,19 +12,19 @@ fun <T> safeCall(bloc: () -> T): T {
         throw planMateException
     } catch (e: Exception) {
         throw when (e) {
-            is MongoWriteException -> WriteFailureException()
-            is MongoWriteConcernException -> WriteFailureException()
-            is MongoQueryException -> QueryFailureException()
-            is MongoSocketReadException -> NetworkException()
-            is MongoSocketOpenException -> NetworkException()
-            is MongoTimeoutException -> NetworkException()
-            is MongoSecurityException -> AuthException()
-            is MongoConfigurationException -> ConfigException()
-            is MongoServerException -> ServerFailureException()
+            is MongoWriteException -> MongoWriteFailureException()
+            is MongoWriteConcernException -> MongoWriteFailureException()
+            is MongoQueryException -> MongoQueryFailureException()
+            is MongoSocketReadException -> MongoNetworkException()
+            is MongoSocketOpenException -> MongoNetworkException()
+            is MongoTimeoutException -> MongoNetworkException()
+            is MongoSecurityException -> MongoAuthException()
+            is MongoConfigurationException -> MongoConfigException()
+            is MongoServerException -> MongoServerFailureException()
 
-            is FileNotFoundException -> FileReadException()
-            is IOException -> FileReadException()
-            is SecurityException -> FileReadException()
+            is FileNotFoundException -> FileAccessException()
+            is IOException -> FileAccessException()
+            is SecurityException -> FileAccessException()
             else -> UnknownException()
         }
 

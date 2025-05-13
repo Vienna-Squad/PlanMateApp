@@ -1,7 +1,8 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.AccessDeniedException
-import org.example.domain.NotFoundException
+
+import org.example.domain.ProjectAccessDenied
+import org.example.domain.TaskNotFound
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
@@ -18,10 +19,10 @@ class GetAllTasksOfProjectUseCase(
     operator fun invoke(projectId: UUID): List<Task> {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (!isOwnerOrMate(project, currentUser)) throw AccessDeniedException()
+        if (!isOwnerOrMate(project, currentUser)) throw ProjectAccessDenied()
         return tasksRepository.getAllTasks()
             .filter { task -> task.projectId == projectId }
-            .ifEmpty { throw NotFoundException() }
+            .ifEmpty { throw TaskNotFound() }
     }
 
     private fun isOwnerOrMate(project: Project, currentUser: User) =
