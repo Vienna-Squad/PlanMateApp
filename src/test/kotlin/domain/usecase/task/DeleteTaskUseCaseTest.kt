@@ -3,8 +3,10 @@ package domain.usecase.task
 import dummyAdmin
 import dummyProject
 import dummyTasks
-import io.mockk.*
-import org.example.domain.ProjectAccessDeniedException
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -46,18 +48,18 @@ class DeleteTaskUseCaseTest {
         deleteTaskUseCase(task.id)
         //then
         verify { tasksRepository.deleteTaskById(match { it == task.id }) }
-        verify { logsRepository.addLog(match { it is DeletedLog}) }
+        verify { logsRepository.addLog(match { it is DeletedLog }) }
     }
 
     @Test
-    fun `should throw AccessDeniedException when user is not the task creator`() {
+    fun `should throw TaskAccessDeniedException when user is not the task creator`() {
         //given
         val task = dummyTasks.random().copy(projectId = dummyProject.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<ProjectAccessDeniedException> { deleteTaskUseCase(dummyProject.id) }
+        assertThrows<TaskAccessDeniedException> { deleteTaskUseCase(dummyProject.id) }
         verify(exactly = 0) { projectsRepository.deleteProjectById(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

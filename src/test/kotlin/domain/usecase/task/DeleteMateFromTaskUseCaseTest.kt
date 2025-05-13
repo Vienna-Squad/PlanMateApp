@@ -8,7 +8,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.MateNotAssignedToTaskException
-import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -54,7 +54,7 @@ class DeleteMateFromTaskUseCaseTest {
         verify { logsRepository.addLog(match { it is DeletedLog }) }
     }
     @Test
-    fun `should throw AccessDeniedException project not created by current user`() {
+    fun `should throw TaskAccessDeniedException project not created by current user`() {
         //Given
         val project= dummyProject
         val task= dummyTask.copy(createdBy = dummyAdmin.id, projectId = project.id)
@@ -62,7 +62,7 @@ class DeleteMateFromTaskUseCaseTest {
         every { tasksRepository.getTaskById(dummyTask.id) } returns task
         every { projectsRepository.getProjectById(project.id) }returns project
         // When&then
-        assertThrows<ProjectAccessDeniedException> {
+        assertThrows<TaskAccessDeniedException> {
             deleteMateFromTaskUseCase(task.id,task.assignedTo[0])
         }
     }

@@ -6,7 +6,7 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -33,8 +33,8 @@ class GetTaskUseCaseTest {
     @Test
     fun `should return task given task id`() {
         //Given
-        val project= dummyProject.copy(createdBy =dummyAdmin.id )
-        val task= dummyTask.copy(projectId = project.id)
+        val project = dummyProject.copy(createdBy = dummyAdmin.id)
+        val task = dummyTask.copy(projectId = project.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
@@ -64,6 +64,7 @@ class GetTaskUseCaseTest {
         assertThrows<Exception> { getTaskUseCase(dummyAdmin.id) }
         verify(exactly = 0) { projectsRepository.getProjectById(any()) }
     }
+
     @Test
     fun `should not complete execution when getProjectById fails`() {
         //given
@@ -75,17 +76,18 @@ class GetTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when user is not owner or mate in the project `() {
+    fun `should throw TaskAccessDeniedException when user is not owner or mate in the project `() {
         //given
         val task = dummyTask
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
         //when && then
-        assertThrows<ProjectAccessDeniedException> { getTaskUseCase(task.id) }
+        assertThrows<TaskAccessDeniedException> { getTaskUseCase(task.id) }
     }
 
 }
+
 private val dummyTask = dummyTasks[0]
-private val dummyProject=dummyProjects[0]
+private val dummyProject = dummyProjects[0]
 
