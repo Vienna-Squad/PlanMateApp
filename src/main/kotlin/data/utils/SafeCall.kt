@@ -21,13 +21,10 @@ fun <T> safeCall(bloc: () -> T): T {
             is MongoSecurityException -> MongoAuthException()
             is MongoConfigurationException -> MongoConfigException()
             is MongoServerException -> MongoServerFailureException()
-
             is FileNotFoundException -> FileAccessException()
             is IOException -> FileAccessException()
             is SecurityException -> FileAccessException()
             else -> UnknownException()
         }
-
-
     }
 }

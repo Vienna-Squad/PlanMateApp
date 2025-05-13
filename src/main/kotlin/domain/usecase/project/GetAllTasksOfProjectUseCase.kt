@@ -1,8 +1,8 @@
 package org.example.domain.usecase.project
 
 
+import org.example.domain.NoTasksFoundException
 import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.TaskNotFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
@@ -22,7 +22,7 @@ class GetAllTasksOfProjectUseCase(
         if (!isOwnerOrMate(project, currentUser)) throw ProjectAccessDeniedException()
         return tasksRepository.getAllTasks()
             .filter { task -> task.projectId == projectId }
-            .ifEmpty { throw TaskNotFoundException() }
+            .ifEmpty { throw NoTasksFoundException() }
     }
 
     private fun isOwnerOrMate(project: Project, currentUser: User) =

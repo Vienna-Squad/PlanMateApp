@@ -5,7 +5,7 @@ import dummyMate
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.UnauthorizedException
+import org.example.domain.FeatureAccessDeniedException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.LogsRepository
@@ -30,7 +30,7 @@ class CreateUserUseCaseTest {
     // red then green
 
     @Test
-    fun `should throw AccessDeniedException when user is not admin`() {
+    fun `should throw FeatureAccessDeniedException when user is not admin`() {
         // given
         val user = User(
             username = " Ah med ",
@@ -39,7 +39,7 @@ class CreateUserUseCaseTest {
         )
         every { usersRepository.getCurrentUser() } returns dummyMate
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<FeatureAccessDeniedException> {
             createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }

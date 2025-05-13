@@ -8,8 +8,8 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.NoTasksFoundException
 import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.TaskNotFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -75,25 +75,25 @@ class GetAllTasksOfProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw TaskNotInProjectException when project has no tasks`() {
+    fun `should throw NoTasksFoundException when project has no tasks`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         every { tasksRepository.getAllTasks() } returns dummyTasks
         //when && then
-        assertThrows<TaskNotFoundException> { getAllTasksOfProjectUseCase(project.id) }
+        assertThrows<NoTasksFoundException> { getAllTasksOfProjectUseCase(project.id) }
     }
 
     @Test
-    fun `should throw TaskNotInProjectException when all tasks list is empty`() {
+    fun `should throw NoTasksFoundException when all tasks list is empty`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         every { tasksRepository.getAllTasks() } returns emptyList()
         //when && then
-        assertThrows<TaskNotFoundException> { getAllTasksOfProjectUseCase(project.id) }
+        assertThrows<NoTasksFoundException> { getAllTasksOfProjectUseCase(project.id) }
     }
 
     @Test

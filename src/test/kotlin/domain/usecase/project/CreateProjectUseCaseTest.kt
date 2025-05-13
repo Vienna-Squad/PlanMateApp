@@ -5,7 +5,7 @@ import dummyMate
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.UnauthorizedException
+import org.example.domain.FeatureAccessDeniedException
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -40,12 +40,12 @@ class CreateProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when mate tries to create project`() {
+    fun `should throw FeatureAccessDeniedException when mate tries to create project`() {
         //given
         val newProjectName = "new project name"
         every { usersRepository.getCurrentUser() } returns dummyMate
         //when && then
-        assertThrows<UnauthorizedException> { createProjectUseCase(newProjectName) }
+        assertThrows<FeatureAccessDeniedException> { createProjectUseCase(newProjectName) }
         verify(exactly = 0) { projectRepository.addProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

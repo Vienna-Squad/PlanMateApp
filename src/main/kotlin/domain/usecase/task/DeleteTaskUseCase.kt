@@ -1,6 +1,7 @@
 package org.example.domain.usecase.task
 
 import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -19,7 +20,7 @@ class DeleteTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw ProjectAccessDeniedException(
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw TaskAccessDeniedException(
                     )
                     tasksRepository.deleteTaskById(taskId)
                     logsRepository.addLog(

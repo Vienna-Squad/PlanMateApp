@@ -6,7 +6,7 @@ import dummyProjects
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectNotFoundException
+import org.example.domain.NoProjectsFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.project.GetAllProjectsUseCase
@@ -41,21 +41,21 @@ class GetAllProjectsUseCaseTest {
     }
 
     @Test
-    fun `should throw ProjectNotFound when user has no projects`() {
+    fun `should throw NoProjectsFoundException when user has no projects`() {
         //given
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getAllProjects() } returns dummyProjects
         //when && then
-        assertThrows<ProjectNotFoundException> { getAllProjectsUseCase() }
+        assertThrows<NoProjectsFoundException> { getAllProjectsUseCase() }
     }
 
     @Test
-    fun `should throw ProjectNotFound when all projects list is empty`() {
+    fun `should throw NoProjectsFoundException when all projects list is empty`() {
         //given
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getAllProjects() } returns emptyList()
         //when && then
-        assertThrows<ProjectNotFoundException> { getAllProjectsUseCase() }
+        assertThrows<NoProjectsFoundException> { getAllProjectsUseCase() }
     }
 
     @Test

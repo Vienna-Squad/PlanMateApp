@@ -1,5 +1,6 @@
 package domain.usecase.auth
 
+import data.datasource.preferences.Preferences
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -18,11 +19,12 @@ import kotlin.test.Test
 class LoginUseCaseTest {
 
     private val usersRepository: UsersRepository = mockk(relaxed = true)
+    private val preferences: Preferences = mockk(relaxed = true)
     lateinit var loginUseCase: LoginUseCase
 
     @BeforeEach
     fun setUp() {
-        loginUseCase = LoginUseCase(usersRepository)
+        loginUseCase = LoginUseCase(usersRepository, preferences)
     }
 
 
