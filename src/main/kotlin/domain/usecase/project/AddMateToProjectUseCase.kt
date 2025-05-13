@@ -1,6 +1,6 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.MateAlreadyExists
+import org.example.domain.MateAlreadyExistsException
 import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
@@ -19,7 +19,7 @@ class AddMateToProjectUseCase(
             projectsRepository.getProjectById(projectId).let { project ->
                 if (project.createdBy != currentUser.id) throw ProjectAccessDenied()
                 usersRepository.getUserByID(mateId).let { mate ->
-                    if (project.matesIds.contains(mate.id)) throw MateAlreadyExists()
+                    if (project.matesIds.contains(mate.id)) throw MateAlreadyExistsException()
                     projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mate.id))
                     logsRepository.addLog(
                         AddedLog(

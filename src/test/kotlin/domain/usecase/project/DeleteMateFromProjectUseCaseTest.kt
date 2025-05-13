@@ -6,7 +6,7 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.MateNotInProjectException
+import org.example.domain.ProjectHasNoThisMate
 import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
@@ -63,7 +63,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { usersRepository.getUserByID(dummyMate.id) } returns dummyMate
         //when && then
-        assertThrows<MateNotInProjectException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
+        assertThrows<ProjectHasNoThisMate> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -76,7 +76,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { usersRepository.getUserByID(dummyMate.id) } returns dummyMate
         //when && then
-        assertThrows<MateNotInProjectException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
+        assertThrows<ProjectHasNoThisMate> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

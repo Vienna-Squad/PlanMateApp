@@ -25,7 +25,7 @@ fun <T> safeCall(bloc: () -> T): T {
             is FileNotFoundException -> FileAccessException()
             is IOException -> FileAccessException()
             is SecurityException -> FileAccessException()
-            else -> UnknownException()
+            else -> UnknownExceptionException()
         }
 
 

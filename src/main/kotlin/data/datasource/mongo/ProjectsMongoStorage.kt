@@ -3,7 +3,7 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.MongoCollections.PROJECTS_COLLECTION
-import org.example.domain.NoProjectsFound
+import org.example.domain.NoProjectsFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
 import java.time.LocalDateTime
@@ -40,5 +40,5 @@ class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getColle
         )
     }
 
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoProjectsFound() }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoProjectsFoundException() }
 }

@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.ProjectAccessDenied
-import org.example.domain.TaskNotInProjectException
+import org.example.domain.TaskNotFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -82,7 +82,7 @@ class GetAllTasksOfProjectUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { tasksRepository.getAllTasks() } returns dummyTasks
         //when && then
-        assertThrows<TaskNotInProjectException> { getAllTasksOfProjectUseCase(project.id) }
+        assertThrows<TaskNotFoundException> { getAllTasksOfProjectUseCase(project.id) }
     }
 
     @Test
@@ -93,7 +93,7 @@ class GetAllTasksOfProjectUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { tasksRepository.getAllTasks() } returns emptyList()
         //when && then
-        assertThrows<TaskNotInProjectException> { getAllTasksOfProjectUseCase(project.id) }
+        assertThrows<TaskNotFoundException> { getAllTasksOfProjectUseCase(project.id) }
     }
 
     @Test

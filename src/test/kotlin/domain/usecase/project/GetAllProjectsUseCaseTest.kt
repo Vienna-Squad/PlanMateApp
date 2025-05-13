@@ -6,7 +6,7 @@ import dummyProjects
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectNotFound
+import org.example.domain.ProjectNotFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.project.GetAllProjectsUseCase
@@ -46,7 +46,7 @@ class GetAllProjectsUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getAllProjects() } returns dummyProjects
         //when && then
-        assertThrows<ProjectNotFound> { getAllProjectsUseCase() }
+        assertThrows<ProjectNotFoundException> { getAllProjectsUseCase() }
     }
 
     @Test
@@ -55,7 +55,7 @@ class GetAllProjectsUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getAllProjects() } returns emptyList()
         //when && then
-        assertThrows<ProjectNotFound> { getAllProjectsUseCase() }
+        assertThrows<ProjectNotFoundException> { getAllProjectsUseCase() }
     }
 
     @Test

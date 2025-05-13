@@ -9,33 +9,30 @@ class ProjectAccessDenied:PlanMateAppException()
 class TaskAccessDenied:PlanMateAppException()
 
 
-class ProjectNotFound : PlanMateAppException()
-class NoProjectsFound : PlanMateAppException()
+class ProjectNotFoundException : PlanMateAppException()
+class NoProjectsFoundException : PlanMateAppException()
 
-class TaskNotFound : PlanMateAppException()
-class NoTasksFound : PlanMateAppException()
+class TaskNotFoundException : PlanMateAppException()
+class NoTasksFoundException : PlanMateAppException()
 
-class UserNotFound:PlanMateAppException()
-class NoUsersFound:PlanMateAppException()
+class UserNotFoundException:PlanMateAppException()
+class NoUsersFoundException:PlanMateAppException()
 
-class MateNotFound:PlanMateAppException()
-class NoLogsFound:PlanMateAppException()
-class LogsNotFound:PlanMateAppException()
+class MateNotFoundException:PlanMateAppException()
+class NoLogsFoundException:PlanMateAppException()
+class LogsNotFoundException:PlanMateAppException()
 class InvalidInputException : PlanMateAppException()
 
-class MateAlreadyExists:PlanMateAppException()
-class ProjectAlreadyExists:PlanMateAppException()
-class TaskAlreadyExists:PlanMateAppException()
-class StateAlreadyExists:PlanMateAppException()
-class UserAlreadyExists:PlanMateAppException()
-class UnknownException: PlanMateAppException()
-class NoChangeException: PlanMateAppException()
+class MateAlreadyExistsException:PlanMateAppException()
+class StateAlreadyExistsException:PlanMateAppException()
+
+class UnknownExceptionException: PlanMateAppException()
+class NoChangeExceptionException: PlanMateAppException()
 
 class MateNotAssignedToTaskException: PlanMateAppException()
 
-class TaskNotInProjectException : PlanMateAppException()
-class MateNotInProjectException : PlanMateAppException()
-class StateNotInProjectException : PlanMateAppException()
+class ProjectHasNoThisMate : PlanMateAppException()
+class ProjectHasNoThisState : PlanMateAppException()
 
 //csv
 class FileAccessException : PlanMateAppException()

@@ -7,8 +7,8 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.MateAlreadyExists
-import org.example.domain.MateNotInProjectException
+import org.example.domain.MateAlreadyExistsException
+import org.example.domain.ProjectHasNoThisMate
 import org.example.domain.ProjectAccessDenied
 
 import org.example.domain.entity.log.AddedLog
@@ -112,7 +112,7 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<MateAlreadyExists> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
+        assertThrows<MateAlreadyExistsException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
         verify(exactly = 0) { tasksRepository.updateTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -126,7 +126,7 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<MateNotInProjectException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
+        assertThrows<ProjectHasNoThisMate> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
         verify(exactly = 0) { tasksRepository.updateTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

@@ -2,7 +2,7 @@ package org.example.domain.usecase.project
 
 
 import org.example.domain.ProjectAccessDenied
-import org.example.domain.StateAlreadyExists
+import org.example.domain.StateAlreadyExistsException
 import org.example.domain.entity.State
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
@@ -20,7 +20,7 @@ class AddStateToProjectUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
                 if (project.createdBy != currentUser.id) throw ProjectAccessDenied()
-                if (project.states.any { it.name == stateName }) throw StateAlreadyExists()
+                if (project.states.any { it.name == stateName }) throw StateAlreadyExistsException()
                 State(name = stateName).let { stateObj ->
                     projectsRepository.updateProject(project.copy(states = project.states + stateObj))
                     logsRepository.addLog(AddedLog(

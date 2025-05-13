@@ -5,7 +5,7 @@ import com.mongodb.client.model.Filters
 import org.bson.Document
 import org.example.common.bases.DataSource
 import org.example.domain.NotFoundException
-import org.example.domain.UnknownException
+import org.example.domain.UnknownExceptionException
 import java.util.*
 
 abstract class MongoStorage<T>(
@@ -26,7 +26,7 @@ abstract class MongoStorage<T>(
 
     override fun addItem(newItem: T) {
         collection.insertOne(toDocument(newItem)).let { result ->
-            if (!result.wasAcknowledged()) throw UnknownException()
+            if (!result.wasAcknowledged()) throw UnknownExceptionException()
         }
     }
 

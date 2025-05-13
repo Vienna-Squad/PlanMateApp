@@ -8,7 +8,7 @@ import dummyProjectId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.MateAlreadyExists
+import org.example.domain.MateAlreadyExistsException
 import org.example.domain.ProjectAccessDenied
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -56,7 +56,7 @@ class AddMateToProjectUseCaseTest {
         )
         every { usersRepository.getUserByID(any()) } returns dummyMate.copy(id = dummyMateId)
         // when & then
-        assertThrows<MateAlreadyExists> {
+        assertThrows<MateAlreadyExistsException> {
             addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
         }
     }

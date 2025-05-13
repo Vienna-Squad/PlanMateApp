@@ -11,8 +11,8 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.bson.Document
-import org.example.domain.NoLogsFound
-import org.example.domain.UnknownException
+import org.example.domain.NoLogsFoundException
+import org.example.domain.UnknownExceptionException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.CreatedLog
@@ -217,7 +217,7 @@ class LogsMongoStorageTest {
         every { mockFindIterable.toList() } returns emptyList()
 
         // When/Then
-        assertThrows<NoLogsFound> { storage.getAllItems() }
+        assertThrows<NoLogsFoundException> { storage.getAllItems() }
     }
 
     @Test
@@ -258,6 +258,6 @@ class LogsMongoStorageTest {
         every { mockCollection.insertOne(any()) } returns mockResult
 
         // When/Then
-        assertThrows<UnknownException> { storage.addItem(log) }
+        assertThrows<UnknownExceptionException> { storage.addItem(log) }
     }
 }

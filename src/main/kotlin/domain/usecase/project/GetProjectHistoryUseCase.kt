@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
 
-import org.example.domain.LogsNotFound
+import org.example.domain.LogsNotFoundException
 import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
@@ -22,7 +22,7 @@ class GetProjectHistoryUseCase(
         if (!isOwnerOrMate(project, currentUser)) throw ProjectAccessDenied()
         return logsRepository.getAllLogs()
             .filter { log -> isProjectRelated(log, projectId) }
-            .ifEmpty { throw LogsNotFound() }
+            .ifEmpty { throw LogsNotFoundException() }
     }
 
     private fun isOwnerOrMate(project: Project, currentUser: User) =

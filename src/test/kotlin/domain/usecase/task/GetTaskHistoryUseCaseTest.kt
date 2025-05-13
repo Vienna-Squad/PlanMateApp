@@ -3,7 +3,7 @@ package domain.usecase.task
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
-import org.example.domain.LogsNotFound
+import org.example.domain.LogsNotFoundException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.DeletedLog
@@ -53,7 +53,7 @@ class GetTaskHistoryUseCaseTest {
         val dummyLogs = dummyTasksLogs.subList(0, 1)
         every { logsRepository.getAllLogs() } returns dummyLogs
         //when&//Then
-        assertThrows<LogsNotFound> {
+        assertThrows<LogsNotFoundException> {
             getTaskHistoryUseCase(task.id)
         }
     }
