@@ -1,29 +1,29 @@
 package org.example.data.repository
 
-import org.example.common.bases.DataSource
-import org.example.common.bases.UnEditableDataSource
+import org.example.data.datasource.DataSource
+import org.example.data.datasource.UnEditableDataSource
 import org.example.data.utils.isRemote
 import org.example.data.utils.safeCall
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 
 class LogsRepositoryImpl(
-    private val logsLocalDataSource: UnEditableDataSource<Log>,
-    private val logsRemoteDataSource: DataSource<Log>,
+    private val localDataSource: UnEditableDataSource<Log>,
+    private val remoteDataSource: DataSource<Log>,
 ) : LogsRepository {
     override fun getAllLogs() = safeCall {
         if (isRemote()) {
-            logsRemoteDataSource.getAllItems()
+            remoteDataSource.getAllItems()
         } else {
-            logsLocalDataSource.getAllItems()
+            localDataSource.getAllItems()
         }
     }
 
     override fun addLog(log: Log) = safeCall {
         if (isRemote()) {
-            logsRemoteDataSource.addItem(log)
+            remoteDataSource.addItem(log)
         } else {
-            logsLocalDataSource.addItem(log)
+            localDataSource.addItem(log)
         }
     }
 }

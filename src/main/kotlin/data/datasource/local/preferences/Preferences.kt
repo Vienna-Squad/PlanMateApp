@@ -1,0 +1,25 @@
+package data.datasource.local.preferences
+
+import org.example.PreferenceKeys.CURRENT_USER_ID
+import org.example.PreferenceKeys.DATA_SOURCE_TYPE
+import org.example.StorageType
+import org.example.domain.UnauthorizedException
+import java.util.UUID
+
+object Preferences {
+    private var map: MutableMap<String, String> = mutableMapOf()
+
+    fun saveCurrentUserId(userId: UUID) {
+        map[CURRENT_USER_ID] = userId.toString()
+    }
+
+    fun saveDataSourceType(type: StorageType) {
+        map[DATA_SOURCE_TYPE] = type.toString()
+    }
+
+    fun getCurrentUserId() = map[CURRENT_USER_ID]?.let { UUID.fromString(it) } ?: throw UnauthorizedException()
+
+    fun getDataSourceType() = map[DATA_SOURCE_TYPE]?.let { StorageType.valueOf(it.uppercase()) } ?: StorageType.LOCAL
+
+    fun clear() = map.clear()
+}
