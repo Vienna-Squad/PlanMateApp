@@ -2,15 +2,14 @@ package domain.usecase.project
 
 import dummyAdmin
 import dummyMate
-import dummyMateId
 import dummyProject
 import dummyProjectId
 import dummyState
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.AlreadyExistException
+import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.StateAlreadyExistsException
 import org.example.domain.entity.State
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -48,7 +47,7 @@ class AddStateToProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<ProjectAccessDeniedException> {
             addStateToProjectUseCase.invoke(projectId = dummyProjectId, stateName = dummyState)
         }
     }
@@ -63,7 +62,7 @@ class AddStateToProjectUseCaseTest {
             states = listOf(State(name = dummyState)),
         )
         // when & then
-        assertThrows<AlreadyExistException> {
+        assertThrows<StateAlreadyExistsException> {
             addStateToProjectUseCase.invoke(projectId = dummyProjectId, stateName = dummyState)
         }
     }

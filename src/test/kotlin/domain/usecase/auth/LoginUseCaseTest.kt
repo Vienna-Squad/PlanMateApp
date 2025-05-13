@@ -1,10 +1,11 @@
 package domain.usecase.auth
 
+import data.datasource.preferences.Preferences
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
-import org.example.domain.UnauthorizedException
+import org.example.domain.AuthenticationException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.UsersRepository
@@ -18,11 +19,12 @@ import kotlin.test.Test
 class LoginUseCaseTest {
 
     private val usersRepository: UsersRepository = mockk(relaxed = true)
+    private val preferences: Preferences = mockk(relaxed = true)
     lateinit var loginUseCase: LoginUseCase
 
     @BeforeEach
     fun setUp() {
-        loginUseCase = LoginUseCase(usersRepository)
+        loginUseCase = LoginUseCase(usersRepository, preferences)
     }
 
 
@@ -44,7 +46,7 @@ class LoginUseCaseTest {
         every { usersRepository.getAllUsers() } returns emptyList()
 
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AuthenticationException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
@@ -62,7 +64,7 @@ class LoginUseCaseTest {
         )
 
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AuthenticationException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
@@ -79,7 +81,7 @@ class LoginUseCaseTest {
         )
 
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AuthenticationException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }

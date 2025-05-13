@@ -10,10 +10,13 @@ abstract class CsvFileManager<T>(
         if (file.exists()) file.writeText("")
     }
 
-    fun delete(item: T) {
-        (readAll() - item).let { newItems ->
+    fun delete(item: T): Boolean {
+        val items = readAll()
+        if (item !in items) return false
+        (items - item).let { newItems ->
             clear()
             newItems.forEach { append(it) }
+            return true
         }
     }
 

@@ -6,7 +6,8 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectHasNoException
+import org.example.domain.ProjectHasNoThisMateException
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -15,7 +16,6 @@ import org.example.domain.usecase.project.DeleteMateFromProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.example.domain.AccessDeniedException
 
 class DeleteMateFromProjectUseCaseTest {
     private lateinit var deleteMateFromProjectUseCase: DeleteMateFromProjectUseCase
@@ -49,7 +49,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<AccessDeniedException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
+        assertThrows<ProjectAccessDeniedException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
         verify(exactly = 0) { usersRepository.getUserByID(any()) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
@@ -63,7 +63,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { usersRepository.getUserByID(dummyMate.id) } returns dummyMate
         //when && then
-        assertThrows<ProjectHasNoException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
+        assertThrows<ProjectHasNoThisMateException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -76,7 +76,7 @@ class DeleteMateFromProjectUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { usersRepository.getUserByID(dummyMate.id) } returns dummyMate
         //when && then
-        assertThrows<ProjectHasNoException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
+        assertThrows<ProjectHasNoThisMateException> { deleteMateFromProjectUseCase(project.id, dummyMate.id) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

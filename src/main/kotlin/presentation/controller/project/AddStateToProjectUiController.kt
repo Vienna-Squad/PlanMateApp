@@ -19,11 +19,11 @@ class AddStateToProjectUiController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be blank. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter the new state to add: ")
             val newState = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("State name cannot be blank. Please enter a valid state.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             addStateToProjectUseCase(
                 projectId = UUID.fromString(projectId),

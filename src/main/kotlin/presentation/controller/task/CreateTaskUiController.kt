@@ -19,15 +19,15 @@ class CreateTaskUiController(
         tryAndShowError {
             print("Please enter the task title: ")
             val taskTitle = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task title cannot be empty. Please provide a valid title.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter the task state: ")
             val taskState = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task state cannot be empty. Please provide a valid state.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             createTaskUseCase(
                 title = taskTitle,

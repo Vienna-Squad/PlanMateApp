@@ -19,11 +19,11 @@ class DeleteMateFromProjectUiController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be blank. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter Mate ID: ")
             val mateId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Mate ID cannot be blank. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             deleteMateFromProjectUseCase(UUID.fromString(projectId), UUID.fromString(mateId))
             viewer.view("Mate [$mateId] has been successfully removed from project [$projectId].\n")

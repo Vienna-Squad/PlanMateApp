@@ -19,7 +19,7 @@ class DeleteProjectUiController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             deleteProjectUseCase(UUID.fromString(projectId))
             viewer.view("Project with ID $projectId has been successfully deleted.\n")

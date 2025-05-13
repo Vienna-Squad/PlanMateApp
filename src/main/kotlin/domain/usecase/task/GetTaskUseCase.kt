@@ -1,6 +1,7 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.AccessDeniedException
+import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -15,7 +16,7 @@ class GetTaskUseCase(
         usersRepository.getCurrentUser().let { currentUser ->
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw AccessDeniedException("task")
+                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw TaskAccessDeniedException()
                     task
                 }
             }

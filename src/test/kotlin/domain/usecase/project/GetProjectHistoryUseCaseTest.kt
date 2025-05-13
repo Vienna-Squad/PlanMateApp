@@ -8,8 +8,8 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.NotFoundException
+import org.example.domain.LogsNotFoundException
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.Log
@@ -93,7 +93,7 @@ class GetProjectHistoryUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when user is not project creator or mate`() {
+    fun `should throw ProjectAccessDenied when user is not project creator or mate`() {
         //given
         val projectLogs = listOf(
             CreatedLog(
@@ -113,29 +113,29 @@ class GetProjectHistoryUseCaseTest {
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         every { logsRepository.getAllLogs() } returns dummyLogs + projectLogs
         //when && then
-        assertThrows<AccessDeniedException> { getProjectHistoryUseCase(dummyProject.id) }
+        assertThrows<ProjectAccessDeniedException> { getProjectHistoryUseCase(dummyProject.id) }
     }
 
     @Test
-    fun `should throw NotFoundException when filtered logs list is empty`() {
+    fun `should throw LogsNotFound when filtered logs list is empty`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         every { logsRepository.getAllLogs() } returns dummyLogs
         //when && when
-        assertThrows<NotFoundException> { getProjectHistoryUseCase(project.id) }
+        assertThrows<LogsNotFoundException> { getProjectHistoryUseCase(project.id) }
     }
 
     @Test
-    fun `should throw NotFoundException when all logs list is empty`() {
+    fun `should throw LogsNotFound when all logs list is empty`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         every { logsRepository.getAllLogs() } returns emptyList()
         //when && when
-        assertThrows<NotFoundException> { getProjectHistoryUseCase(project.id) }
+        assertThrows<LogsNotFoundException> { getProjectHistoryUseCase(project.id) }
     }
 
     @Test

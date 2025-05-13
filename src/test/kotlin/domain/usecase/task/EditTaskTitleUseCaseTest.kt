@@ -1,18 +1,13 @@
 package domain.usecase.task
 
 import dummyMate
-import dummyMateId
 import dummyProject
-import dummyProjectId
 import dummyTask
-import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
 import org.example.domain.NoChangeException
-import org.example.domain.entity.State
-import org.example.domain.entity.Task
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -21,7 +16,6 @@ import org.example.domain.usecase.task.EditTaskTitleUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.*
 
 
 class EditTaskTitleUseCaseTest {
@@ -39,23 +33,23 @@ class EditTaskTitleUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when current user not create project`() {
+    fun `should throw ProjectAccessDenied when current user not create project`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<ProjectAccessDeniedException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }
 
     @Test
-    fun `should throw AccessDeniedException when current user not from team in project`() {
+    fun `should throw ProjectAccessDenied when current user not from team in project`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id, matesIds = listOf())
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<ProjectAccessDeniedException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }

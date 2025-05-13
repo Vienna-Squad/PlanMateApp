@@ -23,7 +23,7 @@ class GetProjectHistoryUiController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be blank. Please enter a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             getProjectHistoryUseCase(projectId = UUID.fromString(projectId)).let { logs ->
                 viewer.view("History for project ID $projectId:\n")
