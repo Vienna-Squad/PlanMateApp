@@ -5,7 +5,7 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -49,7 +49,7 @@ class DeleteProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<ProjectAccessDenied> { deleteProjectUseCase(dummyProject.id) }
+        assertThrows<ProjectAccessDeniedException> { deleteProjectUseCase(dummyProject.id) }
         verify(exactly = 0) { projectsRepository.deleteProjectById(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

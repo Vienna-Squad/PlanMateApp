@@ -5,9 +5,7 @@ abstract class PlanMateAppException : Throwable()
 class AuthenticationException : PlanMateAppException()
 class UnauthorizedException : PlanMateAppException()
 class NotFoundException:PlanMateAppException()
-class ProjectAccessDenied:PlanMateAppException()
-class TaskAccessDenied:PlanMateAppException()
-
+class ProjectAccessDeniedException:PlanMateAppException()
 
 class ProjectNotFoundException : PlanMateAppException()
 class NoProjectsFoundException : PlanMateAppException()
@@ -18,7 +16,6 @@ class NoTasksFoundException : PlanMateAppException()
 class UserNotFoundException:PlanMateAppException()
 class NoUsersFoundException:PlanMateAppException()
 
-class MateNotFoundException:PlanMateAppException()
 class NoLogsFoundException:PlanMateAppException()
 class LogsNotFoundException:PlanMateAppException()
 class InvalidInputException : PlanMateAppException()

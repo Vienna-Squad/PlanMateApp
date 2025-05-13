@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.MateAlreadyExistsException
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -40,7 +40,7 @@ class AddMateToProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<ProjectAccessDenied> {
+        assertThrows<ProjectAccessDeniedException> {
             addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
         }
     }

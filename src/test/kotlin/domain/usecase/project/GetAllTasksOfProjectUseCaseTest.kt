@@ -8,7 +8,7 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.TaskNotFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -70,7 +70,7 @@ class GetAllTasksOfProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<ProjectAccessDenied> { getAllTasksOfProjectUseCase(dummyProject.id) }
+        assertThrows<ProjectAccessDeniedException> { getAllTasksOfProjectUseCase(dummyProject.id) }
         verify(exactly = 0) { tasksRepository.getAllTasks() }
     }
 

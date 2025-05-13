@@ -2,7 +2,7 @@ package org.example.domain.usecase.project
 
 
 import org.example.domain.NoChangeExceptionException
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -18,7 +18,7 @@ class EditProjectNameUseCase(
     operator fun invoke(projectId: UUID, newName: String) {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (project.createdBy != currentUser.id) throw ProjectAccessDenied()
+        if (project.createdBy != currentUser.id) throw ProjectAccessDeniedException()
         if (project.name == newName.trim()) throw NoChangeExceptionException()
         projectsRepository.updateProject(project.copy(name = newName))
         logsRepository.addLog(

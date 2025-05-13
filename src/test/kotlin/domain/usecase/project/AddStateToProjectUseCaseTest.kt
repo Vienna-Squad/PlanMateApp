@@ -8,7 +8,7 @@ import dummyState
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.StateAlreadyExistsException
 import org.example.domain.entity.State
 import org.example.domain.repository.LogsRepository
@@ -47,7 +47,7 @@ class AddStateToProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<ProjectAccessDenied> {
+        assertThrows<ProjectAccessDeniedException> {
             addStateToProjectUseCase.invoke(projectId = dummyProjectId, stateName = dummyState)
         }
     }

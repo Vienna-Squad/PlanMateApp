@@ -2,7 +2,7 @@ package org.example.domain.usecase.project
 
 
 import org.example.domain.LogsNotFoundException
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.log.Log
@@ -19,7 +19,7 @@ class GetProjectHistoryUseCase(
     operator fun invoke(projectId: UUID): List<Log> {
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
-        if (!isOwnerOrMate(project, currentUser)) throw ProjectAccessDenied()
+        if (!isOwnerOrMate(project, currentUser)) throw ProjectAccessDeniedException()
         return logsRepository.getAllLogs()
             .filter { log -> isProjectRelated(log, projectId) }
             .ifEmpty { throw LogsNotFoundException() }

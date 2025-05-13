@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.MateAlreadyExistsException
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -17,7 +17,7 @@ class AddMateToProjectUseCase(
     operator fun invoke(projectId: UUID, mateId: UUID) =
         usersRepository.getCurrentUser().let { currentUser ->
             projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id) throw ProjectAccessDenied()
+                if (project.createdBy != currentUser.id) throw ProjectAccessDeniedException()
                 usersRepository.getUserByID(mateId).let { mate ->
                     if (project.matesIds.contains(mate.id)) throw MateAlreadyExistsException()
                     projectsRepository.updateProject(project.copy(matesIds = project.matesIds + mate.id))

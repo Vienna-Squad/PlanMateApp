@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.LogsNotFoundException
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.Log
@@ -113,7 +113,7 @@ class GetProjectHistoryUseCaseTest {
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         every { logsRepository.getAllLogs() } returns dummyLogs + projectLogs
         //when && then
-        assertThrows<ProjectAccessDenied> { getProjectHistoryUseCase(dummyProject.id) }
+        assertThrows<ProjectAccessDeniedException> { getProjectHistoryUseCase(dummyProject.id) }
     }
 
     @Test

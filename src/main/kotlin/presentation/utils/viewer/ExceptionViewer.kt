@@ -7,13 +7,10 @@ class ExceptionViewer : ItemViewer<Throwable> {
         val message = when (item) {
             // Auth & Access Exceptions
             is AuthenticationException -> "Authentication failed. Please check your credentials and try again."
-            is ProjectAccessDenied -> "Access to this project is denied."
-            is TaskAccessDenied -> "Access to this task is denied."
-
+            is ProjectAccessDeniedException -> "Access to this project is denied."
             // Not Found Exceptions
             is ProjectNotFoundException -> "The specified project was not found."
             is TaskNotFoundException -> "The specified task was not found."
-            is MateNotFoundException -> "The specified mate was not found."
 
             // Input Errors
             is InvalidInputException -> "Invalid input. Please check the fields and try again."

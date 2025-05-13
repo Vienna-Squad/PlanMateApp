@@ -5,7 +5,7 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.ProjectHasNoThisState
 
 import org.example.domain.entity.log.DeletedLog
@@ -50,7 +50,7 @@ class DeleteStateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<ProjectAccessDenied> { deleteStateFromProjectUseCase.invoke(dummyProject.id, state.name) }
+        assertThrows<ProjectAccessDeniedException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, state.name) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

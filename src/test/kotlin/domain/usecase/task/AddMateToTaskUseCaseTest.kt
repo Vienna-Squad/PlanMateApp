@@ -9,7 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.MateAlreadyExistsException
 import org.example.domain.ProjectHasNoThisMate
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.repository.LogsRepository
@@ -79,7 +79,7 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<ProjectAccessDenied> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
+        assertThrows<ProjectAccessDeniedException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
         verify(exactly = 0) { tasksRepository.updateTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -92,7 +92,7 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<ProjectAccessDenied> {
+        assertThrows<ProjectAccessDeniedException> {
             addMateToTaskUseCase(
                 taskId = task.id,
                 mateId = dummyProject.matesIds.random()

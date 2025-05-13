@@ -7,7 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.domain.NoChangeExceptionException
-import org.example.domain.ProjectAccessDenied
+import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -38,7 +38,7 @@ class EditTaskTitleUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<ProjectAccessDenied> {
+        assertThrows<ProjectAccessDeniedException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }
@@ -49,7 +49,7 @@ class EditTaskTitleUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id, matesIds = listOf())
         // when & then
-        assertThrows<ProjectAccessDenied> {
+        assertThrows<ProjectAccessDeniedException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }
