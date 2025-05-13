@@ -6,7 +6,7 @@ import dummyTask
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.NoChangeExceptionException
+import org.example.domain.NoChangeException
 import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -62,7 +62,7 @@ class EditTaskTitleUseCaseTest {
         every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id , matesIds = listOf(dummyMate.id))
         every { tasksRepository.getTaskById(any()) } returns dummyTask.copy(title = "School Library")
         // when & then
-        assertThrows<NoChangeExceptionException> {
+        assertThrows<NoChangeException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }

@@ -1,6 +1,6 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.NoChangeExceptionException
+import org.example.domain.NoChangeException
 import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.ProjectHasNoThisStateException
 import org.example.domain.entity.log.ChangedLog
@@ -23,7 +23,7 @@ class EditTaskStateUseCase(
                 projectsRepository.getProjectById(task.projectId).let { project ->
                     if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds)
                         throw ProjectAccessDeniedException()
-                    if (task.state.name == stateName) throw NoChangeExceptionException()
+                    if (task.state.name == stateName) throw NoChangeException()
                     projectsRepository.getProjectById(task.projectId).states.find { it.name == stateName }
                         ?.let { state ->
                             tasksRepository.updateTask(task.copy(state = state))

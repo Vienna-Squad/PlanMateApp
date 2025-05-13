@@ -23,8 +23,8 @@ class InvalidInputException : PlanMateAppException()
 class MateAlreadyExistsException:PlanMateAppException()
 class StateAlreadyExistsException:PlanMateAppException()
 
-class UnknownExceptionException: PlanMateAppException()
-class NoChangeExceptionException: PlanMateAppException()
+class UnknownException: PlanMateAppException()
+class NoChangeException: PlanMateAppException()
 
 class MateNotAssignedToTaskException: PlanMateAppException()
 

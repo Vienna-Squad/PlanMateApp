@@ -5,7 +5,7 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.NoChangeExceptionException
+import org.example.domain.NoChangeException
 import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.repository.LogsRepository
@@ -58,7 +58,7 @@ class EditProjectNameUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<NoChangeExceptionException> { editProjectNameUseCase(project.id, project.name) }
+        assertThrows<NoChangeException> { editProjectNameUseCase(project.id, project.name) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -70,7 +70,7 @@ class EditProjectNameUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<NoChangeExceptionException> { editProjectNameUseCase(project.id, " ${project.name} ") }
+        assertThrows<NoChangeException> { editProjectNameUseCase(project.id, " ${project.name} ") }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

@@ -1,6 +1,6 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.NoChangeExceptionException
+import org.example.domain.NoChangeException
 import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.Log
@@ -21,7 +21,7 @@ class EditTaskTitleUseCase(
             tasksRepository.getTaskById(taskId).let { task ->
                 projectsRepository.getProjectById(task.projectId).let { project ->
                     if (project.createdBy != currentUser.id || currentUser.id !in project.matesIds) throw ProjectAccessDeniedException()
-                    if (task.title == newTitle) throw NoChangeExceptionException()
+                    if (task.title == newTitle) throw NoChangeException()
                     tasksRepository.updateTask(task.copy(title = newTitle))
                     logsRepository.addLog(
                         ChangedLog(
