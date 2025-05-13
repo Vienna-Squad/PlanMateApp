@@ -2,6 +2,8 @@ package org.example.data.utils
 
 import com.mongodb.*
 import org.example.domain.*
+import java.io.FileNotFoundException
+import java.io.IOException
 
 fun <T> safeCall(bloc: () -> T): T {
     return try {
@@ -10,9 +12,6 @@ fun <T> safeCall(bloc: () -> T): T {
         throw planMateException
     } catch (e: Exception) {
         throw when (e) {
-
-
-
             is MongoWriteException -> WriteFailureException()
             is MongoWriteConcernException -> WriteFailureException()
             is MongoQueryException -> QueryFailureException()
@@ -22,6 +21,10 @@ fun <T> safeCall(bloc: () -> T): T {
             is MongoSecurityException -> AuthException()
             is MongoConfigurationException -> ConfigException()
             is MongoServerException -> ServerFailureException()
+
+            is FileNotFoundException -> FileReadException()
+            is IOException -> FileReadException()
+            is SecurityException -> FileReadException()
             else -> UnknownException()
         }
 

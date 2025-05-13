@@ -13,8 +13,9 @@ class NoChangeException : PlanMateAppException()
 class TaskHasNoException : PlanMateAppException()
 class ProjectHasNoException : PlanMateAppException()
 
-//csv
 
+//csv
+class FileReadException : PlanMateAppException()
 //mongo
 class WriteFailureException:PlanMateAppException()
 class QueryFailureException:PlanMateAppException()
