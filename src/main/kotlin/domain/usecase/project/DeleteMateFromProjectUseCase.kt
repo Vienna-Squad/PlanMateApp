@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
 
-import org.example.domain.ProjectHasNoThisMate
+import org.example.domain.ProjectHasNoThisMateException
 import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
@@ -20,7 +20,7 @@ class DeleteMateFromProjectUseCase(
         val project = projectsRepository.getProjectById(projectId)
         if (project.createdBy != currentUser.id) throw ProjectAccessDeniedException()
         val mate = usersRepository.getUserByID(mateId)
-        if (!project.matesIds.contains(mate.id)) throw ProjectHasNoThisMate()
+        if (!project.matesIds.contains(mate.id)) throw ProjectHasNoThisMateException()
         projectsRepository.updateProject(project.copy(matesIds = project.matesIds - mateId))
         logsRepository.addLog(
             DeletedLog(

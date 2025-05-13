@@ -2,7 +2,7 @@ package org.example.domain.usecase.project
 
 
 import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.ProjectHasNoThisState
+import org.example.domain.ProjectHasNoThisStateException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -19,7 +19,7 @@ class DeleteStateFromProjectUseCase(
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
         if (project.createdBy != currentUser.id) throw ProjectAccessDeniedException()
-        val stateToDelete = project.states.find { it.name == stateName } ?: throw ProjectHasNoThisState()
+        val stateToDelete = project.states.find { it.name == stateName } ?: throw ProjectHasNoThisStateException()
         projectsRepository.updateProject(project.copy(states = project.states - stateToDelete))
         logsRepository.addLog(
             DeletedLog(

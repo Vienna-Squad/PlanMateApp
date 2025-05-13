@@ -24,8 +24,8 @@ class ExceptionViewer : ItemViewer<Throwable> {
             is NoChangeExceptionException -> "No changes detected. Nothing was updated."
 
             is MateNotAssignedToTaskException -> "This mate is not assigned to the selected task."
-            is ProjectHasNoThisMate -> "This mate is not part of the current project."
-            is ProjectHasNoThisState -> "This state is not available in the project."
+            is ProjectHasNoThisMateException -> "This mate is not part of the current project."
+            is ProjectHasNoThisStateException -> "This state is not available in the project."
 
             // CSV / File Errors
             is FileAccessException -> "File access error. Unable to read or process the file."

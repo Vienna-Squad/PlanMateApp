@@ -28,8 +28,8 @@ class NoChangeExceptionException: PlanMateAppException()
 
 class MateNotAssignedToTaskException: PlanMateAppException()
 
-class ProjectHasNoThisMate : PlanMateAppException()
-class ProjectHasNoThisState : PlanMateAppException()
+class ProjectHasNoThisMateException : PlanMateAppException()
+class ProjectHasNoThisStateException : PlanMateAppException()
 
 //csv
 class FileAccessException : PlanMateAppException()
