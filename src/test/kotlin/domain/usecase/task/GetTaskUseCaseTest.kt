@@ -6,6 +6,7 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.ProjectAccessDenied
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
@@ -81,7 +82,7 @@ class GetTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(task.projectId) } returns dummyProject
         //when && then
-        assertThrows<org.example.domain.AccessDeniedException> { getTaskUseCase(task.id) }
+        assertThrows<ProjectAccessDenied> { getTaskUseCase(task.id) }
     }
 
 }

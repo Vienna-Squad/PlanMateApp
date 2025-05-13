@@ -5,7 +5,7 @@ import dummyMate
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
+import org.example.domain.UnauthorizedException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.LogsRepository
@@ -39,7 +39,7 @@ class CreateUserUseCaseTest {
         )
         every { usersRepository.getCurrentUser() } returns dummyMate
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<UnauthorizedException> {
             createUserUseCase.invoke(user.username, user.hashedPassword, user.role)
         }
     }

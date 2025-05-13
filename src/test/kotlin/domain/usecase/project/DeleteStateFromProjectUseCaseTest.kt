@@ -5,8 +5,9 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.ProjectHasNoException
+import org.example.domain.ProjectAccessDenied
+import org.example.domain.StateNotInProjectException
+
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -49,7 +50,7 @@ class DeleteStateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<AccessDeniedException> { deleteStateFromProjectUseCase.invoke(dummyProject.id, state.name) }
+        assertThrows<ProjectAccessDenied> { deleteStateFromProjectUseCase.invoke(dummyProject.id, state.name) }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -61,7 +62,7 @@ class DeleteStateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<ProjectHasNoException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
+        assertThrows<StateNotInProjectException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -73,7 +74,7 @@ class DeleteStateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<ProjectHasNoException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
+        assertThrows<StateNotInProjectException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

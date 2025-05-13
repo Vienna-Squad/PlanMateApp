@@ -3,7 +3,7 @@ package domain.usecase.task
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
-import org.example.domain.NotFoundException
+import org.example.domain.LogsNotFound
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.DeletedLog
@@ -48,12 +48,12 @@ class GetTaskHistoryUseCaseTest {
     }
 
     @Test
-    fun `should throw NoFoundException list when no logs for the given task `() {
+    fun `should throw NoFoundException list when no logs for the given task id`() {
         // Given
         val dummyLogs = dummyTasksLogs.subList(0, 1)
         every { logsRepository.getAllLogs() } returns dummyLogs
         //when&//Then
-        assertThrows<NotFoundException> {
+        assertThrows<LogsNotFound> {
             getTaskHistoryUseCase(task.id)
         }
     }

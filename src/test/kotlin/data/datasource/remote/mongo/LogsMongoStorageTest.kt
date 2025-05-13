@@ -11,7 +11,7 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.bson.Document
-import org.example.domain.NotFoundException
+import org.example.domain.NoLogsFound
 import org.example.domain.UnknownException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.ChangedLog
@@ -217,7 +217,7 @@ class LogsMongoStorageTest {
         every { mockFindIterable.toList() } returns emptyList()
 
         // When/Then
-        assertThrows<NotFoundException> { storage.getAllItems() }
+        assertThrows<NoLogsFound> { storage.getAllItems() }
     }
 
     @Test

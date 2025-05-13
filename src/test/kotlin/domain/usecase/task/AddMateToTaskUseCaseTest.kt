@@ -7,9 +7,10 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.AlreadyExistException
-import org.example.domain.ProjectHasNoException
+import org.example.domain.MateAlreadyExists
+import org.example.domain.MateNotInProjectException
+import org.example.domain.ProjectAccessDenied
+
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -70,7 +71,7 @@ class AddMateToTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when non-project-related admin add mate to task`() {
+    fun `should throw ProjectAccessDenied when non-project-related admin add mate to task`() {
         //given
         val project = dummyProject.copy(matesIds = dummyProject.matesIds + dummyMate.id)
         val task = dummyTasks.random().copy(projectId = project.id)
@@ -78,20 +79,20 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<AccessDeniedException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
+        assertThrows<ProjectAccessDenied> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
         verify(exactly = 0) { tasksRepository.updateTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
 
     @Test
-    fun `should throw AccessDeniedException when non-project-related mate add mate to task`() {
+    fun `should throw ProjectAccessDenied when non-project-related mate add mate to task`() {
         //given
         val task = dummyTasks.random().copy(projectId = dummyProject.id)
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<AccessDeniedException> {
+        assertThrows<ProjectAccessDenied> {
             addMateToTaskUseCase(
                 taskId = task.id,
                 mateId = dummyProject.matesIds.random()
@@ -111,13 +112,13 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<AlreadyExistException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
+        assertThrows<MateAlreadyExists> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
         verify(exactly = 0) { tasksRepository.updateTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
 
     @Test
-    fun `should throw ProjectHasNoException when user add non-project-related mate`() {
+    fun `should throw MateNotInProjectException when user add non-project-related mate`() {
         //given
         val project = dummyProject.copy(createdBy = dummyAdmin.id)
         val task = dummyTasks.random().copy(projectId = dummyProject.id)
@@ -125,7 +126,7 @@ class AddMateToTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<ProjectHasNoException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
+        assertThrows<MateNotInProjectException> { addMateToTaskUseCase(taskId = task.id, mateId = dummyMate.id) }
         verify(exactly = 0) { tasksRepository.updateTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

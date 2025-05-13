@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
-import org.example.domain.UnauthorizedException
+import org.example.domain.AuthenticationException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.UsersRepository
@@ -44,7 +44,7 @@ class LoginUseCaseTest {
         every { usersRepository.getAllUsers() } returns emptyList()
 
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AuthenticationException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
@@ -62,7 +62,7 @@ class LoginUseCaseTest {
         )
 
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AuthenticationException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }
@@ -79,7 +79,7 @@ class LoginUseCaseTest {
         )
 
         // when & then
-        assertThrows<UnauthorizedException> {
+        assertThrows<AuthenticationException> {
             loginUseCase.invoke(username = "Ahmed", password = "12345678")
         }
     }

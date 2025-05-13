@@ -2,7 +2,6 @@ package org.example.domain.usecase.task
 
 
 import org.example.domain.MateNotAssignedToTaskException
-import org.example.domain.MateNotInProjectException
 import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log

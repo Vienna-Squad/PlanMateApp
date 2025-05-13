@@ -8,9 +8,8 @@ import dummyProjectId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.AlreadyExistException
-import org.example.domain.entity.Project
+import org.example.domain.MateAlreadyExists
+import org.example.domain.ProjectAccessDenied
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -18,7 +17,6 @@ import org.example.domain.usecase.project.AddMateToProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.*
 
 class AddMateToProjectUseCaseTest {
     private lateinit var projectsRepository: ProjectsRepository
@@ -42,7 +40,7 @@ class AddMateToProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<ProjectAccessDenied> {
             addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
         }
     }
@@ -58,7 +56,7 @@ class AddMateToProjectUseCaseTest {
         )
         every { usersRepository.getUserByID(any()) } returns dummyMate.copy(id = dummyMateId)
         // when & then
-        assertThrows<AlreadyExistException> {
+        assertThrows<MateAlreadyExists> {
             addMateToProjectUseCase.invoke(projectId = dummyProjectId, mateId = dummyMateId)
         }
     }

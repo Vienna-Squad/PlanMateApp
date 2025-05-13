@@ -4,7 +4,7 @@ import dummyAdmin
 import dummyProject
 import dummyTasks
 import io.mockk.*
-import org.example.domain.AccessDeniedException
+import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
@@ -57,7 +57,7 @@ class DeleteTaskUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         //when && then
-        assertThrows<AccessDeniedException> { deleteTaskUseCase(dummyProject.id) }
+        assertThrows<ProjectAccessDenied> { deleteTaskUseCase(dummyProject.id) }
         verify(exactly = 0) { projectsRepository.deleteProjectById(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

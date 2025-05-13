@@ -3,12 +3,11 @@ package domain.usecase.task
 import dummyAdmin
 import dummyMate
 import dummyProject
-import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
-import org.example.domain.ProjectHasNoException
+import org.example.domain.ProjectAccessDenied
+import org.example.domain.StateNotInProjectException
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -18,7 +17,6 @@ import org.example.domain.usecase.task.CreateTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.*
 
 class CreateTaskUseCaseTest {
     private lateinit var createTaskUseCase: CreateTaskUseCase
@@ -77,7 +75,7 @@ class CreateTaskUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject
         // when && then
-        assertThrows<AccessDeniedException> {
+        assertThrows<ProjectAccessDenied> {
             createTaskUseCase(
                 title = title,
                 stateName = projectState.name,
@@ -96,7 +94,7 @@ class CreateTaskUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         // when && when
-        assertThrows<ProjectHasNoException> {createTaskUseCase(title = title, stateName = "non-project-related", projectId = project.id)}
+        assertThrows<StateNotInProjectException> {createTaskUseCase(title = title, stateName = "non-project-related", projectId = project.id)}
         verify(exactly = 0) { tasksRepository.addTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

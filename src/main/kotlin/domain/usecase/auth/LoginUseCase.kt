@@ -1,10 +1,9 @@
 package org.example.domain.usecase.auth
 
 
-import org.example.domain.repository.UsersRepository
 import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.AuthenticationException
-import org.example.domain.UnauthorizedException
+import org.example.domain.repository.UsersRepository
 
 class LoginUseCase(private val usersRepository: UsersRepository) {
     operator fun invoke(username: String, password: String) =

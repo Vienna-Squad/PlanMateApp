@@ -7,6 +7,8 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.example.domain.MateNotAssignedToTaskException
+import org.example.domain.ProjectAccessDenied
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -60,7 +62,7 @@ class DeleteMateFromTaskUseCaseTest {
         every { tasksRepository.getTaskById(dummyTask.id) } returns task
         every { projectsRepository.getProjectById(project.id) }returns project
         // When&then
-        assertThrows<org.example.domain.AccessDeniedException> {
+        assertThrows<ProjectAccessDenied> {
             deleteMateFromTaskUseCase(task.id,task.assignedTo[0])
         }
     }
@@ -74,7 +76,7 @@ class DeleteMateFromTaskUseCaseTest {
         every { tasksRepository.getTaskById(dummyTask.id) } returns task
         every { projectsRepository.getProjectById(project.id) }returns project
         // When&then
-        assertThrows<org.example.domain.TaskHasNoException> {
+        assertThrows<MateNotAssignedToTaskException> {
             deleteMateFromTaskUseCase(task.id,UUID.randomUUID())
         }
     }
