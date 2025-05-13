@@ -23,7 +23,7 @@ class GetAllTasksOfProjectController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be blank. Please enter a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             getAllTasksOfProjectUseCase(UUID.fromString(projectId)).also {
                 viewer.view("Tasks for project ID $projectId:\n")

@@ -6,7 +6,7 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.entity.State
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.repository.LogsRepository
@@ -64,7 +64,7 @@ class EditTaskStateUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when project is not created by current user given task id & new state`() {
+    fun `should throw TaskAccessDeniedException when project is not created by current user given task id & new state`() {
         // Given
         val project = dummyProject
         val task = dummyTask.copy(projectId = project.id, state = State(name = "test-state"))
@@ -74,7 +74,7 @@ class EditTaskStateUseCaseTest {
         every { tasksRepository.getTaskById(task.id) } returns task
         every { projectsRepository.getProjectById(task.projectId) } returns project
         // When
-        assertThrows<AccessDeniedException> {
+        assertThrows<TaskAccessDeniedException> {
             editTaskStateUseCase(task.id, newState)
         }
     }

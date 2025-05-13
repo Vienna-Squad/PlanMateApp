@@ -1,15 +1,45 @@
 package org.example.domain
 
-abstract class PlanMateAppException(message: String) : Throwable(message)
+abstract class PlanMateAppException : Throwable()
 
-class LoginException(message: String = "LoginException!!") : PlanMateAppException(message)
-class RegisterException(message: String = "RegisterException!!") : PlanMateAppException(message)
-class UnauthorizedException() : PlanMateAppException("You are not authorized.")
-class AccessDeniedException(type: String) : PlanMateAppException("You do not have access for this $type.")
-class NotFoundException(type: String = "") : PlanMateAppException("Not $type found.")
-class InvalidInputException(message: String? = null) : PlanMateAppException("${message ?: "Invalid input provided."} ")
-class AlreadyExistException(type: String) : PlanMateAppException("The $type already exist.")
-class UnknownException() : PlanMateAppException("Something went wrong.")
-class NoChangeException() : PlanMateAppException("There is no any change.")
-class TaskHasNoException(type: String) : PlanMateAppException("Task has no this $type.")
-class ProjectHasNoException(type: String) : PlanMateAppException("Project has no this $type.")
+class AuthenticationException : PlanMateAppException()
+class UnauthorizedException : PlanMateAppException()
+class NotFoundException : PlanMateAppException()
+class ProjectAccessDeniedException : PlanMateAppException()
+class TaskAccessDeniedException : PlanMateAppException()
+class FeatureAccessDeniedException : PlanMateAppException()
+
+class ProjectNotFoundException : PlanMateAppException()
+class NoProjectsFoundException : PlanMateAppException()
+
+class TaskNotFoundException : PlanMateAppException()
+class NoTasksFoundException : PlanMateAppException()
+
+class UserNotFoundException : PlanMateAppException()
+class NoUsersFoundException : PlanMateAppException()
+
+class NoLogsFoundException : PlanMateAppException()
+class LogsNotFoundException : PlanMateAppException()
+class InvalidInputException : PlanMateAppException()
+
+class MateAlreadyExistsException : PlanMateAppException()
+class StateAlreadyExistsException : PlanMateAppException()
+
+class UnknownException : PlanMateAppException()
+class NoChangeException : PlanMateAppException()
+
+class MateNotAssignedToTaskException : PlanMateAppException()
+
+class ProjectHasNoThisMateException : PlanMateAppException()
+class ProjectHasNoThisStateException : PlanMateAppException()
+
+//csv
+class FileAccessException : PlanMateAppException()
+
+//mongo
+class MongoWriteFailureException : PlanMateAppException()
+class MongoQueryFailureException : PlanMateAppException()
+class MongoNetworkException : PlanMateAppException()
+class MongoAuthException : PlanMateAppException()
+class MongoConfigException : PlanMateAppException()
+class MongoServerFailureException : PlanMateAppException()

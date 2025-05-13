@@ -1,6 +1,6 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.NotFoundException
+import org.example.domain.NoProjectsFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
 
@@ -11,6 +11,6 @@ class GetAllProjectsUseCase(
     operator fun invoke() = usersRepository.getCurrentUser().let { currentUser ->
         projectsRepository.getAllProjects()
             .filter { it.createdBy == currentUser.id }
-            .ifEmpty { throw NotFoundException("projects") }
+            .ifEmpty { throw NoProjectsFoundException() }
     }
 }

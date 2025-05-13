@@ -1,24 +1,27 @@
 package org.example
 
 import com.mongodb.client.model.Filters
+import data.datasource.mongo.MongoConfig
 import di.appModule
 import di.useCasesModule
 import org.bson.Document
+import org.example.common.MongoCollections.USERS_COLLECTION
+import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
 import org.example.di.dataModule
 import org.example.di.repositoryModule
-import data.datasource.mongo.MongoConfig
-import org.example.common.Constants.MongoCollections.USERS_COLLECTION
-import org.example.data.repository.UsersRepositoryImpl
 import org.example.domain.entity.User
+import org.example.domain.repository.UsersRepository
 import org.example.presentation.AuthApp
 import org.koin.core.context.GlobalContext.startKoin
+import org.koin.mp.KoinPlatform.getKoin
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 fun main() {
     println("Hello, PlanMate!")
     startKoin { modules(appModule, useCasesModule, repositoryModule, dataModule) }
     createAdminUser()
+    createLocalAdminUser()
     AuthApp().run()
 }
 
@@ -39,7 +42,7 @@ fun createAdminUser() {
         val adminDoc = Document()
             .append("_id", adminId.toString())
             .append("username", "mohannad")
-            .append("hashedPassword", UsersRepositoryImpl.encryptPassword("12345678"))
+            .append("hashedPassword", encryptPassword("12345678"))
             .append("role", User.UserRole.ADMIN.name)
             .append("createdAt", LocalDateTime.now().toString())
 
@@ -52,3 +55,17 @@ fun createAdminUser() {
     }
 }
 
+fun createLocalAdminUser() {
+    val username = "admin-101"
+    val password = "12345"
+    println("Creating local admin ...")
+    val repo: UsersRepository = getKoin().get()
+    repo.createUser(
+        User(
+            username = username,
+            hashedPassword = encryptPassword(password),
+            role = User.UserRole.ADMIN
+        )
+    )
+    println("Created successfully ... user: $username / $password")
+}

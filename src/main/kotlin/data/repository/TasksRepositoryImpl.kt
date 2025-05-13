@@ -1,17 +1,53 @@
 package org.example.data.repository
 
-import data.datasource.DataSource
+import org.example.common.bases.DataSource
+import org.example.data.utils.isRemote
 import org.example.data.utils.safeCall
 import org.example.domain.entity.Task
 import org.example.domain.repository.TasksRepository
 import java.util.*
 
 class TasksRepositoryImpl(
-    private val tasksDataSource: DataSource<Task>,
+    private val tasksLocalDataSource: DataSource<Task>,
+    private val tasksRemoteDataSource: DataSource<Task>,
 ) : TasksRepository {
-    override fun getTaskById(taskId: UUID) = safeCall { tasksDataSource.getById(taskId) }
-    override fun getAllTasks() = safeCall { tasksDataSource.getAll() }
-    override fun addTask(newTask: Task) = safeCall { tasksDataSource.add(newTask) }
-    override fun updateTask(updatedTask: Task) = safeCall { tasksDataSource.update(updatedTask) }
-    override fun deleteTaskById(taskId: UUID) = safeCall { tasksDataSource.delete(getTaskById(taskId)) }
+    override fun getTaskById(taskId: UUID) = safeCall {
+        if (isRemote()) {
+            tasksRemoteDataSource.getItemById(taskId)
+        } else {
+            tasksLocalDataSource.getItemById(taskId)
+        }
+    }
+
+    override fun getAllTasks() = safeCall {
+        if (isRemote()) {
+            tasksRemoteDataSource.getAllItems()
+        } else {
+            tasksLocalDataSource.getAllItems()
+        }
+    }
+
+    override fun addTask(newTask: Task) = safeCall {
+        if (isRemote()) {
+            tasksRemoteDataSource.addItem(newTask)
+        } else {
+            tasksLocalDataSource.addItem(newTask)
+        }
+    }
+
+    override fun updateTask(updatedTask: Task) = safeCall {
+        if (isRemote()) {
+            tasksRemoteDataSource.updateItem(updatedTask)
+        } else {
+            tasksLocalDataSource.updateItem(updatedTask)
+        }
+    }
+
+    override fun deleteTaskById(taskId: UUID) = safeCall {
+        if (isRemote()) {
+            tasksRemoteDataSource.deleteItem(getTaskById(taskId))
+        } else {
+            tasksLocalDataSource.deleteItem(getTaskById(taskId))
+        }
+    }
 }

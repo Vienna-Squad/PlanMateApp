@@ -19,11 +19,11 @@ class EditTaskTitleUiController(
         tryAndShowError {
             print("Please enter the Task ID: ")
             val taskId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter the new title: ")
             val newTitle = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Title cannot be empty. Please provide a valid title.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             editTaskTitleUseCase(UUID.fromString(taskId), newTitle)
             viewer.view("Task title has been successfully updated.\n")

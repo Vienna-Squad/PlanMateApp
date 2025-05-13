@@ -19,11 +19,11 @@ class AddMateToTaskUIController(
         tryAndShowError {
             print("Please enter the Task ID: ")
             val taskId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Please enter the Mate ID: ")
             val mateId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Mate ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             addMateToTaskUseCase(UUID.fromString(taskId), UUID.fromString(mateId))
             viewer.view("Mate [$mateId] was successfully added to Task [$taskId].\n")

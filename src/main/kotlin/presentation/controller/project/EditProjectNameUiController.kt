@@ -19,11 +19,11 @@ class EditProjectNameUiController(
         tryAndShowError {
             print("Please enter the project ID: ")
             val projectId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project ID cannot be empty. Please enter a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             print("Enter the new project name: ")
             val newProjectName = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project name cannot be empty. Please enter a valid name.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             editProjectNameUseCase(UUID.fromString(projectId), newProjectName)
             viewer.view("Project #$projectId's name has been successfully updated to $newProjectName.\n")

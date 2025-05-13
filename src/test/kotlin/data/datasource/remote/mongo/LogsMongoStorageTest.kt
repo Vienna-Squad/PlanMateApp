@@ -11,7 +11,7 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.bson.Document
-import org.example.domain.NotFoundException
+import org.example.domain.NoLogsFoundException
 import org.example.domain.UnknownException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.ChangedLog
@@ -199,10 +199,10 @@ class LogsMongoStorageTest {
 
         // Create a spy on the storage object
         val storageSpy = spyk(storage)
-        every { storageSpy.getAll() } returns listOf(createdLog, deletedLog)
+        every { storageSpy.getAllItems() } returns listOf(createdLog, deletedLog)
 
         // When
-        val result = storageSpy.getAll()
+        val result = storageSpy.getAllItems()
 
         // Then
         assertThat(result).hasSize(2)
@@ -217,7 +217,7 @@ class LogsMongoStorageTest {
         every { mockFindIterable.toList() } returns emptyList()
 
         // When/Then
-        assertThrows<NotFoundException> { storage.getAll() }
+        assertThrows<NoLogsFoundException> { storage.getAllItems() }
     }
 
     @Test
@@ -236,7 +236,7 @@ class LogsMongoStorageTest {
         every { mockCollection.insertOne(any()) } returns mockResult
 
         // When
-        storage.add(log)
+        storage.addItem(log)
 
         // Then
         verify { mockCollection.insertOne(any()) }
@@ -258,6 +258,6 @@ class LogsMongoStorageTest {
         every { mockCollection.insertOne(any()) } returns mockResult
 
         // When/Then
-        assertThrows<UnknownException> { storage.add(log) }
+        assertThrows<UnknownException> { storage.addItem(log) }
     }
 }

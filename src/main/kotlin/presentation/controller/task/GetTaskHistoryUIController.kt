@@ -23,7 +23,7 @@ class GetTaskHistoryUIController(
         tryAndShowError {
             print("Please enter the Task ID: ")
             val taskId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             getTaskHistoryUseCase(UUID.fromString(taskId)).also { logs ->
                 viewer.view("History for Task #$taskId:\n")

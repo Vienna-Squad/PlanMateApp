@@ -1,18 +1,14 @@
 package domain.usecase.task
 
 import dummyMate
-import dummyMateId
 import dummyProject
-import dummyProjectId
 import dummyTask
-import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.AccessDeniedException
 import org.example.domain.NoChangeException
-import org.example.domain.entity.State
-import org.example.domain.entity.Task
+import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -21,7 +17,6 @@ import org.example.domain.usecase.task.EditTaskTitleUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.*
 
 
 class EditTaskTitleUseCaseTest {
@@ -39,23 +34,26 @@ class EditTaskTitleUseCaseTest {
     }
 
     @Test
-    fun `should throw AccessDeniedException when current user not create project`() {
+    fun `should throw TaskAccessDeniedException when current user not create project`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
         every { projectsRepository.getProjectById(any()) } returns dummyProject
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<TaskAccessDeniedException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }
 
     @Test
-    fun `should throw AccessDeniedException when current user not from team in project`() {
+    fun `should throw TaskAccessDeniedException when current user not from team in project`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
-        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id, matesIds = listOf())
+        every { projectsRepository.getProjectById(dummyProject.id) } returns dummyProject.copy(
+            createdBy = dummyMate.id,
+            matesIds = listOf()
+        )
         // when & then
-        assertThrows<AccessDeniedException> {
+        assertThrows<TaskAccessDeniedException> {
             editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")
         }
     }
@@ -65,7 +63,10 @@ class EditTaskTitleUseCaseTest {
     fun `should throw NoChangeException when new title is the same of old title`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
-        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id , matesIds = listOf(dummyMate.id))
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(
+            createdBy = dummyMate.id,
+            matesIds = listOf(dummyMate.id)
+        )
         every { tasksRepository.getTaskById(any()) } returns dummyTask.copy(title = "School Library")
         // when & then
         assertThrows<NoChangeException> {
@@ -74,13 +75,18 @@ class EditTaskTitleUseCaseTest {
     }
 
 
-
     @Test
     fun `invoke should edit task when the task id is valid`() {
         // given
         every { usersRepository.getCurrentUser() } returns dummyMate
-        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(createdBy = dummyMate.id , matesIds = listOf(dummyMate.id))
-        every { tasksRepository.getTaskById(any()) } returns dummyTask.copy(id = dummyTask.id,title = "i hate final exams")
+        every { projectsRepository.getProjectById(any()) } returns dummyProject.copy(
+            createdBy = dummyMate.id,
+            matesIds = listOf(dummyMate.id)
+        )
+        every { tasksRepository.getTaskById(any()) } returns dummyTask.copy(
+            id = dummyTask.id,
+            title = "i hate final exams"
+        )
 
         // when
         editTaskTitleUseCase.invoke(taskId = dummyTask.id, newTitle = "School Library")

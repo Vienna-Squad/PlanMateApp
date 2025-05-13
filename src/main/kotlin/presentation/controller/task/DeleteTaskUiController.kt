@@ -19,7 +19,7 @@ class DeleteTaskUiController(
         tryAndShowError {
             print("Please enter the Task ID to delete: ")
             val taskId = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Task ID cannot be empty. Please provide a valid ID.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             deleteTaskUseCase(UUID.fromString(taskId))
             viewer.view("Task with ID #$taskId has been successfully deleted.\n")

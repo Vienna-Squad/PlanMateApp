@@ -109,10 +109,10 @@ class UsersMongoStorageTest {
 
         // Use a spy to bypass MongoDB interaction
         val storageSpy = spyk(storage)
-        every { storageSpy.getAll() } returns listOf(user1, user2)
+        every { storageSpy.getAllItems() } returns listOf(user1, user2)
 
         // When
-        val result = storageSpy.getAll()
+        val result = storageSpy.getAllItems()
 
         // Then
         assertThat(result).hasSize(2)
@@ -136,10 +136,10 @@ class UsersMongoStorageTest {
 
         // Use a spy to bypass MongoDB interaction
         val storageSpy = spyk(storage)
-        every { storageSpy.getById(uuid) } returns user
+        every { storageSpy.getItemById(uuid) } returns user
 
         // When
-        val result = storageSpy.getById(uuid)
+        val result = storageSpy.getItemById(uuid)
 
         // Then
         assertThat(result.id).isEqualTo(uuid)
@@ -153,10 +153,10 @@ class UsersMongoStorageTest {
 
         // Use a spy to bypass MongoDB interaction
         val storageSpy = spyk(storage)
-        every { storageSpy.getById(uuid) } throws NotFoundException()
+        every { storageSpy.getItemById(uuid) } throws NotFoundException()
 
         // When/Then
-        assertThrows<NotFoundException> { storageSpy.getById(uuid) }
+        assertThrows<NotFoundException> { storageSpy.getItemById(uuid) }
     }
 
     @Test
@@ -175,7 +175,7 @@ class UsersMongoStorageTest {
         every { mockCollection.insertOne(any()) } returns mockResult
 
         // When
-        storage.add(user)
+        storage.addItem(user)
 
         // Then
         verify { mockCollection.insertOne(any()) }
@@ -198,7 +198,7 @@ class UsersMongoStorageTest {
         every { mockCollection.replaceOne(any(), any()) } returns mockResult
 
         // When
-        storage.update(user)
+        storage.updateItem(user)
 
         // Then
         verify { mockCollection.replaceOne(any(), any()) }
@@ -221,7 +221,7 @@ class UsersMongoStorageTest {
         every { mockCollection.deleteOne(any()) } returns mockResult
 
         // When
-        storage.delete(user)
+        storage.deleteItem(user)
 
         // Then
         verify { mockCollection.deleteOne(any()) }

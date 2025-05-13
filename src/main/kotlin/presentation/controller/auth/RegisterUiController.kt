@@ -25,9 +25,9 @@ class RegisterUiController(
             print("Please enter the role (ADMIN or MATE): ")
             val role = input.getInput().let { value ->
                 User.UserRole.entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
-                    ?: throw InvalidInputException("Invalid role: \"$value\". Please enter either ADMIN or MATE.")
+                    ?: throw InvalidInputException()
             }
-            if (username.isBlank() || password.isBlank()) throw InvalidInputException("Username and password cannot be empty.")
+            if (username.isBlank() || password.isBlank()) throw InvalidInputException()
             createUserUseCase.invoke(
                 username = username,
                 password = password,

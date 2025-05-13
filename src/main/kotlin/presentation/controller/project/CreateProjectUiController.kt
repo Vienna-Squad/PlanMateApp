@@ -18,7 +18,7 @@ class CreateProjectUiController(
         tryAndShowError {
             print("Please enter the name of the new project: ")
             val name = input.getInput().also {
-                if (it.isBlank()) throw InvalidInputException("Project name cannot be empty. Please provide a valid name.")
+                if (it.isBlank()) throw InvalidInputException()
             }
             createProjectUseCase(name = name)
             viewer.view("Project \"$name\" has been created successfully.\n")
