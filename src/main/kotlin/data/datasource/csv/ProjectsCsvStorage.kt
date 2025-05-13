@@ -13,8 +13,7 @@ class ProjectsCsvStorage(
 ) : DataSource<Project> {
     override fun getAllItems() = fileManager.readAll().ifEmpty { throw NoProjectsFoundException() }
     override fun addItem(newItem: Project) = fileManager.append(newItem)
-    override fun deleteItem(item: Project) = fileManager.delete(item)
+    override fun deleteItem(item: Project) = fileManager.delete(item).let { if (!it) throw ProjectNotFoundException() }
     override fun getItemById(id: UUID) = fileManager.getById(id) ?: throw ProjectNotFoundException()
-    override fun updateItem(updatedItem: Project) =
-        fileManager.update(updatedItem).let { if (!it) throw ProjectNotFoundException() }
+    override fun updateItem(updatedItem: Project) = fileManager.update(updatedItem).let { if (!it) throw ProjectNotFoundException() }
 }

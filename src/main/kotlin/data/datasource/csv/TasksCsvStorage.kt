@@ -13,8 +13,7 @@ class TasksCsvStorage(
 ) : DataSource<Task> {
     override fun getAllItems() = fileManager.readAll().ifEmpty { throw NoTasksFoundException() }
     override fun addItem(newItem: Task) = fileManager.append(newItem)
-    override fun deleteItem(item: Task) = fileManager.delete(item)
+    override fun deleteItem(item: Task) = fileManager.delete(item).let { if (!it) throw TaskNotFoundException() }
     override fun getItemById(id: UUID) = fileManager.getById(id) ?: throw TaskNotFoundException()
-    override fun updateItem(updatedItem: Task) =
-        fileManager.update(updatedItem).let { if (!it) throw TaskNotFoundException() }
+    override fun updateItem(updatedItem: Task) = fileManager.update(updatedItem).let { if (!it) throw TaskNotFoundException() }
 }

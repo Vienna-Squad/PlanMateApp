@@ -13,8 +13,7 @@ class UsersCsvStorage(
 ) : DataSource<User> {
     override fun getAllItems() = fileManager.readAll().ifEmpty { throw NoUsersFoundException() }
     override fun addItem(newItem: User) = fileManager.append(newItem)
-    override fun deleteItem(item: User) = fileManager.delete(item)
+    override fun deleteItem(item: User) = fileManager.delete(item).let { if (!it) throw UserNotFoundException() }
     override fun getItemById(id: UUID) = fileManager.getById(id) ?: throw UserNotFoundException()
-    override fun updateItem(updatedItem: User) =
-        fileManager.update(updatedItem).let { if (!it) throw UserNotFoundException() }
+    override fun updateItem(updatedItem: User) = fileManager.update(updatedItem).let { if (!it) throw UserNotFoundException() }
 }
