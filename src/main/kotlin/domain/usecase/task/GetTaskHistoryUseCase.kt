@@ -1,6 +1,6 @@
 package org.example.domain.usecase.task
 
-import org.example.data.exception.LogsNotFoundException
+import org.example.domain.exceptions.LogsNotFoundException
 import org.example.domain.repository.LogsRepository
 import org.koin.java.KoinJavaComponent.getKoin
 import java.util.*

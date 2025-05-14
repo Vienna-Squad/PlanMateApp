@@ -3,11 +3,11 @@ package domain.usecase.task
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
-import org.example.data.exception.LogsNotFoundException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.LogsNotFoundException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.usecase.task.GetTaskHistoryUseCase
 import org.junit.jupiter.api.BeforeEach

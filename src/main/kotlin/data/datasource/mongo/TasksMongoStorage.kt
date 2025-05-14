@@ -3,9 +3,9 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.MongoCollections.TASKS_COLLECTION
-import org.example.data.exception.NoTasksFoundException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
+import org.example.domain.exceptions.NoTasksFoundException
 import java.time.LocalDateTime
 import java.util.*
 

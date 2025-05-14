@@ -1,7 +1,9 @@
 package org.example.data.utils
 
 import com.mongodb.*
-import org.example.data.exception.*
+import org.example.domain.exceptions.NetworkException
+import org.example.domain.exceptions.PlanMateAppException
+import org.example.domain.exceptions.StorageException
 import org.example.domain.exceptions.UnknownException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -12,33 +14,24 @@ fun <T> safeCall(bloc: () -> T): T {
         bloc()
     } catch (e: Exception) {
         throw when (e) {
-
-            is NotFoundException->e
+            is PlanMateAppException->e
 
             is MongoWriteException,
-            is MongoWriteConcernException -> WriteFailureException()
-            is MongoQueryException -> QueryFailureException()
-
+            is MongoWriteConcernException ,
+            is MongoQueryException ,
             is MongoSocketReadException,
             is MongoSocketOpenException,
-            is MongoTimeoutException -> NetworkException()
-
-            is MongoSecurityException -> AuthException()
-
-            is MongoConfigurationException -> ConfigException()
-
-            is MongoServerException -> ServerFailureException()
+            is MongoTimeoutException ,
+            is MongoConfigurationException,
+            is MongoSecurityException ,
+            is MongoServerException ->  NetworkException()
 
             is MalformedInputException,
             is CharacterCodingException,
-            is ArrayIndexOutOfBoundsException,
-            is IndexOutOfBoundsException,
             is IllegalArgumentException,
-            is NullPointerException -> CsvFormatException()
-
             is SecurityException,
             is FileNotFoundException,
-            is IOException -> FileAccessException()
+            is IOException -> StorageException()
 
             else -> UnknownException()
         }

@@ -2,8 +2,8 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.MongoCollections.USERS_COLLECTION
-import org.example.data.exception.NoUsersFoundException
 import org.example.domain.entity.User
+import org.example.domain.exceptions.NoUsersFoundException
 import java.time.LocalDateTime
 import java.util.*
 

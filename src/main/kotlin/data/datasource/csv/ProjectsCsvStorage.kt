@@ -3,9 +3,10 @@ package data.datasource.csv
 import org.example.common.bases.CsvFileManager
 import org.example.common.bases.DataSource
 import org.example.data.datasource.csv.manager.ProjectsCsvFileManager
-import org.example.data.exception.NoProjectsFoundException
-import org.example.data.exception.ProjectNotFoundException
+
 import org.example.domain.entity.Project
+import org.example.domain.exceptions.NoProjectsFoundException
+import org.example.domain.exceptions.ProjectNotFoundException
 import java.util.*
 
 class ProjectsCsvStorage(

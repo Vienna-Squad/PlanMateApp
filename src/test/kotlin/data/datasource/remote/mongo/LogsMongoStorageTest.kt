@@ -11,12 +11,12 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import org.bson.Document
-import org.example.data.exception.NoLogsFoundException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log.AffectedType
+import org.example.domain.exceptions.NoLogsFoundException
 import org.example.domain.exceptions.UnknownException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -1,11 +1,11 @@
 package org.example.domain.usecase.project
 
 
-import org.example.data.exception.LogsNotFoundException
-import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.LogsNotFoundException
+import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository

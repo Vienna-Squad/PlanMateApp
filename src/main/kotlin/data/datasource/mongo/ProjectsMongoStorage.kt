@@ -3,9 +3,9 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.MongoCollections.PROJECTS_COLLECTION
-import org.example.data.exception.NoProjectsFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
+import org.example.domain.exceptions.NoProjectsFoundException
 import java.time.LocalDateTime
 import java.util.*
 

@@ -1,31 +1,26 @@
 package org.example.presentation.utils.viewer
 
-import org.example.data.exception.*
-import org.example.data.exception.NotFoundException
+
 import org.example.domain.exceptions.*
 import org.example.presentation.exceptions.InvalidInputException
 
 class ExceptionViewer : ItemViewer<Throwable> {
     override fun view(item: Throwable) {
         val message = when (item) {
-            is FileAccessException -> "Access to the file was denied or corrupted file, Please check and try again"
-            is CsvFormatException -> "corrupted files.please tray again "
-            is WriteFailureException -> "Failed to write data. Please try again."
-            is QueryFailureException -> "Failed to load data from the database. Please try again."
-            is NetworkException -> "Network error while connecting. Check your internet connection."
-            is AuthException -> "Authentication failed. Please check your database credentials."
-            is ConfigException -> "Database configuration error. Please contact support."
 
-            is ServerFailureException -> "A server-side error occurred . Please try again later."
-
+            is NetworkException -> "Network Error . Please try again later."
+            is StorageException -> "Storage Error. Please check your storage configuration."
             is ProjectNotFoundException -> "The specified project was not found."
             is NoProjectsFoundException -> "No projects found for your account."
+
             is TaskNotFoundException -> "The specified task was not found."
             is NoTasksFoundException -> "No tasks found."
+
             is UserNotFoundException -> "The specified user was not found."
             is NoUsersFoundException -> "No users found."
+
             is LogsNotFoundException -> "The requested logs were not found."
-            is NoLogsFoundException -> "No logs available."
+            is NoLogsFoundException -> "No logs found."
 
             is AuthenticationException -> "Authentication failed. Please check your credentials and try again."
             is UnauthorizedException -> "You are not authorized to perform this action."
@@ -46,7 +41,7 @@ class ExceptionViewer : ItemViewer<Throwable> {
 
             is NotFoundException -> "The requested item was not found."
 
-            is InvalidInputException,is IllegalArgumentException -> "Invalid input. Please check your data and try again."
+            is InvalidInputException,is IllegalArgumentException -> "Invalid input. Please check your inputs and try again."
 
             else -> "An unexpected error occurred. Please try again."
         }

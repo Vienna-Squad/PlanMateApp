@@ -3,9 +3,10 @@ package data.datasource.csv
 import org.example.common.bases.CsvFileManager
 import org.example.common.bases.DataSource
 import org.example.data.datasource.csv.manager.TasksCsvFileManager
-import org.example.data.exception.NoTasksFoundException
-import org.example.data.exception.TaskNotFoundException
+
 import org.example.domain.entity.Task
+import org.example.domain.exceptions.NoTasksFoundException
+import org.example.domain.exceptions.TaskNotFoundException
 import java.util.*
 
 class TasksCsvStorage(
