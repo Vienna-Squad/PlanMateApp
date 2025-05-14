@@ -3,11 +3,11 @@ package org.example.presentation.controller.auth
 import org.example.common.APPS.ADMIN_APP
 import org.example.common.APPS.MATE_APP
 import org.example.common.StorageType
-import org.example.domain.InvalidInputException
 import org.example.domain.entity.User.UserRole
 import org.example.domain.usecase.auth.LoginUseCase
 import org.example.presentation.App
 import org.example.presentation.controller.UiController
+import org.example.presentation.exceptions.InvalidInputException
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
 import org.example.presentation.utils.viewer.ItemViewer

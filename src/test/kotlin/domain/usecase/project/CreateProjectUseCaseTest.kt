@@ -5,7 +5,7 @@ import dummyMate
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.FeatureAccessDeniedException
+import org.example.domain.exceptions.FeatureAccessDeniedException
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository

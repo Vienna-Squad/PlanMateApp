@@ -3,8 +3,8 @@ package data.datasource.csv
 import org.example.common.bases.CsvFileManager
 import org.example.common.bases.DataSource
 import org.example.data.datasource.csv.manager.TasksCsvFileManager
-import org.example.domain.NoTasksFoundException
-import org.example.domain.TaskNotFoundException
+import org.example.data.exception.NoTasksFoundException
+import org.example.data.exception.TaskNotFoundException
 import org.example.domain.entity.Task
 import java.util.*
 

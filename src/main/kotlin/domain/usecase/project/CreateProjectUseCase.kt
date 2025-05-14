@@ -1,6 +1,6 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.FeatureAccessDeniedException
+import org.example.domain.exceptions.FeatureAccessDeniedException
 import org.example.domain.entity.Project
 import org.example.domain.entity.User
 import org.example.domain.entity.log.CreatedLog

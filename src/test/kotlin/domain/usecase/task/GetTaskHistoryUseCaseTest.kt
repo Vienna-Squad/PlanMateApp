@@ -3,7 +3,7 @@ package domain.usecase.task
 import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
-import org.example.domain.LogsNotFoundException
+import org.example.data.exception.LogsNotFoundException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.DeletedLog

@@ -1,8 +1,8 @@
 package org.example.presentation.controller.task
 
-import org.example.domain.InvalidInputException
 import org.example.domain.usecase.task.EditTaskStateUseCase
 import org.example.presentation.controller.UiController
+import org.example.presentation.exceptions.InvalidInputException
 import org.example.presentation.utils.interactor.InputReader
 import org.example.presentation.utils.interactor.StringInputReader
 import org.example.presentation.utils.viewer.ItemViewer

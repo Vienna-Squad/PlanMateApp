@@ -1,7 +1,7 @@
 package org.example.domain.usecase.auth
 
 import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
-import org.example.domain.FeatureAccessDeniedException
+import org.example.domain.exceptions.FeatureAccessDeniedException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.entity.log.CreatedLog

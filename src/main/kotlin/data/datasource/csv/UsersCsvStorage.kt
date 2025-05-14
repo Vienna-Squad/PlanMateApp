@@ -3,8 +3,9 @@ package data.datasource.csv
 import org.example.common.bases.CsvFileManager
 import org.example.common.bases.DataSource
 import org.example.data.datasource.csv.manager.UsersCsvFileManager
-import org.example.domain.NoUsersFoundException
-import org.example.domain.UserNotFoundException
+import org.example.data.exception.NoUsersFoundException
+import org.example.data.exception.UserNotFoundException
+
 import org.example.domain.entity.User
 import java.util.*
 

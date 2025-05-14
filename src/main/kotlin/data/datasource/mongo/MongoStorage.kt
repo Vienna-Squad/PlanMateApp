@@ -4,8 +4,8 @@ import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.Document
 import org.example.common.bases.DataSource
-import org.example.domain.NotFoundException
-import org.example.domain.UnknownException
+import org.example.domain.exceptions.NotFoundException
+import org.example.domain.exceptions.UnknownException
 import java.util.*
 
 abstract class MongoStorage<T>(

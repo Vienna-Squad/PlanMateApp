@@ -1,7 +1,6 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.TaskAccessDeniedException
+import org.example.domain.exceptions.TaskAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository

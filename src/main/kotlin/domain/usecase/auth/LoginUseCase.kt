@@ -4,7 +4,7 @@ package org.example.domain.usecase.auth
 import data.datasource.preferences.Preferences
 import org.example.common.StorageType
 import org.example.data.repository.UsersRepositoryImpl
-import org.example.domain.AuthenticationException
+import org.example.domain.exceptions.AuthenticationException
 import org.example.domain.repository.UsersRepository
 
 class LoginUseCase(

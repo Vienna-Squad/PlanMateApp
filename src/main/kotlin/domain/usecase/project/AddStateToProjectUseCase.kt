@@ -1,8 +1,8 @@
 package org.example.domain.usecase.project
 
 
-import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.StateAlreadyExistsException
+import org.example.domain.exceptions.ProjectAccessDeniedException
+import org.example.domain.exceptions.StateAlreadyExistsException
 import org.example.domain.entity.State
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log

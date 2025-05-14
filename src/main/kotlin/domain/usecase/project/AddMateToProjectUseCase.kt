@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.MateAlreadyExistsException
-import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.exceptions.MateAlreadyExistsException
+import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository

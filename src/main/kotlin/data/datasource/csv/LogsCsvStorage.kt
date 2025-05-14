@@ -2,7 +2,7 @@ package data.datasource.csv
 
 import org.example.common.bases.UnEditableCsvFileManager
 import org.example.common.bases.UnEditableDataSource
-import org.example.domain.LogsNotFoundException
+import org.example.data.exception.LogsNotFoundException
 import org.example.domain.entity.log.Log
 
 class LogsCsvStorage(

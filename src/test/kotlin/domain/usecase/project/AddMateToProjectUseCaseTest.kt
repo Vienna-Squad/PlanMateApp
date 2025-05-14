@@ -8,8 +8,8 @@ import dummyProjectId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.MateAlreadyExistsException
-import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.exceptions.MateAlreadyExistsException
+import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository

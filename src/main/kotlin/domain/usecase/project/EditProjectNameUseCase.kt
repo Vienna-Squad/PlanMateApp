@@ -1,8 +1,8 @@
 package org.example.domain.usecase.project
 
 
-import org.example.domain.NoChangeException
-import org.example.domain.ProjectAccessDeniedException
+import org.example.domain.exceptions.NoChangeException
+import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository

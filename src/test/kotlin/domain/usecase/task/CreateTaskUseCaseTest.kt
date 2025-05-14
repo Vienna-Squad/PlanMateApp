@@ -6,8 +6,8 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.ProjectHasNoThisStateException
+import org.example.domain.exceptions.ProjectAccessDeniedException
+import org.example.domain.exceptions.StateNotInProjectException
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -94,7 +94,7 @@ class CreateTaskUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         // when && when
-        assertThrows<ProjectHasNoThisStateException> {createTaskUseCase(title = title, stateName = "non-project-related", projectId = project.id)}
+        assertThrows<StateNotInProjectException> {createTaskUseCase(title = title, stateName = "non-project-related", projectId = project.id)}
         verify(exactly = 0) { tasksRepository.addTask(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

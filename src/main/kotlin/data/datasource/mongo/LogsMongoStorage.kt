@@ -3,7 +3,7 @@ package data.datasource.mongo
 
 import org.bson.Document
 import org.example.common.MongoCollections.LOGS_COLLECTION
-import org.example.domain.NoLogsFoundException
+import org.example.data.exception.NoLogsFoundException
 import org.example.domain.entity.log.*
 import org.example.domain.entity.log.Log.ActionType
 import org.example.domain.entity.log.Log.AffectedType

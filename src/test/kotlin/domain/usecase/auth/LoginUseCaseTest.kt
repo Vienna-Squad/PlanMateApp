@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
-import org.example.domain.AuthenticationException
+import org.example.domain.exceptions.AuthenticationException
 import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.UsersRepository
