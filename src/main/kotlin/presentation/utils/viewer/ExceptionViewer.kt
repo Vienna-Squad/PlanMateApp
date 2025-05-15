@@ -2,14 +2,12 @@ package org.example.presentation.utils.viewer
 
 
 import org.example.domain.exceptions.*
-import org.example.presentation.exceptions.InvalidInputException
 
 class ExceptionViewer : ItemViewer<Throwable> {
     override fun view(item: Throwable) {
         val message = when (item) {
 
             is NetworkException -> "Network Error . Please try again later."
-            is StorageException -> "Storage Error. Please check your storage configuration."
             is ProjectNotFoundException -> "The specified project was not found."
             is NoProjectsFoundException -> "No projects found for your account."
 
@@ -34,12 +32,10 @@ class ExceptionViewer : ItemViewer<Throwable> {
             is StateAlreadyExistsException -> "This state already exists in the project."
 
             is NoChangeException -> "No changes were made."
-            is UnknownException -> "An unknown error occurred. Please try again."
+
             is MateNotAssignedToTaskException -> "This mate is not assigned to the selected task."
             is MateNotInProjectException -> "This mate is not a member of the project."
             is StateNotInProjectException -> "This state is not defined in the project."
-
-            is NotFoundException -> "The requested item was not found."
 
             is InvalidInputException,is IllegalArgumentException -> "Invalid input. Please check your inputs and try again."
 

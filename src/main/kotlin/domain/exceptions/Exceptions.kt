@@ -40,3 +40,8 @@ class LogsNotFoundException : NotFoundException()
 abstract class DataExceptions:PlanMateAppException ()
 class StorageException : DataExceptions()
 class NetworkException : DataExceptions()
+
+
+abstract class UiExceptions:PlanMateAppException()
+class InvalidInputException : UiExceptions()
+

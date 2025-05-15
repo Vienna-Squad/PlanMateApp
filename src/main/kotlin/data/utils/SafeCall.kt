@@ -2,9 +2,7 @@ package org.example.data.utils
 
 import com.mongodb.*
 import org.example.domain.exceptions.NetworkException
-import org.example.domain.exceptions.PlanMateAppException
 import org.example.domain.exceptions.StorageException
-import org.example.domain.exceptions.UnknownException
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.charset.MalformedInputException
@@ -12,10 +10,8 @@ import java.nio.charset.MalformedInputException
 fun <T> safeCall(bloc: () -> T): T {
     return try {
         bloc()
-    } catch (e: Exception) {
-        throw when (e) {
-            is PlanMateAppException->e
-
+    } catch (exception: Exception) {
+        throw when (exception) {
             is MongoWriteException,
             is MongoWriteConcernException ,
             is MongoQueryException ,
@@ -33,7 +29,7 @@ fun <T> safeCall(bloc: () -> T): T {
             is FileNotFoundException,
             is IOException -> StorageException()
 
-            else -> UnknownException()
+            else -> exception
         }
     }
 }
