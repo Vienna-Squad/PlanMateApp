@@ -1,8 +1,9 @@
 package org.example.presentation.controller.auth
 
-import org.example.common.APPS.ADMIN_APP
-import org.example.common.APPS.MATE_APP
-import org.example.common.StorageType
+import data.datasource.local.preferences.Preferences
+import org.example.APPS.ADMIN_APP
+import org.example.APPS.MATE_APP
+import org.example.StorageType
 import org.example.domain.InvalidInputException
 import org.example.domain.entity.User.UserRole
 import org.example.domain.usecase.auth.LoginUseCase
@@ -21,6 +22,7 @@ class LoginUiController(
     private val input: InputReader<String> = StringInputReader(),
     private val mateApp: App = getKoin().get(named(MATE_APP)),
     private val adminApp: App = getKoin().get(named(ADMIN_APP)),
+    private val preferences: Preferences = Preferences
 ) : UiController {
     override fun execute() {
         tryAndShowError {
@@ -37,7 +39,7 @@ class LoginUiController(
             if (username.isBlank() || password.isBlank())
                 throw InvalidInputException()
 
-            loginUseCase.setStorageType(storageType)
+            preferences.saveDataSourceType(storageType)
             loginUseCase(username, password)
             viewer.view("You have successfully logged in.\n")
 

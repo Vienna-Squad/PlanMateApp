@@ -1,7 +1,7 @@
 package org.example.data.repository
 
-import data.datasource.preferences.Preferences
-import org.example.common.bases.DataSource
+import data.datasource.local.preferences.Preferences
+import org.example.data.datasource.DataSource
 import org.example.data.utils.isRemote
 import org.example.data.utils.safeCall
 import org.example.domain.entity.User
@@ -11,9 +11,9 @@ import java.util.*
 
 
 class UsersRepositoryImpl(
-    private val usersLocalDataSource: DataSource<User>,
-    private val usersRemoteDataSource: DataSource<User>,
-    private val preferences: Preferences = Preferences,
+    private val localDataSource: DataSource<User>,
+    private val remoteDataSource: DataSource<User>,
+    private val preferences: Preferences,
 ) : UsersRepository {
     override fun storeCurrentUserId(userId: UUID) = safeCall {
         preferences.saveCurrentUserId(userId)
@@ -21,17 +21,17 @@ class UsersRepositoryImpl(
 
     override fun getAllUsers() = safeCall {
         if (isRemote()) {
-            usersRemoteDataSource.getAllItems()
+            remoteDataSource.getAllItems()
         } else {
-            usersLocalDataSource.getAllItems()
+            localDataSource.getAllItems()
         }
     }
 
     override fun createUser(user: User) = safeCall {
         if (isRemote()) {
-            usersRemoteDataSource.addItem(user)
+            remoteDataSource.addItem(user)
         } else {
-            usersLocalDataSource.addItem(user)
+            localDataSource.addItem(user)
         }
     }
 
@@ -41,9 +41,9 @@ class UsersRepositoryImpl(
 
     override fun getUserByID(userId: UUID) = safeCall {
         if (isRemote()) {
-            usersRemoteDataSource.getItemById(userId)
+            remoteDataSource.getItemById(userId)
         } else {
-            usersLocalDataSource.getItemById(userId)
+            localDataSource.getItemById(userId)
         }
     }
 

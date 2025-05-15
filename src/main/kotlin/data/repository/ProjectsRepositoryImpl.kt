@@ -1,6 +1,6 @@
 package org.example.data.repository
 
-import org.example.common.bases.DataSource
+import org.example.data.datasource.DataSource
 import org.example.data.utils.isRemote
 import org.example.data.utils.safeCall
 import org.example.domain.entity.Project
@@ -8,48 +8,48 @@ import org.example.domain.repository.ProjectsRepository
 import java.util.*
 
 class ProjectsRepositoryImpl(
-    private val projectsLocalDataSource: DataSource<Project>,
-    private val projectsRemoteDataSource: DataSource<Project>,
+    private val localDataSource: DataSource<Project>,
+    private val remoteDataSource: DataSource<Project>,
 ) : ProjectsRepository {
     override fun getProjectById(projectId: UUID) = safeCall {
         if (isRemote()) {
-            projectsRemoteDataSource.getItemById(projectId)
+            remoteDataSource.getItemById(projectId)
         } else {
-            projectsLocalDataSource.getItemById(projectId)
+            localDataSource.getItemById(projectId)
         }
     }
 
     override fun getAllProjects() = safeCall {
         if (isRemote()) {
-            projectsRemoteDataSource.getAllItems()
+            remoteDataSource.getAllItems()
         } else {
-            projectsLocalDataSource.getAllItems()
+            localDataSource.getAllItems()
         }
     }
 
     override fun addProject(project: Project) = safeCall {
         if (isRemote()) {
-            projectsRemoteDataSource.addItem(project)
+            remoteDataSource.addItem(project)
         } else {
-            projectsLocalDataSource.addItem(project)
+            localDataSource.addItem(project)
         }
     }
 
     override fun updateProject(updatedProject: Project) =
         safeCall {
             if (isRemote()) {
-                projectsRemoteDataSource.updateItem(updatedProject)
+                remoteDataSource.updateItem(updatedProject)
             } else {
-                projectsLocalDataSource.updateItem(updatedProject)
+                localDataSource.updateItem(updatedProject)
             }
         }
 
     override fun deleteProjectById(projectId: UUID) =
         safeCall {
             if (isRemote()) {
-                projectsRemoteDataSource.deleteItem(getProjectById(projectId))
+                remoteDataSource.deleteItem(getProjectById(projectId))
             } else {
-                projectsLocalDataSource.deleteItem(getProjectById(projectId))
+                localDataSource.deleteItem(getProjectById(projectId))
             }
         }
 }

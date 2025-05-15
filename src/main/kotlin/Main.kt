@@ -1,11 +1,11 @@
 package org.example
 
 import com.mongodb.client.model.Filters
-import data.datasource.mongo.MongoConfig
+import data.datasource.remote.mongo.MongoConfig
 import di.appModule
 import di.useCasesModule
 import org.bson.Document
-import org.example.common.MongoCollections.USERS_COLLECTION
+import org.example.MongoCollections.USERS_COLLECTION
 import org.example.data.repository.UsersRepositoryImpl.Companion.encryptPassword
 import org.example.di.dataModule
 import org.example.di.repositoryModule
