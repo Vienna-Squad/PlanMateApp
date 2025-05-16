@@ -1,9 +1,9 @@
-package data.datasource.mongo
+package data.datasource.remote.mongo
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.bson.Document
-import org.example.common.bases.DataSource
+import org.example.data.datasource.DataSource
 import org.example.domain.exceptions.NotFoundException
 import org.example.domain.exceptions.UnknownException
 import java.util.*
@@ -16,7 +16,7 @@ abstract class MongoStorage<T>(
 
     abstract fun fromDocument(document: Document): T
 
-    override fun getAllItems() = collection.find().map { fromDocument(it) }.toList()
+    override fun getAllItems() = collection.find().mapNotNull { fromDocument(it) }.toList()
 
     override fun getItemById(id: UUID): T {
         return collection.find(Filters.eq("_id", id.toString())).firstOrNull()?.let {

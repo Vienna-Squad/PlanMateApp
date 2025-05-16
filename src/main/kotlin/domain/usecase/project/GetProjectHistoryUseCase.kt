@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.LogsNotFoundException
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.LogsNotFoundException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository

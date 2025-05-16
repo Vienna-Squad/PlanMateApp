@@ -1,8 +1,7 @@
-package data.datasource.mongo
-
+package data.datasource.remote.mongo
 
 import org.bson.Document
-import org.example.common.MongoCollections.PROJECTS_COLLECTION
+import org.example.MongoCollections.PROJECTS_COLLECTION
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
 import org.example.domain.exceptions.NoProjectsFoundException

@@ -1,15 +1,14 @@
-package data.datasource.csv
+package data.datasource.local.csv
 
-import org.example.common.bases.CsvFileManager
-import org.example.common.bases.DataSource
-import org.example.data.datasource.csv.manager.UsersCsvFileManager
+import org.example.data.datasource.DataSource
+import org.example.data.datasource.local.bases.CsvFileManager
 import org.example.domain.entity.User
 import org.example.domain.exceptions.NoUsersFoundException
 import org.example.domain.exceptions.UserNotFoundException
 import java.util.*
 
 class UsersCsvStorage(
-    private val fileManager: CsvFileManager<User> = UsersCsvFileManager(),
+    private val fileManager: CsvFileManager<User>,
 ) : DataSource<User> {
     override fun getAllItems() = fileManager.readAll().ifEmpty { throw NoUsersFoundException() }
     override fun addItem(newItem: User) = fileManager.append(newItem)

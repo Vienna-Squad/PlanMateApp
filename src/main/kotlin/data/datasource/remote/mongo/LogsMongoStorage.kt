@@ -1,8 +1,7 @@
-package data.datasource.mongo
-
+package data.datasource.remote.mongo
 
 import org.bson.Document
-import org.example.common.MongoCollections.LOGS_COLLECTION
+import org.example.MongoCollections.LOGS_COLLECTION
 import org.example.domain.entity.log.*
 import org.example.domain.entity.log.Log.ActionType
 import org.example.domain.entity.log.Log.AffectedType

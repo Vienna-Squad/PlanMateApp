@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
-import org.example.domain.NoProjectsFoundException
 import org.example.domain.entity.Project
+import org.example.domain.exceptions.NoProjectsFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
 

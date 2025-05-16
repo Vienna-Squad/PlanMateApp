@@ -1,16 +1,14 @@
-package data.datasource.csv
+package data.datasource.local.csv
 
-import org.example.common.bases.CsvFileManager
-import org.example.common.bases.DataSource
-import org.example.data.datasource.csv.manager.ProjectsCsvFileManager
-
+import org.example.data.datasource.DataSource
+import org.example.data.datasource.local.bases.CsvFileManager
 import org.example.domain.entity.Project
 import org.example.domain.exceptions.NoProjectsFoundException
 import org.example.domain.exceptions.ProjectNotFoundException
 import java.util.*
 
 class ProjectsCsvStorage(
-    private val fileManager: CsvFileManager<Project> = ProjectsCsvFileManager(),
+    private val fileManager: CsvFileManager<Project>,
 ) : DataSource<Project> {
     override fun getAllItems() = fileManager.readAll().ifEmpty { throw NoProjectsFoundException() }
     override fun addItem(newItem: Project) = fileManager.append(newItem)

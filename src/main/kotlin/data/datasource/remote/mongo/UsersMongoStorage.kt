@@ -1,12 +1,11 @@
-package data.datasource.mongo
+package data.datasource.remote.mongo
 
 import org.bson.Document
-import org.example.common.MongoCollections.USERS_COLLECTION
+import org.example.MongoCollections.USERS_COLLECTION
 import org.example.domain.entity.User
 import org.example.domain.exceptions.NoUsersFoundException
 import java.time.LocalDateTime
 import java.util.*
-
 
 class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(USERS_COLLECTION)) {
     override fun toDocument(item: User): Document {

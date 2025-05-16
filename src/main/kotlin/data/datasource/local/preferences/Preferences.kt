@@ -1,8 +1,8 @@
-package data.datasource.preferences
+package data.datasource.local.preferences
 
-import org.example.common.PreferenceKeys.CURRENT_USER_ID
-import org.example.common.PreferenceKeys.DATA_SOURCE_TYPE
-import org.example.common.StorageType
+import org.example.PreferenceKeys.CURRENT_USER_ID
+import org.example.PreferenceKeys.DATA_SOURCE_TYPE
+import org.example.StorageType
 import org.example.domain.exceptions.UnauthorizedException
 import java.util.*
 
