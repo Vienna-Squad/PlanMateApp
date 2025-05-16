@@ -1,14 +1,12 @@
 package data.datasource.remote.mongo
 
-
 import org.bson.Document
 import org.example.MongoCollections.TASKS_COLLECTION
-import org.example.domain.NoTasksFoundException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
+import org.example.domain.exceptions.NoTasksFoundException
 import java.time.LocalDateTime
 import java.util.*
-
 
 class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(TASKS_COLLECTION)) {
     override fun toDocument(item: Task): Document {

@@ -1,12 +1,11 @@
 package data.datasource.remote.mongo
 
-
 import org.bson.Document
 import org.example.MongoCollections.LOGS_COLLECTION
-import org.example.domain.NoLogsFoundException
 import org.example.domain.entity.log.*
 import org.example.domain.entity.log.Log.ActionType
 import org.example.domain.entity.log.Log.AffectedType
+import org.example.domain.exceptions.NoLogsFoundException
 import java.time.LocalDateTime
 import java.util.*
 

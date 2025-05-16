@@ -6,7 +6,7 @@ import dummyProjects
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.NoProjectsFoundException
+import org.example.domain.exceptions.NoProjectsFoundException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
 import org.example.domain.usecase.project.GetAllProjectsUseCase

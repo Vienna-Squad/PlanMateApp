@@ -5,8 +5,8 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.ProjectHasNoThisStateException
+import org.example.domain.exceptions.ProjectAccessDeniedException
+import org.example.domain.exceptions.StateNotInProjectException
 
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
@@ -63,7 +63,7 @@ class DeleteStateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<ProjectHasNoThisStateException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
+        assertThrows<StateNotInProjectException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }
@@ -75,7 +75,7 @@ class DeleteStateFromProjectUseCaseTest {
         every { usersRepository.getCurrentUser() } returns dummyAdmin
         every { projectsRepository.getProjectById(project.id) } returns project
         //when && then
-        assertThrows<ProjectHasNoThisStateException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
+        assertThrows<StateNotInProjectException> { deleteStateFromProjectUseCase.invoke(project.id, "state") }
         verify(exactly = 0) { projectsRepository.updateProject(any()) }
         verify(exactly = 0) { logsRepository.addLog(any()) }
     }

@@ -3,8 +3,8 @@ package data.datasource.local.preferences
 import org.example.PreferenceKeys.CURRENT_USER_ID
 import org.example.PreferenceKeys.DATA_SOURCE_TYPE
 import org.example.StorageType
-import org.example.domain.UnauthorizedException
-import java.util.UUID
+import org.example.domain.exceptions.UnauthorizedException
+import java.util.*
 
 object Preferences {
     private var map: MutableMap<String, String> = mutableMapOf()

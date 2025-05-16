@@ -1,6 +1,6 @@
 package org.example.domain.usecase
 
-import org.example.domain.*
+import org.example.domain.exceptions.*
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
@@ -75,7 +75,7 @@ object Validator {
         ensureTaskAccess(project, currentUser)
     }
     fun getStateIfExistInProject(project: Project, stateName: String): State {
-        return project.states.find { it.name == stateName } ?: throw ProjectHasNoThisStateException()
+        return project.states.find { it.name == stateName } ?: throw StateNotInProjectException()
     }
 
 
@@ -95,7 +95,7 @@ object Validator {
 
 
     private fun ensureMateInProject(project: Project, mateId: UUID) {
-        if (mateId !in project.matesIds) throw ProjectHasNoThisMateException()
+        if (mateId !in project.matesIds) throw MateNotInProjectException()
     }
     private fun ensureMateNotInProject(project: Project, mateId: UUID) {
         if (mateId in project.matesIds) throw MateAlreadyExistsException()
@@ -113,7 +113,7 @@ object Validator {
         if (project.states.any { it.name == stateName }) throw StateAlreadyExistsException()
     }
     private fun ensureStateInProject(project: Project, stateName: String) {
-        if (project.states.all { it.name != stateName }) throw ProjectHasNoThisStateException()
+        if (project.states.all { it.name != stateName }) throw StateNotInProjectException()
     }
 
     private fun <T> ensureChanged(oldValue: T, newValue: T) {

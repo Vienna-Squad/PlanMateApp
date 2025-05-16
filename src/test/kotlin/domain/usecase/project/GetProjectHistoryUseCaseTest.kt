@@ -8,11 +8,11 @@ import dummyProject
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.LogsNotFoundException
-import org.example.domain.ProjectAccessDeniedException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.LogsNotFoundException
+import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository

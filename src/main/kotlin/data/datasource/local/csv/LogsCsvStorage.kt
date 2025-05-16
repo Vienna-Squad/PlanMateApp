@@ -1,9 +1,9 @@
 package data.datasource.local.csv
 
-import org.example.data.datasource.local.bases.UnEditableCsvFileManager
 import org.example.data.datasource.UnEditableDataSource
-import org.example.domain.LogsNotFoundException
+import org.example.data.datasource.local.bases.UnEditableCsvFileManager
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.LogsNotFoundException
 
 class LogsCsvStorage(
     private val fileManager: UnEditableCsvFileManager<Log>

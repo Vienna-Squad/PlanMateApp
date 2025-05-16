@@ -1,11 +1,10 @@
 package data.datasource.remote.mongo
 
-
 import org.bson.Document
 import org.example.MongoCollections.PROJECTS_COLLECTION
-import org.example.domain.NoProjectsFoundException
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
+import org.example.domain.exceptions.NoProjectsFoundException
 import java.time.LocalDateTime
 import java.util.*
 

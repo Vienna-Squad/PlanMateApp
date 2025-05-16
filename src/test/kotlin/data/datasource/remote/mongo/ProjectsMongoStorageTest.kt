@@ -7,7 +7,7 @@ import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import io.mockk.*
 import org.bson.Document
-import org.example.domain.NotFoundException
+import org.example.domain.exceptions.NotFoundException
 import org.example.domain.entity.Project
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

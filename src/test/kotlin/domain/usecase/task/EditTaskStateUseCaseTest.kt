@@ -6,7 +6,7 @@ import dummyTasks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.TaskAccessDeniedException
+import org.example.domain.exceptions.TaskAccessDeniedException
 import org.example.domain.entity.State
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.repository.LogsRepository

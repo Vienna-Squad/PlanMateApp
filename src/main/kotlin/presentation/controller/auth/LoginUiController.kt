@@ -4,8 +4,8 @@ import data.datasource.local.preferences.Preferences
 import org.example.APPS.ADMIN_APP
 import org.example.APPS.MATE_APP
 import org.example.StorageType
-import org.example.domain.InvalidInputException
 import org.example.domain.entity.User.UserRole
+import org.example.domain.exceptions.InvalidInputException
 import org.example.domain.usecase.auth.LoginUseCase
 import org.example.presentation.App
 import org.example.presentation.controller.UiController

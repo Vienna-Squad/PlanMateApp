@@ -1,6 +1,6 @@
 package org.example.presentation.controller.project
 
-import org.example.domain.InvalidInputException
+import org.example.domain.exceptions.InvalidInputException
 import org.example.domain.usecase.project.DeleteMateFromProjectUseCase
 import org.example.presentation.controller.UiController
 import org.example.presentation.utils.interactor.InputReader
