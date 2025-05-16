@@ -1,14 +1,12 @@
 package org.example.domain.usecase.task
 
-
-import org.example.domain.MateNotAssignedToTaskException
-import org.example.domain.TaskAccessDeniedException
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import java.util.*
 
 class DeleteMateFromTaskUseCase(
@@ -16,27 +14,22 @@ class DeleteMateFromTaskUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
     private val projectsRepository: ProjectsRepository,
+    private val validator: Validator
 ) {
-    operator fun invoke(taskId: UUID, mateId: UUID) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            tasksRepository.getTaskById(taskId).let { task ->
-                projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw TaskAccessDeniedException()
-                    if (!task.assignedTo.contains(mateId)) throw MateNotAssignedToTaskException()
-                    task.assignedTo.toMutableList().let { mates ->
-                        mates.remove(mateId)
-                        tasksRepository.updateTask(task.copy(assignedTo = mates))
-                        logsRepository.addLog(
-                            DeletedLog(
-                                username = currentUser.username,
-                                affectedId = mateId,
-                                affectedName = usersRepository.getUserByID(mateId).username,
-                                affectedType = Log.AffectedType.MATE,
-                                deletedFrom = "task ${task.title} [$taskId]"
-                            )
-                        )
-                    }
-                }
-            }
-        }
+    operator fun invoke(taskId: UUID, mateId: UUID) {
+        val currentUser = usersRepository.getCurrentUser()
+        val task = tasksRepository.getTaskById(taskId)
+        val project = projectsRepository.getProjectById(task.projectId)
+        validator.canDeleteMateFromTask(project, task, currentUser, mateId)
+        val mates = task.assignedTo.toMutableList()
+        mates.remove(mateId)
+        tasksRepository.updateTask(task.copy(assignedTo = mates))
+        logsRepository.addLog(DeletedLog(
+                username = currentUser.username,
+                affectedId = mateId,
+                affectedName = usersRepository.getUserByID(mateId).username,
+                affectedType = Log.AffectedType.MATE,
+                deletedFrom = "task ${task.title} [$taskId]"
+            ))
+    }
 }

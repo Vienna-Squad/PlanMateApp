@@ -1,8 +1,8 @@
 package domain.usecase.task
 
 import dummyAdmin
-import dummyProjects
-import dummyTasks
+import dummyProject
+import dummyTask
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -10,6 +10,7 @@ import org.example.domain.TaskAccessDeniedException
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.task.GetTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,7 +28,7 @@ class GetTaskUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        getTaskUseCase = GetTaskUseCase(tasksRepository, usersRepository, projectsRepository)
+        getTaskUseCase = GetTaskUseCase(tasksRepository, usersRepository, projectsRepository,Validator)
     }
 
     @Test
@@ -87,7 +88,4 @@ class GetTaskUseCaseTest {
     }
 
 }
-
-private val dummyTask = dummyTasks[0]
-private val dummyProject = dummyProjects[0]
 

@@ -13,6 +13,7 @@ import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.task.CreateTaskUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,6 +34,7 @@ class CreateTaskUseCaseTest {
             logsRepository = logsRepository,
             usersRepository = usersRepository,
             projectsRepository = projectsRepository,
+            validator = Validator
         )
     }
 

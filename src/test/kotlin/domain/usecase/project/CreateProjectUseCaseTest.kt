@@ -10,6 +10,7 @@ import org.example.domain.entity.log.CreatedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.project.CreateProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,7 +25,7 @@ class CreateProjectUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        createProjectUseCase = CreateProjectUseCase(projectRepository, usersRepository, logsRepository)
+        createProjectUseCase = CreateProjectUseCase(projectRepository, usersRepository, logsRepository,Validator)
     }
 
     @Test

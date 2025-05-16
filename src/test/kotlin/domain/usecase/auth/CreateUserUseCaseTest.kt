@@ -10,6 +10,7 @@ import org.example.domain.entity.User
 import org.example.domain.entity.User.UserRole
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.auth.CreateUserUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
@@ -24,7 +25,7 @@ class CreateUserUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        createUserUseCase = CreateUserUseCase(usersRepository, logsRepository)
+        createUserUseCase = CreateUserUseCase(usersRepository, logsRepository, Validator)
 
     }
     // red then green
