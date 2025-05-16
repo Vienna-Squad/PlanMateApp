@@ -12,6 +12,7 @@ import org.example.domain.entity.log.DeletedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.project.DeleteStateFromProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +27,7 @@ class DeleteStateFromProjectUseCaseTest {
     @BeforeEach
     fun setUp() {
         deleteStateFromProjectUseCase =
-            DeleteStateFromProjectUseCase(projectsRepository, logsRepository, usersRepository)
+            DeleteStateFromProjectUseCase(projectsRepository, logsRepository, usersRepository,Validator)
     }
 
     @Test

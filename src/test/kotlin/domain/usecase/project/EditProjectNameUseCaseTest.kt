@@ -11,6 +11,7 @@ import org.example.domain.entity.log.ChangedLog
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.project.EditProjectNameUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,7 +25,7 @@ class EditProjectNameUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        editProjectNameUseCase = EditProjectNameUseCase(projectsRepository, logsRepository, usersRepository)
+        editProjectNameUseCase = EditProjectNameUseCase(projectsRepository, logsRepository, usersRepository,Validator)
     }
 
     @Test

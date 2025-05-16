@@ -1,24 +1,23 @@
 package org.example.domain.usecase.task
 
-import org.example.domain.ProjectAccessDeniedException
-import org.example.domain.TaskAccessDeniedException
+import org.example.domain.entity.Task
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import java.util.*
 
 class GetTaskUseCase(
     private val tasksRepository: TasksRepository,
     private val usersRepository: UsersRepository,
     private val projectsRepository: ProjectsRepository,
+    private val validator: Validator
 ) {
-    operator fun invoke(taskId: UUID) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            tasksRepository.getTaskById(taskId).let { task ->
-                projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw TaskAccessDeniedException()
-                    task
-                }
-            }
-        }
+    operator fun invoke(taskId: UUID): Task {
+        val currentUser = usersRepository.getCurrentUser()
+        val task = tasksRepository.getTaskById(taskId)
+        val project = projectsRepository.getProjectById(task.projectId)
+        validator.canGetTask(project, currentUser)
+        return task
+    }
 }
