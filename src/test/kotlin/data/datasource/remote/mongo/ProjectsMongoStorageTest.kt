@@ -13,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.google.common.truth.Truth.assertThat
-import data.datasource.mongo.MongoStorage
-import data.datasource.mongo.ProjectsMongoStorage
 import dummyProject
 import org.example.domain.entity.State
 import java.time.LocalDateTime

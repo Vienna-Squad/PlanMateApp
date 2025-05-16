@@ -1,15 +1,12 @@
 package org.example.domain.usecase.task
 
-
-import org.example.domain.exceptions.MateAlreadyExistsException
-import org.example.domain.exceptions.MateNotInProjectException
-import org.example.domain.exceptions.TaskAccessDeniedException
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.Log
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import java.util.*
 
 class AddMateToTaskUseCase(
@@ -17,25 +14,20 @@ class AddMateToTaskUseCase(
     private val logsRepository: LogsRepository,
     private val usersRepository: UsersRepository,
     private val projectsRepository: ProjectsRepository,
+    private val validator: Validator
 ) {
-    operator fun invoke(taskId: UUID, mateId: UUID) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            tasksRepository.getTaskById(taskId).let { task ->
-                projectsRepository.getProjectById(task.projectId).let { project ->
-                    if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw TaskAccessDeniedException()
-                    if (!project.matesIds.contains(mateId)) throw MateNotInProjectException()
-                    if (task.assignedTo.contains(mateId)) throw MateAlreadyExistsException()
-                    tasksRepository.updateTask(task.copy(assignedTo = task.assignedTo + mateId))
-                    logsRepository.addLog(
-                        AddedLog(
-                            username = currentUser.username,
-                            affectedId = mateId,
-                            affectedName = usersRepository.getUserByID(mateId).username,
-                            affectedType = Log.AffectedType.MATE,
-                            addedTo = "task ${task.title} [$taskId]"
-                        )
-                    )
-                }
-            }
-        }
+    operator fun invoke(taskId: UUID, mateId: UUID) {
+        val currentUser = usersRepository.getCurrentUser()
+        val task = tasksRepository.getTaskById(taskId)
+        val project = projectsRepository.getProjectById(task.projectId)
+        validator.canAddMateToTask(project, task, currentUser, mateId)
+        tasksRepository.updateTask(task.copy(assignedTo = task.assignedTo + mateId))
+        logsRepository.addLog(AddedLog(
+                username = currentUser.username,
+                affectedId = mateId,
+                affectedName = usersRepository.getUserByID(mateId).username,
+                affectedType = Log.AffectedType.MATE,
+                addedTo = "task ${task.title} [$taskId]"
+            ))
+    }
 }

@@ -1,8 +1,5 @@
 package org.example.domain.usecase.task
 
-
-import org.example.domain.exceptions.ProjectAccessDeniedException
-import org.example.domain.exceptions.StateNotInProjectException
 import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import org.example.domain.entity.log.CreatedLog
@@ -11,6 +8,7 @@ import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import java.util.*
 
 class CreateTaskUseCase(
@@ -18,29 +16,24 @@ class CreateTaskUseCase(
     private val usersRepository: UsersRepository,
     private val logsRepository: LogsRepository,
     private val projectsRepository: ProjectsRepository,
+    private val validator: Validator
 ) {
-    operator fun invoke(title: String, stateName: String, projectId: UUID) =
-        usersRepository.getCurrentUser().let { currentUser ->
-            projectsRepository.getProjectById(projectId).let { project ->
-                if (project.createdBy != currentUser.id && currentUser.id !in project.matesIds) throw ProjectAccessDeniedException(
-                )
-                if (project.states.all { it.name != stateName }) throw StateNotInProjectException()
-                Task(
-                    title = title,
-                    state = State(name = stateName),
-                    projectId = projectId,
-                    createdBy = currentUser.id
-                ).let { newTask ->
-                    tasksRepository.addTask(newTask)
-                    logsRepository.addLog(
-                        CreatedLog(
-                            username = currentUser.username,
-                            affectedId = newTask.id,
-                            affectedName = newTask.title,
-                            affectedType = Log.AffectedType.TASK,
-                        )
-                    )
-                }
-            }
-        }
+    operator fun invoke(title: String, stateName: String, projectId: UUID) {
+        val currentUser = usersRepository.getCurrentUser()
+        val project = projectsRepository.getProjectById(projectId)
+        validator.canCreateTask(project, currentUser, stateName)
+        val newTask = Task(
+            title = title,
+            state = State(name = stateName),
+            projectId = projectId,
+            createdBy = currentUser.id
+        )
+        tasksRepository.addTask(newTask)
+        logsRepository.addLog(CreatedLog(
+                username = currentUser.username,
+                affectedId = newTask.id,
+                affectedName = newTask.title,
+                affectedType = Log.AffectedType.TASK,
+            ))
+    }
 }

@@ -14,6 +14,7 @@ import org.example.domain.entity.State
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.project.AddStateToProjectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,7 +37,7 @@ class AddStateToProjectUseCaseTest {
         logsRepository = mockk(relaxed = true)
         usersRepository = mockk(relaxed = true)
         addStateToProjectUseCase =
-            AddStateToProjectUseCase(projectsRepository, logsRepository, usersRepository)
+            AddStateToProjectUseCase(projectsRepository, logsRepository, usersRepository,Validator)
 
     }
 

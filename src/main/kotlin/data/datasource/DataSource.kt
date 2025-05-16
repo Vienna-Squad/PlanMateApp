@@ -1,4 +1,4 @@
-package org.example.common.bases
+package org.example.data.datasource
 
 import java.util.UUID
 

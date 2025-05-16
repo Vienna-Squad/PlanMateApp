@@ -6,12 +6,13 @@ import dummyTask
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.exceptions.NoChangeException
-import org.example.domain.exceptions.TaskAccessDeniedException
+import org.example.domain.NoChangeException
+import org.example.domain.TaskAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.task.EditTaskTitleUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,7 +30,13 @@ class EditTaskTitleUseCaseTest {
     @BeforeEach
     fun setUp() {
         editTaskTitleUseCase =
-            EditTaskTitleUseCase(tasksRepository, logsRepository, usersRepository, projectsRepository)
+            EditTaskTitleUseCase(
+                tasksRepository,
+                logsRepository,
+                usersRepository,
+                projectsRepository,
+                Validator,
+            )
     }
 
     @Test

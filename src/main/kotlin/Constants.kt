@@ -1,5 +1,4 @@
-package org.example.common
-
+package org.example
 
 object APPS {
     const val AUTH_APP = "AUTH_APP"
@@ -36,6 +35,13 @@ object NamedDataSources {
     const val TASKS_REMOTE_DATA_SOURCE = "TASKS_REMOTE_DATA_SOURCE"
     const val PROJECTS_REMOTE_DATA_SOURCE = "PROJECTS_REMOTE_DATA_SOURCE"
     const val USERS_REMOTE_DATA_SOURCE = "USERS_REMOTE_DATA_SOURCE"
+}
+
+object DiNamedLabels {
+    const val LOGS = "LOGS"
+    const val TASKS = "TASKS"
+    const val PROJECTS = "PROJECTS"
+    const val USERS = "USERS"
 }
 
 enum class StorageType {

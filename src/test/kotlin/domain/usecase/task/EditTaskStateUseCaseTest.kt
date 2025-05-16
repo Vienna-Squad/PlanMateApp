@@ -13,6 +13,7 @@ import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.task.EditTaskStateUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,7 +33,8 @@ class EditTaskStateUseCaseTest {
             tasksRepository,
             logsRepository,
             usersRepository,
-            projectsRepository
+            projectsRepository,
+            Validator,
         )
     }
 

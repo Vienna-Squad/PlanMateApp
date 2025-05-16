@@ -1,8 +1,8 @@
-package org.example.common.bases
+package org.example.data.datasource.local.bases
 
 import java.io.File
 
-open class UnEditableCsvFileManager<T>(
+abstract class UnEditableCsvFileManager<T>(
     filePath: String,
     private val parser: Parser<T>
 ) {

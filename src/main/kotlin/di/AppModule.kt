@@ -1,8 +1,8 @@
 package di
 
-import org.example.common.APPS.ADMIN_APP
-import org.example.common.APPS.AUTH_APP
-import org.example.common.APPS.MATE_APP
+import org.example.APPS.ADMIN_APP
+import org.example.APPS.AUTH_APP
+import org.example.APPS.MATE_APP
 import org.example.presentation.AdminApp
 import org.example.presentation.App
 import org.example.presentation.AuthApp

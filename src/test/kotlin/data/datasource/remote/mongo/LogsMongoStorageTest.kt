@@ -4,8 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.result.InsertOneResult
-import data.datasource.mongo.LogsMongoStorage
-import data.datasource.mongo.MongoStorage
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk

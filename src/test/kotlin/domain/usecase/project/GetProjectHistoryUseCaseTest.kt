@@ -16,6 +16,7 @@ import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
+import org.example.domain.usecase.Validator
 import org.example.domain.usecase.project.GetProjectHistoryUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,7 +32,8 @@ class GetProjectHistoryUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        getProjectHistoryUseCase = GetProjectHistoryUseCase(logsRepository, projectsRepository, usersRepository)
+        getProjectHistoryUseCase =
+            GetProjectHistoryUseCase(logsRepository, projectsRepository, usersRepository, Validator)
     }
 
     @Test

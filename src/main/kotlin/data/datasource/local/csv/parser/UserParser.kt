@@ -1,6 +1,6 @@
-package org.example.data.datasource.csv.parser
+package org.example.data.datasource.local.csv.parser
 
-import org.example.common.bases.Parser
+import org.example.data.datasource.local.bases.Parser
 import org.example.domain.entity.User
 import java.time.LocalDateTime
 import java.util.UUID
