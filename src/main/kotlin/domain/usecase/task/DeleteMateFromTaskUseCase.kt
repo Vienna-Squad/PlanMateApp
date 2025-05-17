@@ -21,9 +21,7 @@ class DeleteMateFromTaskUseCase(
         val task = tasksRepository.getTaskById(taskId)
         val project = projectsRepository.getProjectById(task.projectId)
         validator.canDeleteMateFromTask(project, task, currentUser, mateId)
-        val mates = task.assignedTo.toMutableList()
-        mates.remove(mateId)
-        tasksRepository.updateTask(task.copy(assignedTo = mates))
+        tasksRepository.updateTask(task.copy(assignedTo = task.assignedTo - mateId))
         logsRepository.addLog(DeletedLog(
                 username = currentUser.username,
                 affectedId = mateId,

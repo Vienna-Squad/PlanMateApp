@@ -6,8 +6,8 @@ import dummyTask
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.domain.NoChangeException
-import org.example.domain.TaskAccessDeniedException
+import org.example.domain.exceptions.NoChangeException
+import org.example.domain.exceptions.TaskAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository

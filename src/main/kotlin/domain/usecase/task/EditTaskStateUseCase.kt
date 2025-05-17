@@ -2,6 +2,7 @@ package org.example.domain.usecase.task
 
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.StateNotInProjectException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -21,7 +22,7 @@ class EditTaskStateUseCase(
         val task = tasksRepository.getTaskById(taskId)
         val project = projectsRepository.getProjectById(task.projectId)
         validator.canEditTaskState(project, task, currentUser, stateName)
-        val state = validator.getStateIfExistInProject(project, stateName)
+        val state = project.states.find { it.name == stateName } ?: throw StateNotInProjectException()
         tasksRepository.updateTask(task.copy(state = state))
         logsRepository.addLog(ChangedLog(
                 username = currentUser.username,

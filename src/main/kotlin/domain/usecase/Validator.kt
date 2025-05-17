@@ -2,7 +2,6 @@ package org.example.domain.usecase
 
 import org.example.domain.exceptions.*
 import org.example.domain.entity.Project
-import org.example.domain.entity.State
 import org.example.domain.entity.Task
 import org.example.domain.entity.User
 import java.util.*
@@ -34,7 +33,7 @@ object Validator {
     }
     fun canEditProjectName(project: Project, currentUser: User, newName: String) {
         ensureProjectOwner(project, currentUser)
-        ensureChanged(project.name, newName.trim())
+        if(project.name == newName.trim()) throw NoChangeException()
     }
     fun canGetAllTasksOfProject(project: Project, currentUser: User) {
         ensureProjectAccess(project, currentUser)
@@ -54,19 +53,17 @@ object Validator {
     fun canDeleteMateFromTask(project: Project, task: Task, currentUser: User, mateId: UUID) {
         ensureTaskAccess(project, currentUser)
         ensureMateInTask(task, mateId)
-
     }
     fun canDeleteTask(project: Project, currentUser: User) {
         ensureTaskAccess(project, currentUser)
     }
     fun canEditTaskState(project: Project, task: Task, currentUser: User, stateName: String) {
         ensureTaskAccess(project, currentUser)
-        ensureChanged(task.state.name, stateName)
+        if(task.state.name == stateName) throw NoChangeException()
     }
     fun canEditTaskTitle(project: Project, task: Task, currentUser: User, newTitle: String) {
         ensureTaskAccess(project, currentUser)
-        ensureChanged(task.title, newTitle)
-
+        if(task.title == newTitle) throw NoChangeException()
     }
     fun canGetTaskHistory(project: Project, currentUser: User) {
         ensureTaskAccess(project, currentUser)
@@ -74,10 +71,6 @@ object Validator {
     fun canGetTask(project: Project, currentUser: User) {
         ensureTaskAccess(project, currentUser)
     }
-    fun getStateIfExistInProject(project: Project, stateName: String): State {
-        return project.states.find { it.name == stateName } ?: throw StateNotInProjectException()
-    }
-
 
 
     private fun ensureProjectOwner(project: Project, currentUser: User) {
@@ -93,7 +86,6 @@ object Validator {
         if (currentUser.role != User.UserRole.ADMIN) throw FeatureAccessDeniedException()
     }
 
-
     private fun ensureMateInProject(project: Project, mateId: UUID) {
         if (mateId !in project.matesIds) throw MateNotInProjectException()
     }
@@ -108,15 +100,10 @@ object Validator {
         if (mateId in task.assignedTo) throw MateAlreadyExistsException()
     }
 
-
     private fun ensureStateNotInProject(project: Project, stateName: String) {
         if (project.states.any { it.name == stateName }) throw StateAlreadyExistsException()
     }
     private fun ensureStateInProject(project: Project, stateName: String) {
         if (project.states.all { it.name != stateName }) throw StateNotInProjectException()
-    }
-
-    private fun <T> ensureChanged(oldValue: T, newValue: T) {
-        if (oldValue == newValue) throw NoChangeException()
     }
 }

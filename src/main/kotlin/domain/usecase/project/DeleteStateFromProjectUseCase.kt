@@ -2,6 +2,7 @@ package org.example.domain.usecase.project
 
 import org.example.domain.entity.log.DeletedLog
 import org.example.domain.entity.log.Log
+import org.example.domain.exceptions.StateNotInProjectException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -18,7 +19,7 @@ class DeleteStateFromProjectUseCase(
         val currentUser = usersRepository.getCurrentUser()
         val project = projectsRepository.getProjectById(projectId)
         validator.canDeleteStateFromProject(project, currentUser)
-        val stateToDelete = validator.getStateIfExistInProject(project, stateName)
+        val stateToDelete = project.states.find { it.name == stateName } ?: throw StateNotInProjectException()
         projectsRepository.updateProject(project.copy(states = project.states - stateToDelete))
         logsRepository.addLog(DeletedLog(
                 username = currentUser.username,
