@@ -1,20 +1,20 @@
 package org.example.data.datasource.local.csv.parser
 
-import org.example.data.datasource.local.bases.Parser
+import org.example.data.utils.Parser
 import org.example.domain.entity.Project
 import org.example.domain.entity.State
 import java.time.LocalDateTime
 import java.util.*
 
-class ProjectParser : Parser<Project> {
+class ProjectCsvParser : Parser<String, Project> {
     override fun serialize(item: Project): String {
         val states = item.states.joinToString("|")
         val matesIds = item.matesIds.joinToString("|")
         return "${item.id},${item.name},${states},${item.createdBy},${matesIds},${item.createdAt}\n"
     }
 
-    override fun deserialize(row: String): Project {
-        val fields: List<String> = row.split(",")
+    override fun deserialize(item: String): Project {
+        val fields: List<String> = item.split(",")
         require(fields.size == EXPECTED_COLUMNS) { "Invalid project data format: " }
 
         val states =

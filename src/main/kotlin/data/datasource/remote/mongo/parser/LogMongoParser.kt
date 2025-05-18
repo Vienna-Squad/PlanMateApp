@@ -1,16 +1,19 @@
-package data.datasource.remote.mongo
+package org.example.data.datasource.remote.mongo.parser
 
 import org.bson.Document
-import org.example.MongoCollections.LOGS_COLLECTION
-import org.example.domain.entity.log.*
+import org.example.data.utils.Parser
+import org.example.domain.entity.log.AddedLog
+import org.example.domain.entity.log.ChangedLog
+import org.example.domain.entity.log.CreatedLog
+import org.example.domain.entity.log.DeletedLog
+import org.example.domain.entity.log.Log
 import org.example.domain.entity.log.Log.ActionType
 import org.example.domain.entity.log.Log.AffectedType
-import org.example.domain.exceptions.NoLogsFoundException
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
-class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LOGS_COLLECTION)) {
-    override fun toDocument(item: Log): Document {
+class LogMongoParser : Parser<Document, Log> {
+    override fun serialize(item: Log): Document {
         val doc = Document()
             .append("username", item.username)
             .append("affectedId", item.affectedId.toString())
@@ -43,13 +46,13 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
         return doc
     }
 
-    override fun fromDocument(document: Document): Log {
-        val actionType = ActionType.valueOf(document.get("actionType", String::class.java))
-        val username = document.get("username", String::class.java)
-        val affectedId = UUID.fromString(document.get("affectedId", String::class.java))
-        val affectedName = document.get("affectedName", String::class.java)
-        val affectedType = AffectedType.valueOf(document.get("affectedType", String::class.java))
-        val dateTime = LocalDateTime.parse(document.get("dateTime", String::class.java))
+    override fun deserialize(item: Document): Log {
+        val actionType = ActionType.valueOf(item.get("actionType", String::class.java))
+        val username = item.get("username", String::class.java)
+        val affectedId = UUID.fromString(item.get("affectedId", String::class.java))
+        val affectedName = item.get("affectedName", String::class.java)
+        val affectedType = AffectedType.valueOf(item.get("affectedType", String::class.java))
+        val dateTime = LocalDateTime.parse(item.get("dateTime", String::class.java))
 
         return when (actionType) {
             ActionType.ADDED -> AddedLog(
@@ -58,7 +61,7 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
                 affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime,
-                addedTo = document.get("addedTo", String::class.java)
+                addedTo = item.get("addedTo", String::class.java)
             )
 
             ActionType.CHANGED -> ChangedLog(
@@ -67,8 +70,8 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
                 affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime,
-                changedFrom = document.get("changedFrom", String::class.java),
-                changedTo = document.get("changedTo", String::class.java)
+                changedFrom = item.get("changedFrom", String::class.java),
+                changedTo = item.get("changedTo", String::class.java)
             )
 
             ActionType.CREATED -> CreatedLog(
@@ -85,10 +88,8 @@ class LogsMongoStorage : MongoStorage<Log>(MongoConfig.database.getCollection(LO
                 affectedName = affectedName,
                 affectedType = affectedType,
                 dateTime = dateTime,
-                deletedFrom = document.get("deletedFrom", String::class.java)
+                deletedFrom = item.get("deletedFrom", String::class.java)
             )
         }
     }
-
-    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoLogsFoundException() }
 }
