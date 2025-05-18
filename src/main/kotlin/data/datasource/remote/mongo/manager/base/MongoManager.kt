@@ -19,7 +19,7 @@ abstract class MongoManager<T>(
             Filters.eq("_id", getItemId(updatedItem).toString()),
             parser.serialize(updatedItem)
         )
-        return result.matchedCount != 0L
+        return result.matchedCount == 0L
     }
 
     open fun getById(id: UUID): T? {
