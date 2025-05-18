@@ -42,6 +42,16 @@ object DiNamedLabels {
     const val TASKS = "TASKS"
     const val PROJECTS = "PROJECTS"
     const val USERS = "USERS"
+
+    const val LOG_CSV_PARSER = "LOG_CSV_PARSER"
+    const val TASK_CSV_PARSER = "TASK_CSV_PARSER"
+    const val PROJECT_CSV_PARSER = "PROJECT_CSV_PARSER"
+    const val USER_CSV_PARSER = "USER_CSV_PARSER"
+
+    const val LOG_MONGO_PARSER = "LOG_MONGO_PARSER"
+    const val TASK_MONGO_PARSER = "TASK_MONGO_PARSER"
+    const val PROJECT_MONGO_PARSER = "PROJECT_MONGO_PARSER"
+    const val USER_MONGO_PARSER = "USER_MONGO_PARSER"
 }
 
 enum class StorageType {

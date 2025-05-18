@@ -1,21 +1,17 @@
 package data.datasource.remote.mongo
 
 import com.google.common.truth.Truth.assertThat
-import com.mongodb.client.FindIterable
-import com.mongodb.client.MongoCollection
-import com.mongodb.client.result.InsertOneResult
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
 import io.mockk.verify
 import org.bson.Document
-import org.example.domain.entity.log.AddedLog
-import org.example.domain.entity.log.ChangedLog
-import org.example.domain.entity.log.CreatedLog
-import org.example.domain.entity.log.DeletedLog
+import org.example.data.datasource.remote.mongo.LogsMongoStorage
+import org.example.data.datasource.remote.mongo.manager.base.UnEditableMongoManager
+import org.example.data.datasource.remote.mongo.parser.LogMongoParser
+import org.example.domain.entity.log.*
 import org.example.domain.entity.log.Log.AffectedType
+import org.example.domain.exceptions.AdditionException
 import org.example.domain.exceptions.NoLogsFoundException
-import org.example.domain.exceptions.UnknownException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -23,20 +19,14 @@ import java.time.LocalDateTime
 import java.util.*
 
 class LogsMongoStorageTest {
-
-    private lateinit var mockCollection: MongoCollection<Document>
     private lateinit var storage: LogsMongoStorage
-    private lateinit var mockFindIterable: FindIterable<Document>
+    private lateinit var parser: LogMongoParser
+    private val manager: UnEditableMongoManager<Log> = mockk(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        mockCollection = mockk(relaxed = true)
-        mockFindIterable = mockk(relaxed = true)
-        storage = LogsMongoStorage()
-
-        val field = MongoStorage::class.java.getDeclaredField("collection")
-        field.isAccessible = true
-        field.set(storage, mockCollection)
+        parser = LogMongoParser()
+        storage = LogsMongoStorage(manager)
     }
 
     @Test
@@ -52,7 +42,7 @@ class LogsMongoStorageTest {
         )
 
         // When
-        val document = storage.toDocument(addedLog)
+        val document = parser.serialize(addedLog)
 
         // Then
         assertThat(document.getString("username")).isEqualTo("testUser")
@@ -77,7 +67,7 @@ class LogsMongoStorageTest {
         )
 
         // When
-        val document = storage.toDocument(changedLog)
+        val document = parser.serialize(changedLog)
 
         // Then
         assertThat(document.getString("actionType")).isEqualTo("CHANGED")
@@ -97,7 +87,7 @@ class LogsMongoStorageTest {
         )
 
         // When
-        val document = storage.toDocument(createdLog)
+        val document = parser.serialize(createdLog)
 
         // Then
         assertThat(document.getString("actionType")).isEqualTo("CREATED")
@@ -116,7 +106,7 @@ class LogsMongoStorageTest {
         )
 
         // When
-        val document = storage.toDocument(deletedLog)
+        val document = parser.serialize(deletedLog)
 
         // Then
         assertThat(document.getString("actionType")).isEqualTo("DELETED")
@@ -136,7 +126,7 @@ class LogsMongoStorageTest {
             .append("addedTo", "projectX")
 
         // When
-        val log = storage.fromDocument(document)
+        val log = parser.deserialize(document)
 
         // Then
         assertThat(log).isInstanceOf(AddedLog::class.java)
@@ -162,7 +152,7 @@ class LogsMongoStorageTest {
             .append("changedTo", "IN_PROGRESS")
 
         // When
-        val log = storage.fromDocument(document)
+        val log = parser.deserialize(document)
 
         // Then
         assertThat(log).isInstanceOf(ChangedLog::class.java)
@@ -182,7 +172,6 @@ class LogsMongoStorageTest {
             affectedType = AffectedType.TASK,
             dateTime = LocalDateTime.parse("2023-01-01T12:00")
         )
-
         val deletedLog = DeletedLog(
             username = "user2",
             affectedId = UUID.randomUUID(),
@@ -191,17 +180,9 @@ class LogsMongoStorageTest {
             dateTime = LocalDateTime.parse("2023-01-02T12:00"),
             deletedFrom = "system"
         )
-
-        // Directly mock the getAll method for this specific test
-        every { mockCollection.find() } returns mockFindIterable
-
-        // Create a spy on the storage object
-        val storageSpy = spyk(storage)
-        every { storageSpy.getAllItems() } returns listOf(createdLog, deletedLog)
-
+        every { manager.readAll() } returns listOf(createdLog, deletedLog)
         // When
-        val result = storageSpy.getAllItems()
-
+        val result = storage.getAllItems()
         // Then
         assertThat(result).hasSize(2)
         assertThat(result[0]).isInstanceOf(CreatedLog::class.java)
@@ -211,8 +192,8 @@ class LogsMongoStorageTest {
     @Test
     fun `getAll should throw NotFoundException when no logs found`() {
         // Given
-        every { mockCollection.find() } returns mockFindIterable
-        every { mockFindIterable.toList() } returns emptyList()
+        //every { mockCollection.find() } returns mockFindIterable
+        every { manager.readAll() } returns emptyList()
 
         // When/Then
         assertThrows<NoLogsFoundException> { storage.getAllItems() }
@@ -228,16 +209,11 @@ class LogsMongoStorageTest {
             affectedType = AffectedType.PROJECT,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0)
         )
-
-        val mockResult = mockk<InsertOneResult>()
-        every { mockResult.wasAcknowledged() } returns true
-        every { mockCollection.insertOne(any()) } returns mockResult
-
+        every { manager.append(log) } returns true
         // When
         storage.addItem(log)
-
         // Then
-        verify { mockCollection.insertOne(any()) }
+        verify { manager.append(match { it is CreatedLog }) }
     }
 
     @Test
@@ -246,16 +222,12 @@ class LogsMongoStorageTest {
         val log = CreatedLog(
             username = "testUser",
             affectedId = UUID.randomUUID(),
-            affectedName = "P-101",
+            affectedName = "",
             affectedType = AffectedType.PROJECT,
             dateTime = LocalDateTime.of(2023, 1, 1, 12, 0)
         )
-
-        val mockResult = mockk<InsertOneResult>()
-        every { mockResult.wasAcknowledged() } returns false
-        every { mockCollection.insertOne(any()) } returns mockResult
-
+        every { manager.append(log) } returns false
         // When/Then
-        assertThrows<UnknownException> { storage.addItem(log) }
+        assertThrows<AdditionException> { storage.addItem(log) }
     }
 }
