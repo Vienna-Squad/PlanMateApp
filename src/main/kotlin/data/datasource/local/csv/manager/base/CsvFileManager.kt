@@ -1,10 +1,11 @@
-package org.example.data.datasource.local.bases
+package org.example.data.datasource.local.csv.manager.base
 
+import org.example.data.utils.Parser
 import java.util.*
 
 abstract class CsvFileManager<T>(
     filePath: String,
-    parser: Parser<T>
+    parser: Parser<String, T>
 ) : UnEditableCsvFileManager<T>(filePath, parser) {
     fun clear() {
         if (file.exists()) file.writeText("")

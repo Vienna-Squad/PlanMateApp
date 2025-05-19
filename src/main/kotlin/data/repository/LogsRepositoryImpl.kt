@@ -1,6 +1,5 @@
 package org.example.data.repository
 
-import org.example.data.datasource.DataSource
 import org.example.data.datasource.UnEditableDataSource
 import org.example.data.utils.isRemote
 import org.example.data.utils.safeCall
@@ -9,7 +8,7 @@ import org.example.domain.repository.LogsRepository
 
 class LogsRepositoryImpl(
     private val localDataSource: UnEditableDataSource<Log>,
-    private val remoteDataSource: DataSource<Log>,
+    private val remoteDataSource: UnEditableDataSource<Log>,
 ) : LogsRepository {
     override fun getAllLogs() = safeCall {
         if (isRemote()) {

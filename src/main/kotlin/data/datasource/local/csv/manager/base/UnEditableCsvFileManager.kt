@@ -1,10 +1,11 @@
-package org.example.data.datasource.local.bases
+package org.example.data.datasource.local.csv.manager.base
 
+import org.example.data.utils.Parser
 import java.io.File
 
 abstract class UnEditableCsvFileManager<T>(
     filePath: String,
-    private val parser: Parser<T>
+    private val parser: Parser<String, T>
 ) {
     protected val file = File(filePath)
     fun readAll(): List<T> {

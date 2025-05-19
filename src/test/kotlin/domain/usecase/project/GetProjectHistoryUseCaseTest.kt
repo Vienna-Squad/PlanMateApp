@@ -11,7 +11,7 @@ import io.mockk.verify
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.Log
-import org.example.domain.exceptions.LogsNotFoundException
+import org.example.domain.exceptions.NoLogsFoundException
 import org.example.domain.exceptions.ProjectAccessDeniedException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
@@ -126,7 +126,7 @@ class GetProjectHistoryUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { logsRepository.getAllLogs() } returns dummyLogs
         //when && when
-        assertThrows<LogsNotFoundException> { getProjectHistoryUseCase(project.id) }
+        assertThrows<NoLogsFoundException> { getProjectHistoryUseCase(project.id) }
     }
 
     @Test
@@ -137,7 +137,7 @@ class GetProjectHistoryUseCaseTest {
         every { projectsRepository.getProjectById(project.id) } returns project
         every { logsRepository.getAllLogs() } returns emptyList()
         //when && when
-        assertThrows<LogsNotFoundException> { getProjectHistoryUseCase(project.id) }
+        assertThrows<NoLogsFoundException> { getProjectHistoryUseCase(project.id) }
     }
 
     @Test

@@ -8,7 +8,7 @@ import io.mockk.mockk
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.CreatedLog
 import org.example.domain.entity.log.Log
-import org.example.domain.exceptions.LogsNotFoundException
+import org.example.domain.exceptions.NoLogsFoundException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.TasksRepository
@@ -86,7 +86,7 @@ class GetTaskHistoryUseCaseTest {
         every { projectsRepository.getProjectById(task.projectId) } returns project
         every { logsRepository.getAllLogs() } returns emptyList()
         //when&//Then
-        assertThrows<LogsNotFoundException> {
+        assertThrows<NoLogsFoundException> {
             getTaskHistoryUseCase(task.id)
         }
     }
