@@ -1,26 +1,33 @@
 package data.datasource.remote.mongo
 
-import org.example.data.datasource.DataSource
-import org.example.data.datasource.remote.mongo.manager.base.MongoManager
+import org.bson.Document
+import org.example.MongoCollections.USERS_COLLECTION
 import org.example.domain.entity.User
-import org.example.domain.exceptions.AdditionException
-import org.example.domain.exceptions.DeletionException
-import org.example.domain.exceptions.ModificationException
 import org.example.domain.exceptions.NoUsersFoundException
-import org.example.domain.exceptions.UserNotFoundException
+import java.time.LocalDateTime
 import java.util.*
 
-class UsersMongoStorage(
-    private val manager: MongoManager<User>
-) : DataSource<User> {
-    override fun getItemById(id: UUID) = manager.getById(id) ?: throw UserNotFoundException()
+class UsersMongoStorage : MongoStorage<User>(MongoConfig.database.getCollection(USERS_COLLECTION)) {
+    override fun toDocument(item: User): Document {
+        return Document()
+            .append("_id", item.id.toString())
+            .append("uuid", item.id.toString())  // Store UUID as String
+            .append("username", item.username)
+            .append("hashedPassword", item.hashedPassword)
+            .append("role", item.role.name)
+            .append("createdAt", item.cratedAt.toString())
+    }
 
-    override fun deleteItem(item: User) = manager.delete(item).let { if (!it) throw DeletionException() }
+    override fun fromDocument(document: Document): User {
+        val uuidStr = document.getString("_id")
+        return User(
+            id = UUID.fromString(uuidStr),
+            username = document.getString("username"),
+            hashedPassword = document.getString("hashedPassword"),
+            role = User.UserRole.valueOf(document.getString("role")),
+            cratedAt = LocalDateTime.parse(document.getString("createdAt"))
+        )
+    }
 
-    override fun updateItem(updatedItem: User) =
-        manager.update(updatedItem).let { if (!it) throw ModificationException() }
-
-    override fun getAllItems() = manager.readAll().ifEmpty { throw NoUsersFoundException() }
-
-    override fun addItem(newItem: User) = manager.append(newItem).let { if (!it) throw AdditionException() }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoUsersFoundException() }
 }

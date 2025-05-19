@@ -1,7 +1,7 @@
 package org.example
 
 import com.mongodb.client.model.Filters
-import org.example.data.datasource.remote.mongo.config.MongoConfig
+import data.datasource.remote.mongo.MongoConfig
 import di.appModule
 import di.useCasesModule
 import org.bson.Document

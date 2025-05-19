@@ -1,26 +1,43 @@
 package data.datasource.remote.mongo
 
-import org.example.data.datasource.DataSource
-import org.example.data.datasource.remote.mongo.manager.base.MongoManager
+import org.bson.Document
+import org.example.MongoCollections.TASKS_COLLECTION
+import org.example.domain.entity.State
 import org.example.domain.entity.Task
-import org.example.domain.exceptions.AdditionException
-import org.example.domain.exceptions.DeletionException
-import org.example.domain.exceptions.ModificationException
 import org.example.domain.exceptions.NoTasksFoundException
-import org.example.domain.exceptions.TaskNotFoundException
+import java.time.LocalDateTime
 import java.util.*
 
-class TasksMongoStorage(
-    private val manager: MongoManager<Task>
-) : DataSource<Task> {
-    override fun getItemById(id: UUID) = manager.getById(id) ?: throw TaskNotFoundException()
+class TasksMongoStorage : MongoStorage<Task>(MongoConfig.database.getCollection(TASKS_COLLECTION)) {
+    override fun toDocument(item: Task): Document {
+        return Document()
+            .append("_id", item.id.toString())
+            .append("title", item.title)
+            .append("state", item.state.toString())
+            .append("assignedTo", item.assignedTo.map { it.toString() })
+            .append("createdBy", item.createdBy)
+            .append("createdAt", item.createdAt.toString())
+            .append("projectId", item.projectId)
+    }
 
-    override fun deleteItem(item: Task) = manager.delete(item).let { if (!it) throw DeletionException() }
+    override fun fromDocument(document: Document): Task {
+        val assignedToStrings = document.getList("assignedTo", String::class.java) ?: emptyList()
+        val assignedTo = assignedToStrings.map { UUID.fromString(it) }
+        val uuidStr = document.getString("_id")
+        val state = document.get("state", String::class.java).let {
+            it.split(":").let { str -> State(UUID.fromString(str[0]), str[1]) }
+        }
 
-    override fun updateItem(updatedItem: Task) =
-        manager.update(updatedItem).let { if (!it) throw ModificationException() }
+        return Task(
+            id = UUID.fromString(uuidStr),
+            title = document.get("title", String::class.java),
+            state = state,
+            assignedTo = assignedTo,
+            createdBy = document.get("createdBy", UUID::class.java),
+            createdAt = LocalDateTime.parse(document.get("createdAt", String::class.java)),
+            projectId = document.get("projectId", UUID::class.java)
+        )
+    }
 
-    override fun getAllItems() = manager.readAll().ifEmpty { throw NoTasksFoundException() }
-
-    override fun addItem(newItem: Task) = manager.append(newItem).let { if (!it) throw AdditionException() }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoTasksFoundException() }
 }

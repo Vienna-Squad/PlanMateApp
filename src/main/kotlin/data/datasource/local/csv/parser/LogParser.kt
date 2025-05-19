@@ -1,6 +1,6 @@
 package org.example.data.datasource.local.csv.parser
 
-import org.example.data.utils.Parser
+import org.example.data.datasource.local.bases.Parser
 import org.example.domain.entity.log.AddedLog
 import org.example.domain.entity.log.ChangedLog
 import org.example.domain.entity.log.CreatedLog
@@ -11,7 +11,7 @@ import org.example.domain.entity.log.Log.AffectedType
 import java.time.LocalDateTime
 import java.util.UUID
 
-class LogCsvParser : Parser<String, Log> {
+class LogParser : Parser<Log> {
     override fun serialize(item: Log): String {
         return when (item) {
             is AddedLog -> listOf(
@@ -60,8 +60,8 @@ class LogCsvParser : Parser<String, Log> {
         }.joinToString(",") + "\n"
     }
 
-    override fun deserialize(item: String): Log {
-        val fields: List<String> = item.split(",")
+    override fun deserialize(row: String): Log {
+        val fields: List<String> = row.split(",")
         if (fields.size != EXPECTED_COLUMNS) {
             throw IllegalArgumentException("Invalid CSV format: wrong size of fields, expected $EXPECTED_COLUMNS but got ${fields.size}")
         }

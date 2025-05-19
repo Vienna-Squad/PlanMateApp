@@ -1,7 +1,7 @@
 package org.example.domain.usecase.project
 
 import org.example.domain.entity.log.Log
-import org.example.domain.exceptions.NoLogsFoundException
+import org.example.domain.exceptions.LogsNotFoundException
 import org.example.domain.repository.LogsRepository
 import org.example.domain.repository.ProjectsRepository
 import org.example.domain.repository.UsersRepository
@@ -20,6 +20,6 @@ class GetProjectHistoryUseCase(
         validator.canGetProjectHistory(project, currentUser)
         return logsRepository.getAllLogs()
             .filter { log -> log.toString().contains(projectId.toString()) }
-            .ifEmpty { throw NoLogsFoundException() }
+            .ifEmpty { throw LogsNotFoundException() }
     }
 }

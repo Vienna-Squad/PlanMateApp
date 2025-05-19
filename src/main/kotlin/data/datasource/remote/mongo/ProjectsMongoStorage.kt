@@ -1,26 +1,43 @@
 package data.datasource.remote.mongo
 
-import org.example.data.datasource.DataSource
-import org.example.data.datasource.remote.mongo.manager.base.MongoManager
+import org.bson.Document
+import org.example.MongoCollections.PROJECTS_COLLECTION
 import org.example.domain.entity.Project
-import org.example.domain.exceptions.AdditionException
-import org.example.domain.exceptions.DeletionException
-import org.example.domain.exceptions.ModificationException
+import org.example.domain.entity.State
 import org.example.domain.exceptions.NoProjectsFoundException
-import org.example.domain.exceptions.ProjectNotFoundException
+import java.time.LocalDateTime
 import java.util.*
 
-class ProjectsMongoStorage(
-    private val manager: MongoManager<Project>
-) : DataSource<Project> {
-    override fun getItemById(id: UUID) = manager.getById(id) ?: throw ProjectNotFoundException()
+class ProjectsMongoStorage : MongoStorage<Project>(MongoConfig.database.getCollection(PROJECTS_COLLECTION)) {
+    override fun toDocument(item: Project): Document {
+        return Document()
+            .append("_id", item.id.toString())
+            .append("name", item.name)
+            .append("states", item.states.map { it.toString() })
+            .append("createdBy", item.createdBy.toString())
+            .append("createdAt", item.createdAt.toString())
+            .append("matesIds", item.matesIds.map { it.toString() })
+    }
 
-    override fun deleteItem(item: Project) = manager.delete(item).let { if (!it) throw DeletionException() }
+    override fun fromDocument(document: Document): Project {
+        val states = document.getList("states", String::class.java).map {
+            it.split(":").let { state ->
+                State(UUID.fromString(state[0]), state[1])
+            }
+        }
+        val matesIdsStrings = document.getList("matesIds", String::class.java) ?: emptyList()
+        val matesIds = matesIdsStrings.map { UUID.fromString(it) }
+        val uuidStr = document.getString("_id")
+        val createdByStr = document.getString("createdBy")
+        return Project(
+            id = UUID.fromString(uuidStr),
+            name = document.getString("name"),
+            states = states,
+            createdBy = UUID.fromString(createdByStr),
+            createdAt = LocalDateTime.parse(document.getString("createdAt")),
+            matesIds = matesIds
+        )
+    }
 
-    override fun updateItem(updatedItem: Project) =
-        manager.update(updatedItem).let { if (!it) throw ModificationException() }
-
-    override fun getAllItems() = manager.readAll().ifEmpty { throw NoProjectsFoundException() }
-
-    override fun addItem(newItem: Project) = manager.append(newItem).let { if (!it) throw AdditionException() }
+    override fun getAllItems() = super.getAllItems().ifEmpty { throw NoProjectsFoundException() }
 }

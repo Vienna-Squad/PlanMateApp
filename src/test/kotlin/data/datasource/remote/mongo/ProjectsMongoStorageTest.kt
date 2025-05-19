@@ -1,4 +1,3 @@
-/*
 package data.datasource.remote.mongo
 
 import com.mongodb.client.FindIterable
@@ -221,4 +220,4 @@ class ProjectsMongoStorageTest {
         // When/Then
         assertThrows<NotFoundException> { storage.updateItem(project) }
     }
-}*/
+}
